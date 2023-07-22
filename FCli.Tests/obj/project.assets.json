@@ -7528,11 +7528,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "c:\\Users\\ringa\\Repos\\CsCourse\\FCli\\FCli.Tests\\FCli.Tests.csproj",
+      "projectUniqueName": "c:\\Users\\ringa\\Repos\\FCli\\FCli.Tests\\FCli.Tests.csproj",
       "projectName": "FCli.Tests",
-      "projectPath": "c:\\Users\\ringa\\Repos\\CsCourse\\FCli\\FCli.Tests\\FCli.Tests.csproj",
+      "projectPath": "c:\\Users\\ringa\\Repos\\FCli\\FCli.Tests\\FCli.Tests.csproj",
       "packagesPath": "C:\\Users\\ringa\\.nuget\\packages\\",
-      "outputPath": "c:\\Users\\ringa\\Repos\\CsCourse\\FCli\\FCli.Tests\\obj\\",
+      "outputPath": "c:\\Users\\ringa\\Repos\\FCli\\FCli.Tests\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -7554,8 +7554,8 @@
         "net7.0": {
           "targetAlias": "net7.0",
           "projectReferences": {
-            "c:\\Users\\ringa\\Repos\\CsCourse\\FCli\\FCli\\FCli.csproj": {
-              "projectPath": "c:\\Users\\ringa\\Repos\\CsCourse\\FCli\\FCli\\FCli.csproj"
+            "c:\\Users\\ringa\\Repos\\FCli\\FCli\\FCli.csproj": {
+              "projectPath": "c:\\Users\\ringa\\Repos\\FCli\\FCli\\FCli.csproj"
             }
           }
         }

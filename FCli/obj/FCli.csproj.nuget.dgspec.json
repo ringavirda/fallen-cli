@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\ringa\\Repos\\CsCourse\\FCli\\FCli\\FCli.csproj": {}
+    "c:\\Users\\ringa\\Repos\\FCli\\FCli\\FCli.csproj": {}
   },
   "projects": {
-    "c:\\Users\\ringa\\Repos\\CsCourse\\FCli\\FCli\\FCli.csproj": {
+    "c:\\Users\\ringa\\Repos\\FCli\\FCli\\FCli.csproj": {
       "version": "1.0.2",
       "restore": {
-        "projectUniqueName": "c:\\Users\\ringa\\Repos\\CsCourse\\FCli\\FCli\\FCli.csproj",
+        "projectUniqueName": "c:\\Users\\ringa\\Repos\\FCli\\FCli\\FCli.csproj",
         "projectName": "FCli",
-        "projectPath": "c:\\Users\\ringa\\Repos\\CsCourse\\FCli\\FCli\\FCli.csproj",
+        "projectPath": "c:\\Users\\ringa\\Repos\\FCli\\FCli\\FCli.csproj",
         "packagesPath": "C:\\Users\\ringa\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\ringa\\Repos\\CsCourse\\FCli\\FCli\\obj\\",
+        "outputPath": "c:\\Users\\ringa\\Repos\\FCli\\FCli\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

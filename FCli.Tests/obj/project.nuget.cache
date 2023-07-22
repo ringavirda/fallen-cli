@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "LeBmtZY3ZzbP8NBDygMt+NeO+/cohKyXX9gTLP3r6kwqRVSLrYdkLgl4C6gNMk7dugiivgo+nc3sYEBrf7k59g==",
+  "dgSpecHash": "kv3enc0/paTYynCqU/vrpHFtsm44knSeyr1Masv9SdUEUVdiwuszf/rTLxck92E92w32SDhtZN2v3WlBOZvKYQ==",
   "success": true,
-  "projectFilePath": "c:\\Users\\ringa\\Repos\\CsCourse\\FCli\\FCli.Tests\\FCli.Tests.csproj",
+  "projectFilePath": "c:\\Users\\ringa\\Repos\\FCli\\FCli.Tests\\FCli.Tests.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ringa\\.nuget\\packages\\castle.core\\5.1.1\\castle.core.5.1.1.nupkg.sha512",
     "C:\\Users\\ringa\\.nuget\\packages\\coverlet.collector\\3.2.0\\coverlet.collector.3.2.0.nupkg.sha512",

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "aJxAvpv33EtPfsJEbF4w/wtQQb37VXPYCxIgHerkpI6g7ERnbBkZP1gVxq1+/7HtYDnFgZIgLU/3dNMTEIz6Jg==",
+  "dgSpecHash": "IY/pvgwFFgIeNlzDbq/spSb8BZVm8hQ1n1iEaxSU4Zt5OlgbDLiQodUocssKqawLksrgJaT5zYfktihsgHuenw==",
   "success": true,
-  "projectFilePath": "c:\\Users\\ringa\\Repos\\CsCourse\\FCli\\FCli\\FCli.csproj",
+  "projectFilePath": "c:\\Users\\ringa\\Repos\\FCli\\FCli\\FCli.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ringa\\.nuget\\packages\\microsoft.extensions.configuration\\7.0.0\\microsoft.extensions.configuration.7.0.0.nupkg.sha512",
     "C:\\Users\\ringa\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\7.0.0\\microsoft.extensions.configuration.abstractions.7.0.0.nupkg.sha512",
