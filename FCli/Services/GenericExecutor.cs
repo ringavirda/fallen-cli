@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using FCli.Models;
 using FCli.Models.Tools;
 using FCli.Services.Data;
+using FCli.Common.Exceptions;
 
 namespace FCli.Services;
 
@@ -47,13 +48,13 @@ public class GenericExecutor : IToolExecutor
     /// </remarks>
     /// <param name="args">Tool argument.</param>
     /// <param name="type">Tool type to execute.</param>
-    /// <exception cref="Exception">If tool selection fails.</exception>
+    /// <exception cref="CriticalException">If tool selection fails.</exception>
     public void Execute(Args args, ToolType type)
     {
         // Extract tool proto from the list of known tools.
         var proto = ToolProtos
             .FirstOrDefault(tool => ((Tool)tool).Type == type) 
-            ?? throw new Exception("Tool prototype wasn't extracted.");
+            ?? throw new CriticalException("Tool prototype wasn't extracted.");
         // Extract tool
         var tool = proto.GetTool();
         // Perform action.

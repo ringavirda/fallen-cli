@@ -1,5 +1,6 @@
 // FCli namespaces.
 using FCli.Common;
+using FCli.Common.Exceptions;
 using FCli.Services;
 using FCli.Services.Data;
 using static FCli.Models.Args;
@@ -222,6 +223,36 @@ public class AddProto : Tool, IToolProto
                     Use --name flag to specify explicitly a name for the command.
                     """);
                 throw new ArgumentException($"Name {name} already exists.");
+            }
+            // Guard against Windows shells on Linux.
+            if (type == CommandType.CMD
+                && Environment.OSVersion.Platform == PlatformID.Unix)
+            {
+                Helpers.DisplayError(Name, $"""
+                    Command ({name}) is interpreted as a batch file, but Linux
+                    operating system is running. CMD is only supported on Windows.
+                    """);
+                throw new FlagException(
+                    $"Attempted creation of a CMD command on Linux.");
+            }
+            if (type == CommandType.Powershell
+                && Environment.OSVersion.Platform == PlatformID.Unix)
+            {
+                Helpers.DisplayWarning(Name, $"""
+                    Command ({name}) is interpreted as a powershell script, but
+                    Linux operating system is running. PS scripts can be executed
+                    on Linux, but powershell needs to be installed from the packet
+                    manager.
+                    """);
+                Helpers.DisplayMessage(
+                    "Are you sure you can run a powershell script? (yes/any):");
+                var response = Console.ReadLine();
+                if (response?.ToLower() != "yes")
+                {
+                    Helpers.DisplayMessage("Averting Add process...");
+                    return;
+                }
+                else Helpers.DisplayMessage("Continuing Add process...");
             }
             // Display parsed command.
             Helpers.DisplayInfo(Name, $"""

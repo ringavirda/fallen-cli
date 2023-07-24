@@ -1,5 +1,6 @@
 ﻿// Vendor namespaces.
 using System.Text.Json;
+using FCli.Common.Exceptions;
 // FCli namespaces.
 using FCli.Models;
 
@@ -84,7 +85,8 @@ public class JsonLoader : ICommandLoader
             if (commands != null) return _loadedCommands = commands;
             // Since this is a critical failure, throw exception to the root
             // selector.
-            else throw new JsonException("Commands wasn't able to deserialize.");
+            else throw new CriticalException(
+                "Commands wasn't able to deserialize.");
         }
         else return null;
     }

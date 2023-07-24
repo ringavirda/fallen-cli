@@ -7,8 +7,8 @@ public class FlagException : ArgumentException
 {
     public FlagException() 
         : base() { }
-    public FlagException(string message)
+    public FlagException(string? message)
         : base(message) { }
-    public FlagException(string message, Exception innerException)
+    public FlagException(string? message, Exception? innerException)
         : base(message, innerException) { }
 }

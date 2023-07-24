@@ -5,6 +5,7 @@ using System.Diagnostics;
 using FCli.Services.Data;
 using FCli.Models;
 using FCli.Common;
+using FCli.Common.Exceptions;
 
 namespace FCli.Services;
 
@@ -158,7 +159,7 @@ public class OSSpecificFactory : ICommandFactory
             }
             ,
             // Throws if received unrecognized command type. 
-            _ => throw new Exception("Unknown command type was parsed!")
+            _ => throw new CriticalException("Unknown command type was parsed!")
         };
         // Return constructed command.
         return new Command()
