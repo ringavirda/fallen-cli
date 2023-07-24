@@ -1,3 +1,6 @@
 {
-    "dotnet.defaultSolution": "FCli.sln"
+    "dotnet.defaultSolution": "FCli.sln",
+    "cSpell.words": [
+        "fcli"
+    ]
 }

@@ -17,8 +17,8 @@ public class JsonLoaderTests : IDisposable
     public JsonLoaderTests()
     {
         _dynamicFake = new Mock<DynamicConfig>();
-        _dynamicFake.SetupGet(dyn => dyn.StorageLocation).Returns("Test");
-        _dynamicFake.SetupGet(dyn => dyn.DefaultStorageFolderName).Returns("TestStorage");
+        _dynamicFake.SetupGet(dyn => dyn.AppFolderPath).Returns("Test");
+        _dynamicFake.SetupGet(dyn => dyn.StorageFileName).Returns("TestStorage");
 
         _configurationFake = new Mock<IConfiguration>();
         _configurationFake.Setup(conf => conf.GetSection("Storage").GetSection("StorageFolderName").Value).Returns("TestStorage");
@@ -31,7 +31,7 @@ public class JsonLoaderTests : IDisposable
     {
         var loader = new JsonLoader(_dynamicFake.Object, _configurationFake.Object);
 
-        _dynamicFake.Verify(dyn => dyn.StorageLocation, Times.Exactly(2));
+        _dynamicFake.Verify(dyn => dyn.AppFolderPath, Times.Exactly(2));
         _configurationFake.Verify(conf => conf.GetSection("Storage").GetSection("StorageFolderName").Value, Times.Exactly(2));
 
         Directory.Exists("Test").Should().BeTrue();

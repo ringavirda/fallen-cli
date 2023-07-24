@@ -1,15 +1,18 @@
-﻿using System.Reflection;
+﻿// Vendor namespaces.
+using System.Reflection;
 
 namespace FCli.Common;
 
 /// <summary>
-/// Static class for small methods that just return stuff or do stuff 
-/// independently. Has functions to print out diffenrent helpful information.
+/// Static class interactions with console.
 /// </summary>
+/// <remarks>
+/// Display methods format given message in a specific way. 
+/// </remarks>
 public static class Helpers
 {
     /// <summary>
-    /// Echos logo and basic info about this tool to the console.
+    /// Echos logo and basic helpful info about fallen-cli.
     /// </summary>
     public static void EchoGreeting()
     {
@@ -18,7 +21,7 @@ public static class Helpers
         Console.WriteLine();
         Console.WriteLine("""
         This tool can memorize actions and execute them.
-        Curently supprorts:
+        Currently supports:
             Url
             Script
             Executable
@@ -32,20 +35,20 @@ public static class Helpers
         For more information about the tools use --help.
         To list all tools or commands use:
             fcli list
-            fcli list --tools
+            fcli list --tool
         """);
     }
 
     /// <summary>
-    /// Need to remember to update versions.
+    /// Writes to the console assembly name and version.
     /// </summary>
     public static void EchoNameAndVersion()
     {
         var assembly = Assembly.GetExecutingAssembly();
         Console.WriteLine(
-            $"\t{assembly
-                .GetCustomAttribute<AssemblyProductAttribute>()?.Product}: v{assembly.
-                    GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version}");
+            $"\t{assembly.GetCustomAttribute<AssemblyProductAttribute>()
+            ?.Product}: v{assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()
+            ?.Version}");
     }
     
     /// <summary>
@@ -66,7 +69,7 @@ public static class Helpers
     }
 
     /// <summary>
-    /// Yeah, i've finally written one for my app.
+    /// Displays more helpful info then the basic greeting.
     /// </summary>
     public static void EchoHelp()
     {
@@ -82,7 +85,7 @@ public static class Helpers
             Tools:
                 Tools manipulate command storage and do informational work.
 
-                add    - stores new command to strorage.
+                add    - stores new command to storage.
                 remove - deletes a known command from storage.
                 list   - displays all known commands or tools.
                 run    - performs a command without saving it.
@@ -91,7 +94,7 @@ public static class Helpers
                 special flag --help after that specific tool.
             
             Commands:
-                If given argument doesn't allign with a known tool or it's alias
+                If given argument doesn't align with a known tool or it's alias
                 it is considered a command. If this command is known, then it gets
                 executed in the most appropriate vay.
                 All known commands can be listed using list tool.
@@ -100,8 +103,64 @@ public static class Helpers
                 fcli add c:\awesome --exe -name aw
                 fcli aw --options "-s 2"
                 fcli remove aw
-                flci add https://google.com --name google
-                flci google
+                fcli add https://google.com --name google
+                fcli google
             """);
+    }
+
+    /// <summary>
+    /// Simply prints out the message into the console.
+    /// </summary>
+    /// <param name="message">String to echo out.</param>
+    public static void DisplayMessage(string message)
+        => Console.WriteLine(message);
+
+    /// <summary>
+    /// Formats string as an Info message and displays it to the console.
+    /// </summary>
+    /// <param name="callerName">Tool or command name.</param>
+    /// <param name="message">String to be printed to console.</param>
+    public static void DisplayInfo(string callerName, string message)
+    {
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine($"[{callerName}] Informs:");
+        Console.ResetColor();
+        Console.WriteLine(message
+            .Split('\n')
+            .Select(s => $"\t{s}\n")
+            .Aggregate((s1, s2) => s1 + s2));
+    }
+
+    /// <summary>
+    /// Displays the string in the console as a Warning.
+    /// </summary>
+    /// <param name="callerName">Tool or command name.</param>
+    /// <param name="message">String to be printed to console.</param>
+    public static void DisplayWarning(string callerName, string message)
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine($"[{callerName}] Warns that something is wrong:");
+        Console.WriteLine(message
+            .Split('\n')
+            .Select(s => $"\t{s}\n")
+            .Aggregate((s1, s2) => s1 + s2));
+        Console.ResetColor();
+    }
+
+    /// <summary>
+    /// Errors given message to console.
+    /// </summary>
+    /// <param name="callerName">Tool or command name.</param>
+    /// <param name="message">String to be printed to console.</param>
+    public static void DisplayError(string callerName, string message)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine($"[{callerName}] An error occurred during execution:");
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine(message
+            .Split('\n')
+            .Select(s => $"\t{s}\n")
+            .Aggregate((s1, s2) => s1 + s2));
+        Console.ResetColor();
     }
 }
