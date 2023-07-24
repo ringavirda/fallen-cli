@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using FCli.Common;
 using FCli.Models;
 using FCli.Services;
+using FCli.Common.Exceptions;
 
 namespace FCli;
 
@@ -73,8 +74,10 @@ public class FallenCli : BackgroundService
                 try
                 {
                     var command = _commandFactory.Construct(args.Selector);
+                    // Guard against what should never happen.
                     if (command.Action == null)
-                        throw new Exception("Command wasn't constructed properly!");
+                        throw new CriticalException(
+                            "Command wasn't constructed properly!");
                     else command.Action();
                 }
                 catch (InvalidOperationException ex)

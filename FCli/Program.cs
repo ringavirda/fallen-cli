@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using Serilog.Formatting.Json;
 // FCli namespaces.
 using FCli;
 using FCli.Services;
@@ -20,11 +19,9 @@ Host.CreateDefaultBuilder()
             .Enrich.WithMachineName()
             .Enrich.WithEnvironmentUserName()
             // Rolling file for more organization.
-            // Json log format.
             .WriteTo.RollingFile(
-                new JsonFormatter(),
                 services.GetRequiredService<DynamicConfig>().LogsPath,
-                Serilog.Events.LogEventLevel.Debug);
+                Serilog.Events.LogEventLevel.Information);
     })
     // Register app services according to their nature.
     .ConfigureServices(services => {
