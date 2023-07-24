@@ -66,7 +66,7 @@ public class DynamicConfig
             StorageFileName);
 
         LogsFolderName = "Logs";
-        LogsFileTemplate = "fcli-log.json";
+        LogsFileTemplate = "fcli-log.log";
         LogsPath = Path.Combine(
             AppFolderPath,
             LogsFolderName,
@@ -90,7 +90,7 @@ public class DynamicConfig
             StorageFileName);
 
         LogsFolderName = "logs";
-        LogsFileTemplate = "fcli-log";
+        LogsFileTemplate = "fcli-log.log";
         LogsPath = Path.Combine(
             AppFolderPath,
             LogsFolderName,
