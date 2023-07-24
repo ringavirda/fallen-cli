@@ -15,18 +15,18 @@ namespace FCli.Services.Data;
 public class JsonLoader : ICommandLoader
 {
     // DI
-    private readonly DynamicConfig _dynamicConfig;
+    private readonly IConfig _config;
 
     // Loaded commands are buffered here to lover the amount of IO calls.
     private List<Command>? _loadedCommands;
 
-    public JsonLoader(DynamicConfig dynamicConfig)
+    public JsonLoader(IConfig dynamicConfig)
     {
-        _dynamicConfig = dynamicConfig;
+        _config = dynamicConfig;
 
         // Guard against first launch.
-        if (!Directory.Exists(_dynamicConfig.AppFolderPath))
-            Directory.CreateDirectory(_dynamicConfig.AppFolderPath);
+        if (!Directory.Exists(_config.AppFolderPath))
+            Directory.CreateDirectory(_config.AppFolderPath);
     }
 
     /// <summary>
@@ -74,9 +74,9 @@ public class JsonLoader : ICommandLoader
     public List<Command>? LoadCommands()
     {
         // Guard against empty storage.
-        if (File.Exists(_dynamicConfig.StorageFilePath))
+        if (File.Exists(_config.StorageFilePath))
         {
-            var json = File.ReadAllText(_dynamicConfig.StorageFilePath);
+            var json = File.ReadAllText(_config.StorageFilePath);
             // Guard against empty file.
             if (json == string.Empty) return null;
             // Attempt to deserialize commands form json string.
@@ -138,6 +138,6 @@ public class JsonLoader : ICommandLoader
     /// </remarks>
     private void RefreshStorage()
         => File.WriteAllText(
-            _dynamicConfig.StorageFilePath,
+            _config.StorageFilePath,
             JsonSerializer.Serialize(_loadedCommands));
 }

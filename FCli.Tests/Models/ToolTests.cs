@@ -1,16 +1,18 @@
 using FCli.Common.Exceptions;
 using FCli.Models;
+using static FCli.Models.Args;
 
 namespace FCli.Tests.Models;
 
 public class ToolTests : Tool
 {
+    private readonly string _name = "Test";
     [Fact]
     public void Tool_FlagHasValue_Value()
     {
         var flag = new Flag("flag", "value");
 
-        var act = () => FlagHasValue(flag);
+        var act = () => FlagHasValue(flag, _name);
 
         act.Should().NotThrow();
     }
@@ -20,7 +22,7 @@ public class ToolTests : Tool
     {
         var flag = new Flag("flag", "");
 
-        var act = () => FlagHasValue(flag);
+        var act = () => FlagHasValue(flag, _name);
 
         act.Should().ThrowExactly<FlagException>();
     }
@@ -30,7 +32,7 @@ public class ToolTests : Tool
     {
         var flag = new Flag("flag", "value");
 
-        var act = () => FlagHasNoValue(flag);
+        var act = () => FlagHasNoValue(flag, _name);
 
         act.Should().ThrowExactly<FlagException>();
     }
@@ -40,7 +42,7 @@ public class ToolTests : Tool
     {
         var flag = new Flag("flag", "");
 
-        var act = () => FlagHasNoValue(flag);
+        var act = () => FlagHasNoValue(flag, _name);
 
         act.Should().NotThrow();
     }
@@ -62,8 +64,8 @@ public class ToolTests : Tool
     [InlineData("https://www.google.ua.com/page")]
     public void Tool_ValidateUrl_Valid(string url)
     {
-        var act = () => ValidateUrl(url);
-        var uri = ValidateUrl(url);
+        var act = () => ValidateUrl(url, _name);
+        var uri = ValidateUrl(url, _name);
 
         act.Should().NotThrow();
         uri.Should().BeAssignableTo(typeof(Uri));
@@ -75,7 +77,7 @@ public class ToolTests : Tool
     [InlineData("agaefafa")]
     public void Tool_ValidateUrl_Invalid(string url)
     {
-        var act = () => ValidateUrl(url);
+        var act = () => ValidateUrl(url, _name);
 
         act.Should().ThrowExactly<ArgumentException>();
     }
@@ -85,7 +87,7 @@ public class ToolTests : Tool
     [InlineData("C:/nowhere")]
     public void Tool_ValidatePath_Invalid(string url)
     {
-        var act = () => ValidatePath(url);
+        var act = () => ValidatePath(url, _name);
 
         act.Should().ThrowExactly<ArgumentException>();
     }

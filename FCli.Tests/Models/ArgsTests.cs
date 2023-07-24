@@ -1,4 +1,5 @@
 using FCli.Models;
+using static FCli.Models.Args;
 
 namespace FCli.Tests.Models;
 
@@ -9,7 +10,7 @@ public class ArgsTests
     {
         var args = new string[] { string.Empty };
 
-        var aargs = Args.Parse(args);
+        var aargs = Parse(args);
 
         aargs.Should().NotBeNull().And.BeEquivalentTo(Args.None);
     }

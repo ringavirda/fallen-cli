@@ -26,7 +26,7 @@ Host.CreateDefaultBuilder()
     // Register app services according to their nature.
     .ConfigureServices(services => {
         services
-            .AddSingleton<DynamicConfig>()
+            .AddSingleton<IConfig, DynamicConfig>()
             .AddScoped<ICommandLoader, JsonLoader>()
             .AddScoped<ICommandFactory, OSSpecificFactory>()
             .AddScoped<IToolExecutor, GenericExecutor>()

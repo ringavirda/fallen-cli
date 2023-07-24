@@ -1,41 +1,45 @@
+using Moq;
+
 using FCli.Services;
 using FCli.Services.Data;
 using FCli.Models;
-using Microsoft.Extensions.Configuration;
-using Moq;
 
 namespace FCli.Tests.Services.Storage;
 
-public class JsonLoaderTests : IDisposable
+public class JsonLoaderTests : IAsyncDisposable
 {
-    private readonly Mock<DynamicConfig> _dynamicFake;
-    private readonly Mock<IConfiguration> _configurationFake;
+    private readonly Mock<IConfig> _dynamicFake;
 
     private readonly JsonLoader _loader;
-    private readonly string _fullSavePath = "Test/TestStorage/storage.json";
+    private readonly static string _testFolderName = "FCliTest";
+    private readonly static string _testStorageFileName 
+        = $"{Guid.NewGuid()}.json";
+    private readonly static string _testStoragePath 
+        = Path.Combine(_testFolderName, _testStorageFileName) ;
 
     public JsonLoaderTests()
     {
-        _dynamicFake = new Mock<DynamicConfig>();
-        _dynamicFake.SetupGet(dyn => dyn.AppFolderPath).Returns("Test");
-        _dynamicFake.SetupGet(dyn => dyn.StorageFileName).Returns("TestStorage");
+        _dynamicFake = new Mock<IConfig>();
+        _dynamicFake.SetupGet(dyn => dyn.AppFolderName)
+            .Returns(_testFolderName);
+        _dynamicFake.SetupGet(dyn => dyn.AppFolderPath)
+            .Returns(_testFolderName);
+        _dynamicFake.SetupGet(dyn => dyn.StorageFileName)
+            .Returns(_testStorageFileName);
+        _dynamicFake.SetupGet(dyn => dyn.StorageFilePath)
+            .Returns(Path.Combine(_testFolderName, _testStorageFileName));
 
-        _configurationFake = new Mock<IConfiguration>();
-        _configurationFake.Setup(conf => conf.GetSection("Storage").GetSection("StorageFolderName").Value).Returns("TestStorage");
-
-        _loader = new JsonLoader(_dynamicFake.Object, _configurationFake.Object);
+        _loader = new JsonLoader(_dynamicFake.Object);
     }
 
     [Fact]
     public void JsonLoader_Create()
     {
-        var loader = new JsonLoader(_dynamicFake.Object, _configurationFake.Object);
+        var loader = new JsonLoader(_dynamicFake.Object);
 
         _dynamicFake.Verify(dyn => dyn.AppFolderPath, Times.Exactly(2));
-        _configurationFake.Verify(conf => conf.GetSection("Storage").GetSection("StorageFolderName").Value, Times.Exactly(2));
 
-        Directory.Exists("Test").Should().BeTrue();
-        Directory.Exists(Path.Combine("Test", "TestStorage")).Should().BeTrue();
+        Directory.Exists(_testFolderName).Should().BeTrue();
     }
 
     [Fact]
@@ -49,10 +53,9 @@ public class JsonLoaderTests : IDisposable
             Options = "test_options",
             Action = () => { }
         };
-
         _loader.SaveCommand(command);
 
-        File.Exists(_fullSavePath).Should().BeTrue();
+        File.Exists(_testStoragePath).Should().BeTrue();
         _loader.CommandExists(command.Name).Should().BeTrue();
     }
 
@@ -69,20 +72,17 @@ public class JsonLoaderTests : IDisposable
         };
 
         _loader.SaveCommand(command);
-        var exists = _loader.CommandExists(command.Name);
 
-        exists.Should().BeTrue();
+        _loader.CommandExists(command.Name).Should().BeTrue();
     }
 
     [Fact]
     public void JsonLoader_CommandExists_Fails()
     {
-        if (File.Exists(_fullSavePath))
-            File.Delete(_fullSavePath);
+        if (File.Exists(_testStoragePath))
+            File.Delete(_testStoragePath);
 
-        var exists = _loader.CommandExists("test");
-
-        exists.Should().BeFalse();
+        _loader.CommandExists("test").Should().BeFalse();
     }
 
     [Fact]
@@ -120,12 +120,10 @@ public class JsonLoaderTests : IDisposable
     [Fact]
     public void JsonLoader_LoadCommands_NoCommands()
     {
-        if (File.Exists(_fullSavePath))
-            File.Delete(_fullSavePath);
+        if (File.Exists(_testStoragePath))
+            File.Delete(_testStoragePath);
 
-        var commands = _loader.LoadCommands();
-
-        commands.Should().BeEmpty();
+        _loader.LoadCommands().Should().BeNull();
     }
 
     [Fact]
@@ -142,15 +140,15 @@ public class JsonLoaderTests : IDisposable
 
         _loader.SaveCommand(command);
         _loader.DeleteCommand(command.Name);
-        var exists = _loader.CommandExists(command.Name);
 
-        exists.Should().BeFalse();
+        _loader.CommandExists(command.Name).Should().BeFalse();
     }
-
-    public void Dispose()
+    
+    public async ValueTask DisposeAsync()
     {
         GC.SuppressFinalize(this);
-        if (Directory.Exists("Test"))
-            Directory.Delete("Test", true);
+        if (Directory.Exists(_testFolderName))
+            Directory.Delete(_testFolderName, true);
+        await Task.CompletedTask;
     }
 }

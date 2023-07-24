@@ -6,36 +6,36 @@ namespace FCli.Services;
 /// <remarks>
 /// Changes configuration according to user's operating system.
 /// </remarks>
-public class DynamicConfig
+public class DynamicConfig : IConfig
 {
     /// <summary>
     /// Name for the root app folder.
     /// </summary>
-    public virtual string AppFolderName { get; private set; }
+    public string AppFolderName { get; private set; }
     /// <summary>
     /// Root app path.
     /// </summary>
-    public virtual string AppFolderPath { get; private set; }
+    public string AppFolderPath { get; private set; }
     /// <summary>
     /// Name for the command storage file.
     /// </summary>
-    public virtual string StorageFileName { get; private set; }
+    public string StorageFileName { get; private set; }
     /// <summary>
     /// Path to the command storage file.
     /// </summary>
-    public virtual string StorageFilePath { get; private set; }
+    public string StorageFilePath { get; private set; }
     /// <summary>
     /// Template for log file names.
     /// </summary>
-    public virtual string LogsFileTemplate { get; private set; }
+    public string LogsFileTemplate { get; private set; }
     /// <summary>
     /// Name for the folder that contains logs.
     /// </summary>
-    public virtual string LogsFolderName { get; private set; }
+    public string LogsFolderName { get; private set; }
     /// <summary>
     /// Path to the logs template.
     /// </summary>
-    public virtual string LogsPath { get; private set; }
+    public string LogsPath { get; private set; }
 
 #pragma warning disable 8618
     public DynamicConfig()
