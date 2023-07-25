@@ -5,6 +5,7 @@ using Moq;
 using static FCli.Models.Args;
 using FCli.Services;
 using FCli.Services.Data;
+using System.Runtime.InteropServices;
 
 namespace FCli.Tests.Models.Tools;
 
@@ -121,7 +122,7 @@ public class AddTests
         else
             path = Path.Combine(TestRepository.TestFilesPath, TestRepository.TestPSScriptName);
 
-        _testTool.Action(path,
+        var act = () => _testTool.Action(path,
             new List<Flag>()
             {
                 new Flag("name", name),
@@ -129,11 +130,27 @@ public class AddTests
                 new Flag(flag, value)
             });
 
+        if (Environment.OSVersion.Platform == PlatformID.Unix)
+        {
+            if (commandType == CommandType.CMD)
+            {
+                act.Should().Throw<ArgumentException>();
+                return;
+            }
+            if (commandType == CommandType.Powershell)
+                Console.SetIn(new StringReader("yes"));
+        }
+
+        act.Should().NotThrow();
         _fakeFactory.Verify(factory => factory.Construct(
-            name,
-            path,
-            commandType,
-            options), Times.Once);
+        name,
+        path,
+        commandType,
+        options), Times.Once);
+
+        if (Environment.OSVersion.Platform == PlatformID.Unix
+            && commandType == CommandType.Powershell)
+            Console.SetIn(Console.In);
     }
 
     [Fact]
@@ -188,7 +205,7 @@ public class AddTests
             });
 
         if (Environment.OSVersion.Platform == PlatformID.Unix)
-            act.Should().Throw<FlagException>();
+            act.Should().Throw<ArgumentException>();
         else
         {
             act();
@@ -256,16 +273,30 @@ public class AddTests
 
             if (file != TestRepository.TestTxtName)
             {
-                act();
+                if (Environment.OSVersion.Platform == PlatformID.Unix)
+                {
+                    if (testFiles[file] == CommandType.CMD)
+                    {
+                        act.Should().Throw<ArgumentException>();
+                        return;
+                    }
+                    if (testFiles[file] == CommandType.Powershell)
+                        Console.SetIn(new StringReader("yes"));
+                }
+                else act.Should().NotThrow();
+
                 var name = file.Split('.')[0];
                 _fakeFactory.Verify(factory => factory.Construct(
                         name,
                         path,
                         testFiles[file],
                         ""), Times.Once);
+
+                if (Environment.OSVersion.Platform == PlatformID.Unix
+                    && testFiles[file] == CommandType.Powershell)
+                    Console.SetIn(Console.In);
             }
-            else
-                act.Should().Throw<ArgumentException>();
+            else act.Should().Throw<ArgumentException>();
         }
     }
 

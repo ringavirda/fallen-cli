@@ -74,7 +74,7 @@ public class OSSpecificFactoryTests
         command.Options.Should().Be("");
         
         if (Environment.OSVersion.Platform == PlatformID.Unix)
-            command.Action.Should().Throw<InvalidCastException>();
+            command.Action.Should().Throw<InvalidOperationException >();
         else command.Action.Should().NotThrow();
     }
 
