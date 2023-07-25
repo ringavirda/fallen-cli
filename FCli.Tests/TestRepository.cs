@@ -15,7 +15,7 @@ public static class TestRepository
     public readonly static string TestStoragePath = Path.Combine(TestFolderName, TestStorageFileName);
 
     public readonly static string TestFilesPath = Path.Combine(
-        Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..\\..\\..\\")),
+        Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..")),
         "TestFiles");
     public readonly static string TestCmdScriptName = "test_cmd.bat";
     public readonly static string TestPSScriptName = "test_powershell.ps1";
