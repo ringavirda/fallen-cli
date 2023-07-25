@@ -82,7 +82,8 @@ public class RemoveTool : Tool
                         else
                         {
                             // Delete all known commands.
-                            foreach (var command in commands.Select(c => c.Name))
+                            foreach (var command in commands
+                                .Select(c => c.Name).ToList())
                                 _commandLoader.DeleteCommand(command);
                             Helpers.DisplayInfo(
                                 Name,

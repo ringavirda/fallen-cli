@@ -20,9 +20,9 @@ public class JsonLoader : ICommandLoader
     // Loaded commands are buffered here to lover the amount of IO calls.
     private List<Command>? _loadedCommands;
 
-    public JsonLoader(IConfig dynamicConfig)
+    public JsonLoader(IConfig config)
     {
-        _config = dynamicConfig;
+        _config = config;
 
         // Guard against first launch.
         if (!Directory.Exists(_config.AppFolderPath))

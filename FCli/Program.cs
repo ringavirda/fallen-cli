@@ -20,7 +20,7 @@ Host.CreateDefaultBuilder()
             .Enrich.WithEnvironmentUserName()
             // Rolling file for more organization.
             .WriteTo.RollingFile(
-                services.GetRequiredService<DynamicConfig>().LogsPath,
+                services.GetRequiredService<IConfig>().LogsPath,
                 Serilog.Events.LogEventLevel.Information);
     })
     // Register app services according to their nature.

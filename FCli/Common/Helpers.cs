@@ -125,10 +125,7 @@ public static class Helpers
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine($"[{callerName}] Informs:");
         Console.ResetColor();
-        Console.WriteLine(message
-            .Split('\n')
-            .Select(s => $"\t{s}\n")
-            .Aggregate((s1, s2) => s1 + s2));
+        Console.WriteLine(message);
     }
 
     /// <summary>
