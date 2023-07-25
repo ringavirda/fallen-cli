@@ -21,7 +21,7 @@ public class InlineFormatter : ICommandLineFormatter
     public void DisplayInfo(string callerName, string message)
     {
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.Write($"[{callerName}] Info:");
+        Console.Write($"[{callerName}] Info: ");
         Console.ResetColor();
         Console.WriteLine(Inline(message));
     }
@@ -35,7 +35,7 @@ public class InlineFormatter : ICommandLineFormatter
     public void DisplayWarning(string callerName, string message)
     {
         Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.Write($"[{callerName}] Warn:");
+        Console.Write($"[{callerName}] Warn: ");
         Console.ResetColor();
         Console.WriteLine(Inline(message));
     }
@@ -48,7 +48,7 @@ public class InlineFormatter : ICommandLineFormatter
     public void DisplayError(string callerName, string message)
     {
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.Write($"[{callerName}] Err:");
+        Console.Write($"[{callerName}] Err: ");
         Console.ResetColor();
         Console.WriteLine(Inline(message));
     }

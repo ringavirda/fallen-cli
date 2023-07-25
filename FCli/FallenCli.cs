@@ -10,64 +10,58 @@ using FCli.Services.Format;
 namespace FCli;
 
 /// <summary>
-/// Main fallen-cli process.
+/// Fallen-cli facade class.
 /// </summary>
 /// <remarks>
 /// Implemented as background service for the app hosting container.
 /// </remarks>
-public class FallenCli : BackgroundService
+public class FallenCli
 {
     // DI.
     private readonly IToolExecutor _executor;
     private readonly ICommandFactory _factory;
     private readonly ILogger<FallenCli> _logger;
-    private readonly IHost _host;
     private readonly ICommandLineFormatter _formatter;
-    private readonly string[] _args;
 
     public FallenCli(
         IToolExecutor toolExecutor,
         ICommandFactory commandFactory,
         ILogger<FallenCli> logger,
-        IHost host,
-        ICommandLineFormatter formatter,
-        string[] args)
+        ICommandLineFormatter formatter)
     {
         _executor = toolExecutor;
         _factory = commandFactory;
         _logger = logger;
-        _host = host;
         _formatter = formatter;
-        _args = args;
     }
     
     /// <summary>
     /// Executes main fcli logic.
     /// </summary>
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    public void Execute(string[] cArgs)
     {
         try
         {
             // Parse command line args into Args object.
-            var args = Args.Parse(_args);
+            var args = Args.Parse(cArgs);
             // Handle no args.
             if (args == Args.None)
             {
                 _formatter.EchoGreeting();
-                return _host.StopAsync(default);
+                return;
             }
             // Handle --help flag.
             else if (args.Flags.Any(flag => flag.Key == "help")
                 && args.Selector == string.Empty)
             {
                 _formatter.EchoHelp();
-                return _host.StopAsync(default);
+                return;
             }
             // Handle --version flag.
             else if (args.Flags.Any(flag => flag.Key == "version"))
             {
                 _formatter.EchoNameAndVersion();
-                return _host.StopAsync(default);
+                return;
             }
             // Try parse tool type.
             var toolType = _executor.ParseType(args);
@@ -88,13 +82,13 @@ public class FallenCli : BackgroundService
                     _logger.LogWarning(
                         ex,
                         "User tried to invoke unsupported command.");
-                    return _host.StopAsync(default);
+                    return;
                 }
             }
             // Execute tool otherwise.
             else _executor.Execute(args, toolType);
             // Stop app process regardless.
-            return _host.StopAsync(default);
+            return;
         }
         // Root exception selector.
         catch (Exception ex)
@@ -104,7 +98,7 @@ public class FallenCli : BackgroundService
                 [{ex.GetType().Name}]: {ex.Message}
                 """);
             _logger.LogCritical(ex, "An unexpected exception was thrown.");
-            return _host.StopAsync(default);
+            return;
         }
     }
 }

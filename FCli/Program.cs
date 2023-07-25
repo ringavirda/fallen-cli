@@ -1,7 +1,6 @@
 ﻿// Vendor namespaces.
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Serilog;
 // FCli namespaces.
 using FCli;
@@ -9,8 +8,8 @@ using FCli.Services;
 using FCli.Services.Data;
 using FCli.Services.Format;
 
-// Configure and run application host.
-Host.CreateDefaultBuilder()
+// Configure application host.
+var host = Host.CreateDefaultBuilder()
     // Serilog for structured file logging.
     .UseSerilog((context, services, configuration) =>
     {
@@ -33,17 +32,10 @@ Host.CreateDefaultBuilder()
             .AddScoped<ICommandFactory, OSSpecificFactory>()
             .AddScoped<IToolExecutor, GenericExecutor>()
             // Main service configuration.
-            .AddHostedService(
-                serviceProvider => new FallenCli(
-                    serviceProvider.GetRequiredService<IToolExecutor>(),
-                    serviceProvider.GetRequiredService<ICommandFactory>(),
-                    serviceProvider.GetRequiredService<ILogger<FallenCli>>(),
-                    serviceProvider.GetRequiredService<IHost>(),
-                    serviceProvider.GetRequiredService<ICommandLineFormatter>(),
-                    args
-                )
-            );
+            .AddSingleton<FallenCli>();
     })
-    // Build and run fcli.
-    .Build()
-    .Run();
+    // Build fcli host.
+    .Build();
+
+// Run main fallen-cli logic.
+host.Services.GetRequiredService<FallenCli>().Execute(args);
