@@ -16,7 +16,7 @@ public interface IToolExecutor
     /// <summary>
     /// List of all tool prototypes.
     /// </summary>
-    public List<IToolProto> ToolProtos { get; }
+    public List<Tool> KnownTools { get; }
     /// <summary>
     /// Should execute tool of given type with given args.
     /// </summary>

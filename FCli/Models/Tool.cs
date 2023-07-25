@@ -6,7 +6,7 @@ using static FCli.Models.Args;
 namespace FCli.Models;
 
 /// <summary>
-/// Base class for all tools and tool prototypes.
+/// Base class for all known tools.
 /// </summary>
 /// <remarks>
 /// Contains common properties and some guarding methods.
@@ -16,26 +16,26 @@ public abstract class Tool
     /// <summary>
     /// Toll's command line selector.
     /// </summary>
-    public string Name { get; protected set; } = "default";
+    public abstract string Name { get; }
     /// <summary>
     /// Information that should be displayed with <c>--help</c> flag.
     /// </summary>
-    public string Description { get; protected set; } = string.Empty;
+    public abstract string Description { get; }
     /// <summary>
     /// Known aliases for the selector of the tool.
     /// </summary>
-    public List<string> Selectors { get; protected set; } = new();
+    public abstract List<string> Selectors { get; }
     /// <summary>
     /// Unique descriptor for the tool.
     /// </summary>
-    public ToolType Type { get; protected set; } = ToolType.None;
+    public abstract ToolType Type { get; }
     /// <summary>
     /// Action that contains actual logic of the tool.
     /// </summary>
     /// <remarks>
     /// Accepts an arg and list of Flags.
     /// </remarks>
-    public Action<string, List<Flag>> Action { get; protected set; } = null!;
+    public abstract Action<string, List<Flag>> Action { get; }
 
     /// <summary>
     /// Asserts that given flag has no value.
@@ -125,9 +125,11 @@ public abstract class Tool
     protected static string ValidatePath(string path, string toolName)
     {
         // Guard against bad path.
-        if (!File.Exists(path))
+        if (!(File.Exists(path) || Directory.Exists(path)))
         {
-            Helpers.DisplayWarning(toolName, $"{path} - is not a valid system path.");
+            Helpers.DisplayWarning(
+                toolName,
+                $"{path} - is not a valid system path.");
             throw new ArgumentException($"Given path ({path}) is invalid.");
         }
         // Return path converting to full.

@@ -20,7 +20,7 @@ public class ArgsTests
     {
         var args = new string[] { "--flag" };
 
-        var aargs = Args.Parse(args);
+        var aargs = Parse(args);
 
         aargs.Should().NotBeNull().And.NotBe(Args.None);
         aargs.Selector.Should().BeEmpty();
@@ -35,7 +35,7 @@ public class ArgsTests
     {
         var args = new string[] { "--flag value" };
 
-        var aargs = Args.Parse(args);
+        var aargs = Parse(args);
 
         aargs.Should().NotBeNull().And.NotBe(Args.None);
         aargs.Selector.Should().BeEmpty();
@@ -51,7 +51,7 @@ public class ArgsTests
     {
         var args = new string[] { "--flag", "value" };
 
-        var aargs = Args.Parse(args);
+        var aargs = Parse(args);
 
         aargs.Should().NotBeNull().And.NotBe(Args.None);
         aargs.Selector.Should().BeEmpty();
@@ -70,7 +70,7 @@ public class ArgsTests
             "--flag1 value1", "--flag2", "value2"
         };
 
-        var aargs = Args.Parse(args);
+        var aargs = Parse(args);
 
         aargs.Should().NotBeNull().And.NotBe(Args.None);
         aargs.Selector.Should().BeEmpty();
@@ -88,7 +88,7 @@ public class ArgsTests
         var args = new string[] { "selector" };
 
 
-        var aargs = Args.Parse(args);
+        var aargs = Parse(args);
 
         aargs.Should().NotBeNull().And.NotBe(Args.None);
         aargs.Arg.Should().BeEmpty();
@@ -103,7 +103,7 @@ public class ArgsTests
         var args = new string[] { "selector --flag" };
 
 
-        var aargs = Args.Parse(args);
+        var aargs = Parse(args);
 
         aargs.Should().NotBeNull().And.NotBe(Args.None);
         aargs.Arg.Should().BeEmpty();
@@ -118,7 +118,7 @@ public class ArgsTests
     {
         var args = new string[] { "selector", "arg" };
 
-        var aargs = Args.Parse(args);
+        var aargs = Parse(args);
 
         aargs.Should().NotBeNull().And.NotBe(Args.None);
         aargs.Flags.Should().BeEmpty();
@@ -135,7 +135,7 @@ public class ArgsTests
             "selector", "arg", "--flag1 value1", "--flag2", "value2"
         };
 
-        var aargs = Args.Parse(args);
+        var aargs = Parse(args);
 
         aargs.Should().NotBeNull().And.NotBe(Args.None);
 
@@ -155,8 +155,52 @@ public class ArgsTests
             "selector", "arg", "arg2", "arg3"
         };
 
-        var act = () => Args.Parse(args);
+        var act = () => Parse(args);
 
         act.Should().ThrowExactly<ArgumentException>();
+    }
+
+    [Fact]
+    public void Args_Parse_QuotedArg()
+    {
+        var args = new string[]
+        {
+            "selector", @"'/path/to/arg/'",
+        };
+
+        var aargs = Parse(args);
+
+        aargs.Selector.Should().Be("selector");
+        aargs.Arg.Should().Be("/path/to/arg/");
+    }
+
+    [Fact]
+    public void Args_Parse_QuotedArgWithFlag()
+    {
+        var args = new string[]
+        {
+            "selector \"/path to/arg/\"", "--flag value"
+        };
+
+        var aargs = Parse(args);
+
+        aargs.Selector.Should().Be("selector");
+        aargs.Arg.Should().Be("/path to/arg/");
+        aargs.Flags.Should().HaveCount(1)
+            .And.Contain(new Flag("flag", "value"));
+    }
+
+    [Fact]
+    public void Args_Parse_PathArg()
+    {
+        var args = new string[]
+        {
+            "selector", "/path to/arg/"
+        };
+
+        var aargs = Parse(args);
+
+        aargs.Selector.Should().Be("selector");
+        aargs.Arg.Should().Be("/path to/arg/");
     }
 }

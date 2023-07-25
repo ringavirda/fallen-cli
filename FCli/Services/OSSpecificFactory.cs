@@ -1,5 +1,4 @@
 ﻿// Vendor namespaces.
-using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 // FCli namespaces.
 using FCli.Services.Data;
@@ -116,18 +115,15 @@ public class OSSpecificFactory : ICommandFactory
             // Parse Powershell script option.
             CommandType.Powershell => () =>
             {
-                // Obviously.
+                // Try execute on linux.
                 if (Environment.OSVersion.Platform == PlatformID.Unix)
                 {
-                    Helpers.DisplayError(
-                        name,
-                        "Powershell scripts cannot be run on Linux systems!");
-                    throw new InvalidOperationException(
-                        $"[{name}] Attempt to run a Powershell script ({path}) on Linux.");
+                    Helpers.DisplayWarning(name, "Attempting to execute on Linux..");
+                    Process.Start("bash", $"powershell {path} {options}");
                 }
                 // Windows starts powershell.exe process with flags that bypass
                 // execution policy and allow for script execution.
-                Process.Start(new ProcessStartInfo()
+                else Process.Start(new ProcessStartInfo()
                 {
                     FileName = "powershell.exe",
                     Arguments = $"-NoProfile -ExecutionPolicy ByPass -File \"{path}\" -- {options}",

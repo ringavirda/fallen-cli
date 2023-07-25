@@ -38,7 +38,7 @@ public class JsonLoader : ICommandLoader
     /// <param name="name">The name of the command.</param>
     /// <returns>Loaded command, or <c>null</c> if it wasn't found.</returns>
     public Command? LoadCommand(string name)
-    => _loadedCommands != null
+        => _loadedCommands != null
             ? _loadedCommands.FirstOrDefault(command => command.Name == name)
             : LoadCommands()?.FirstOrDefault(command => command.Name == name)
             ?? null;
@@ -80,13 +80,20 @@ public class JsonLoader : ICommandLoader
             // Guard against empty file.
             if (json == string.Empty) return null;
             // Attempt to deserialize commands form json string.
-            var commands = JsonSerializer.Deserialize<List<Command>>(json);
-            // Guard against deserialization fail.
-            if (commands != null) return _loadedCommands = commands;
-            // Since this is a critical failure, throw exception to the root
-            // selector.
-            else throw new CriticalException(
-                "Commands wasn't able to deserialize.");
+            try
+            {
+                var commands = JsonSerializer.Deserialize<List<Command>>(json);
+                // Guard against deserialization fail.
+                return _loadedCommands = commands;
+
+            }
+            catch (JsonException ex)
+            {
+                // Since this is a critical failure, throw exception to the root
+                // selector.
+                throw new CriticalException(
+                    "Commands wasn't able to deserialize.", ex);
+            }
         }
         else return null;
     }

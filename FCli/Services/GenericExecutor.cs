@@ -11,9 +11,6 @@ namespace FCli.Services;
 /// <summary>
 /// Generic implementation of ToolExecutor.
 /// </summary>
-/// <remarks>
-/// Reconstructs tools from prototypes.
-/// </remarks>
 public class GenericExecutor : IToolExecutor
 {
     // DI.
@@ -25,12 +22,12 @@ public class GenericExecutor : IToolExecutor
         ICommandFactory commandFactory)
     {
         // Configure tool protos.
-        ToolProtos = new()
+        KnownTools = new()
         {
-            new AddProto(this, commandFactory, commandLoader),
-            new RemoveProto(commandLoader),
-            new ListProto(this, commandLoader),
-            new RunProto(this, commandFactory)
+            new AddTool(this, commandFactory, commandLoader),
+            new RemoveTool(commandLoader),
+            new ListTool(this, commandLoader),
+            new RunTool(this, commandFactory)
         };
         KnownTypeFlags = new() { "script", "url", "exe" };
 
@@ -38,25 +35,20 @@ public class GenericExecutor : IToolExecutor
     }
 
     public List<string> KnownTypeFlags { get; }
-    public List<IToolProto> ToolProtos { get; }
+    public List<Tool> KnownTools { get; }
     
     /// <summary>
     /// Execute tool from given type and arg.
     /// </summary>
-    /// <remarks>
-    /// Creates tool from list of known prototypes.
-    /// </remarks>
     /// <param name="args">Tool argument.</param>
     /// <param name="type">Tool type to execute.</param>
     /// <exception cref="CriticalException">If tool selection fails.</exception>
     public void Execute(Args args, ToolType type)
     {
-        // Extract tool proto from the list of known tools.
-        var proto = ToolProtos
-            .FirstOrDefault(tool => ((Tool)tool).Type == type) 
+        // Extract tool from the list of known tools.
+        var tool = KnownTools
+            .FirstOrDefault(tool => tool.Type == type) 
             ?? throw new CriticalException("Tool prototype wasn't extracted.");
-        // Extract tool
-        var tool = proto.GetTool();
         // Perform action.
         try
         {
@@ -81,9 +73,8 @@ public class GenericExecutor : IToolExecutor
         if (args.Selector == "") return ToolType.None;
         // Parse selector.
         var selector = args.Selector;
-        foreach (var proto in ToolProtos)
+        foreach (var tool in KnownTools)
         {
-            var tool = (Tool)proto;
             if (tool.Selectors.Contains(selector))
                 return tool.Type;
         }

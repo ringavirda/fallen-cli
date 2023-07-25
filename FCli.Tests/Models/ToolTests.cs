@@ -6,23 +6,28 @@ namespace FCli.Tests.Models;
 
 public class ToolTests : Tool
 {
-    private readonly string _name = "Test";
+    public override string Name => "Test";
+    public override string Description => "";
+    public override List<string> Selectors => new();
+    public override ToolType Type => ToolType.None;
+    public override Action<string, List<Flag>> Action => (str, flags) => { };
+
     [Fact]
     public void Tool_FlagHasValue_Value()
     {
         var flag = new Flag("flag", "value");
 
-        var act = () => FlagHasValue(flag, _name);
+        var act = () => FlagHasValue(flag, Name);
 
         act.Should().NotThrow();
     }
-    
+
     [Fact]
     public void Tool_FlagHasValue_NoValue()
     {
         var flag = new Flag("flag", "");
 
-        var act = () => FlagHasValue(flag, _name);
+        var act = () => FlagHasValue(flag, Name);
 
         act.Should().ThrowExactly<FlagException>();
     }
@@ -32,7 +37,7 @@ public class ToolTests : Tool
     {
         var flag = new Flag("flag", "value");
 
-        var act = () => FlagHasNoValue(flag, _name);
+        var act = () => FlagHasNoValue(flag, Name);
 
         act.Should().ThrowExactly<FlagException>();
     }
@@ -42,7 +47,7 @@ public class ToolTests : Tool
     {
         var flag = new Flag("flag", "");
 
-        var act = () => FlagHasNoValue(flag, _name);
+        var act = () => FlagHasNoValue(flag, Name);
 
         act.Should().NotThrow();
     }
@@ -64,8 +69,8 @@ public class ToolTests : Tool
     [InlineData("https://www.google.ua.com/page")]
     public void Tool_ValidateUrl_Valid(string url)
     {
-        var act = () => ValidateUrl(url, _name);
-        var uri = ValidateUrl(url, _name);
+        var act = () => ValidateUrl(url, Name);
+        var uri = ValidateUrl(url, Name);
 
         act.Should().NotThrow();
         uri.Should().BeAssignableTo(typeof(Uri));
@@ -77,7 +82,7 @@ public class ToolTests : Tool
     [InlineData("agaefafa")]
     public void Tool_ValidateUrl_Invalid(string url)
     {
-        var act = () => ValidateUrl(url, _name);
+        var act = () => ValidateUrl(url, Name);
 
         act.Should().ThrowExactly<ArgumentException>();
     }
@@ -85,10 +90,24 @@ public class ToolTests : Tool
     [Theory]
     [InlineData("afasfafaf")]
     [InlineData("C:/nowhere")]
-    public void Tool_ValidatePath_Invalid(string url)
+    public void Tool_ValidatePath_Invalid(string path)
     {
-        var act = () => ValidatePath(url, _name);
+        var act = () => ValidatePath(path, Name);
 
         act.Should().ThrowExactly<ArgumentException>();
+    }
+
+    [Fact]
+    public void Tool_ValidatePath_Valid()
+    {
+        var path = "";
+        if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            path = @"C:\Users";
+        if (Environment.OSVersion.Platform == PlatformID.Unix)
+            path = "/home";
+
+        var act = () => ValidatePath(path, Name);
+
+        act.Should().NotThrow();
     }
 }

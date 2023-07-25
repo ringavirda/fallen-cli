@@ -19,6 +19,9 @@ public partial class Args
     // Because of this Args class is partial.
     [GeneratedRegex("[\",'].*?[\",']")]
     private static partial Regex WithinQuotes();
+    // Regex to determine if an arg is a path.
+    [GeneratedRegex(@"^[.,/,\\].")]
+    private static partial Regex IsPath();
 
     /// <summary>
     /// Constructor with all command or tool parameters.
@@ -173,7 +176,7 @@ public partial class Args
                 newArgs.Add(match.Value.Trim(match.Value[0]));
             }
             // Add path arguments untouched.
-            else if (arg.Contains('\\') || arg.Contains('/'))
+            else if (IsPath().Match(arg).Success)
                 newArgs.Add(arg);
             // Add splitted args.
             else newArgs.AddRange(arg.Split(" "));

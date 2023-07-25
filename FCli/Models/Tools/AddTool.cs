@@ -8,53 +8,44 @@ using static FCli.Models.Args;
 namespace FCli.Models.Tools;
 
 /// <summary>
-/// Prototype for the tool that adds new commands into storage.
+/// A tool that validates and adds new commands to storage.
 /// </summary>
-public class AddProto : Tool, IToolProto
+public class AddTool : Tool
 {
     // From ToolExecutor.
     private readonly IToolExecutor _toolExecutor;
     private readonly ICommandFactory _commandFactory;
     private readonly ICommandLoader _commandLoader;
 
-    public AddProto(
+    public AddTool(
         IToolExecutor toolExecutor,
         ICommandFactory commandFactory,
         ICommandLoader commandLoader)
     {
-        Name = "Add";
-        Description = """
-            Add - validates a new command and adds it to the storage.
-            Requires a valid path or url as an argument.
-            Flags:
-                --script <shell> - the path points to the script file.
-                --exe            - the path points to the executable.
-                --url            - the argument is a url.
-                --name <value>   - explicitly specify the name for the command.
-                --options <args> - options to run exe or script with.
-                --help           - show description.
-            Usage:
-                fcli add c:/awesome.exe
-                fcli add .\scripts\script --script bash --name sc
-            """;
-        Type = ToolType.Add;
-        Selectors = new() { "add", "a" };
-
         _toolExecutor = toolExecutor;
         _commandFactory = commandFactory;
         _commandLoader = commandLoader;
     }
 
-    /// <summary>
-    /// Constructs the ADD tool from this prototype.
-    /// </summary>
-    /// <returns>Tool configured for add operations.</returns>
-    /// <exception cref="ArgumentException">If something is wrong with the path/url.</exception>
-    /// <exception cref="FlagException">When flags are invalid.</exception>
-    public Tool GetTool()
-    {
-        // Begin ADD logic construction.
-        Action = (string arg, List<Flag> flags) =>
+    public override string Name => "Add";
+    public override string Description => """
+        Add - validates a new command and adds it to the storage.
+        Requires a valid path or url as an argument.
+        Flags:
+            --script <shell> - the path points to the script file.
+            --exe            - the path points to the executable.
+            --url            - the argument is a url.
+            --name <value>   - explicitly specify the name for the command.
+            --options <args> - options to run exe or script with.
+            --help           - show description.
+        Usage:
+            fcli add c:/awesome.exe
+            fcli add .\scripts\script --script bash --name sc
+        """;
+    public override List<string> Selectors => new() { "add", "a" };
+    public override ToolType Type => ToolType.Add;
+    public override Action<string, List<Flag>> Action =>
+        (string arg, List<Flag> flags) =>
         {
             // Handle --help flag.
             if (flags.Any(flag => flag.Key == "help"))
@@ -80,7 +71,7 @@ public class AddProto : Tool, IToolProto
                 Helpers.DisplayWarning(
                     Name,
                     "Add tool can accept only one of the type flags.");
-                throw new ArgumentException(
+                throw new FlagException(
                     "Attempted to pass multiple arguments into the add tool.");
             }
             // Forward declare future command properties.
@@ -214,8 +205,7 @@ public class AddProto : Tool, IToolProto
                 }
             }
             // Guard against name duplication.
-            if (_toolExecutor.ToolProtos.Select(proto => (Tool)proto)
-                .Any(tool => tool.Name == name)
+            if (_toolExecutor.KnownTools.Any(tool => tool.Selectors.Contains(name))
                 || _commandLoader.CommandExists(name))
             {
                 Helpers.DisplayError(Name, $"""
@@ -232,7 +222,7 @@ public class AddProto : Tool, IToolProto
                     Command ({name}) is interpreted as a batch file, but Linux
                     operating system is running. CMD is only supported on Windows.
                     """);
-                throw new FlagException(
+                throw new ArgumentException(
                     $"Attempted creation of a CMD command on Linux.");
             }
             if (type == CommandType.Powershell
@@ -249,10 +239,10 @@ public class AddProto : Tool, IToolProto
                 var response = Console.ReadLine();
                 if (response?.ToLower() != "yes")
                 {
-                    Helpers.DisplayMessage("Averting Add process...");
+                    Helpers.DisplayMessage("Averting add process...");
                     return;
                 }
-                else Helpers.DisplayMessage("Continuing Add process...");
+                else Helpers.DisplayMessage("Continuing add process...");
             }
             // Display parsed command.
             Helpers.DisplayInfo(Name, $"""
@@ -274,7 +264,4 @@ public class AddProto : Tool, IToolProto
                     fcli {name}
                 """);
         };
-        // Return constructed tool.
-        return this;
-    }
 }

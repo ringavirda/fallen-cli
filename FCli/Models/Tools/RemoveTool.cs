@@ -6,17 +6,20 @@ using static FCli.Models.Args;
 namespace FCli.Models.Tools;
 
 /// <summary>
-/// Prototype for the tool that removes commands from storage.
+/// A tool that removes commands from storage.
 /// </summary>
-public class RemoveProto : Tool, IToolProto
+public class RemoveTool : Tool
 {
     // From ToolExecutor.
     private readonly ICommandLoader _commandLoader;
 
-    public RemoveProto(ICommandLoader commandLoader)
+    public RemoveTool(ICommandLoader commandLoader)
     {
-        Name = "Remove";
-        Description = """
+        _commandLoader = commandLoader;
+    }
+
+    public override string Name => "Remove";
+    public override string Description => """
             Remove - deletes command from storage.
             Flags:
                 --yes  - skip confirmation.
@@ -25,21 +28,10 @@ public class RemoveProto : Tool, IToolProto
             Usage:
                 fcli remove awesome --yes
             """;
-        Type = ToolType.Remove;
-        Selectors = new() { "remove", "rm" };
-
-        _commandLoader = commandLoader;
-    }
-
-    /// <summary>
-    /// Constructs a REMOVE tool from this prototype.
-    /// </summary>
-    /// <returns>Tool that removes commands.</returns>
-    /// <exception cref="ArgumentException">If command is unrecognized.</exception>
-    public Tool GetTool()
-    {
-        // Begin REMOVE logic construction.
-        Action = (string arg, List<Flag> flags) =>
+    public override List<string> Selectors => new() { "remove", "rm" };
+    public override ToolType Type => ToolType.Remove;
+    public override Action<string, List<Flag>> Action =>
+        (string arg, List<Flag> flags) =>
         {
             // Handle --help flag.
             if (flags.Any(flag => flag.Key == "help"))
@@ -122,7 +114,4 @@ public class RemoveProto : Tool, IToolProto
             _commandLoader.DeleteCommand(arg);
             Helpers.DisplayInfo(Name, $"Command ({arg}) was successfully deleted.");
         };
-        // Return constructed REMOVE tool.
-        return this;
-    }
 }

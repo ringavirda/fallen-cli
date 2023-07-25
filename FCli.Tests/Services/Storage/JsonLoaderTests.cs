@@ -1,154 +1,131 @@
 using Moq;
 
-using FCli.Services;
 using FCli.Services.Data;
 using FCli.Models;
+using FCli.Common.Exceptions;
 
 namespace FCli.Tests.Services.Storage;
 
-public class JsonLoaderTests : IAsyncDisposable
+public class JsonLoaderTests : IDisposable
 {
-    private readonly Mock<IConfig> _dynamicFake;
-
-    private readonly JsonLoader _loader;
-    private readonly static string _testFolderName = "FCliTest";
-    private readonly static string _testStorageFileName 
-        = $"{Guid.NewGuid()}.json";
-    private readonly static string _testStoragePath 
-        = Path.Combine(_testFolderName, _testStorageFileName) ;
-
-    public JsonLoaderTests()
-    {
-        _dynamicFake = new Mock<IConfig>();
-        _dynamicFake.SetupGet(dyn => dyn.AppFolderName)
-            .Returns(_testFolderName);
-        _dynamicFake.SetupGet(dyn => dyn.AppFolderPath)
-            .Returns(_testFolderName);
-        _dynamicFake.SetupGet(dyn => dyn.StorageFileName)
-            .Returns(_testStorageFileName);
-        _dynamicFake.SetupGet(dyn => dyn.StorageFilePath)
-            .Returns(Path.Combine(_testFolderName, _testStorageFileName));
-
-        _loader = new JsonLoader(_dynamicFake.Object);
-    }
+    private static JsonLoader TestLoader 
+        => new (TestRepository.ConfigFake.Object);
 
     [Fact]
     public void JsonLoader_Create()
     {
-        var loader = new JsonLoader(_dynamicFake.Object);
+        _ = new JsonLoader(TestRepository.ConfigFake.Object);
 
-        _dynamicFake.Verify(dyn => dyn.AppFolderPath, Times.Exactly(2));
-
-        Directory.Exists(_testFolderName).Should().BeTrue();
+        Directory.Exists(TestRepository.TestFolderName).Should().BeTrue();
     }
 
     [Fact]
     public void JsonLoader_SaveCommand()
     {
-        var command = new Command()
-        {
-            Name = "test",
-            Path = "test/path",
-            Type = CommandType.Bash,
-            Options = "test_options",
-            Action = () => { }
-        };
-        _loader.SaveCommand(command);
+        TestLoader.SaveCommand(TestRepository.TestCommand);
 
-        File.Exists(_testStoragePath).Should().BeTrue();
-        _loader.CommandExists(command.Name).Should().BeTrue();
+        File.Exists(TestRepository.TestStoragePath).Should().BeTrue();
+        TestLoader.CommandExists(TestRepository.TestCommand.Name).Should().BeTrue();
     }
 
     [Fact]
     public void JsonLoader_CommandExists_Correctly()
     {
-        var command = new Command()
-        {
-            Name = "test",
-            Path = "test/path",
-            Type = CommandType.Bash,
-            Options = "test_options",
-            Action = () => { }
-        };
+        var loader = TestLoader;
+        loader.SaveCommand(TestRepository.TestCommand);
 
-        _loader.SaveCommand(command);
-
-        _loader.CommandExists(command.Name).Should().BeTrue();
+        loader.CommandExists(TestRepository.TestCommand.Name).Should().BeTrue();
     }
 
     [Fact]
     public void JsonLoader_CommandExists_Fails()
     {
-        if (File.Exists(_testStoragePath))
-            File.Delete(_testStoragePath);
+        if (File.Exists(TestRepository.TestStoragePath))
+            File.Delete(TestRepository.TestStoragePath);
 
-        _loader.CommandExists("test").Should().BeFalse();
+        TestLoader.CommandExists("test").Should().BeFalse();
+    }
+
+    [Fact]
+    public void JsonLoader_LoadCommand_Buffer()
+    {
+        TestLoader.SaveCommand(TestRepository.TestCommand);
+        var loader = TestLoader;
+        var command1 = loader.LoadCommand(TestRepository.TestCommand.Name);
+        var command2 = loader.LoadCommand(TestRepository.TestCommand.Name);
+
+        ReferenceEquals(command1, command2).Should().BeTrue();
+    }
+
+    [Fact]
+    public void JsonLoader_LoadCommand_NoBuffer()
+    {
+        TestLoader.SaveCommand(TestRepository.TestCommand);
+        var command1 = TestLoader.LoadCommand(TestRepository.TestCommand.Name);
+        var command2 = TestLoader.LoadCommand(TestRepository.TestCommand.Name);
+
+        ReferenceEquals(command1, command2).Should().BeFalse();
     }
 
     [Fact]
     public void JsonLoader_LoadCommands()
     {
-        var command1 = new Command()
-        {
-            Name = "test1",
-            Path = "test/path",
-            Type = CommandType.Bash,
-            Options = "test_options",
-            Action = () => { }
-        };
-        var command2 = new Command()
-        {
-            Name = "test2",
-            Path = "test/path",
-            Type = CommandType.Bash,
-            Options = "test_options",
-            Action = () => { }
-        };
+        var loader = TestLoader;
+        loader.SaveCommand(TestRepository.TestCommand);
+        loader.SaveCommand(TestRepository.TestCommand);
+        loader.SaveCommand(TestRepository.TestCommand);
 
-        _loader.SaveCommand(command1);
-        _loader.SaveCommand(command2);
-        var commands = _loader.LoadCommands();
+        var commands = loader.LoadCommands();
 
-        commands.Should().Contain(c => c.Name == command1.Name
-            && c.Options == command1.Options
-            && c.Path == command1.Path);
-        commands.Should().Contain(c => c.Name == command2.Name
-            && c.Options == command2.Options
-            && c.Path == command2.Path);
+        commands.Should().HaveCount(3);
     }
 
     [Fact]
     public void JsonLoader_LoadCommands_NoCommands()
     {
-        if (File.Exists(_testStoragePath))
-            File.Delete(_testStoragePath);
+        if (File.Exists(TestRepository.TestStoragePath))
+            File.Delete(TestRepository.TestStoragePath);
 
-        _loader.LoadCommands().Should().BeNull();
+        TestLoader.LoadCommands().Should().BeNull();
     }
 
     [Fact]
     public void JsonLoader_DeleteCommand()
     {
-        var command = new Command()
-        {
-            Name = "test",
-            Path = "test/path",
-            Type = CommandType.Bash,
-            Options = "test_options",
-            Action = () => { }
-        };
+        var loader = TestLoader;
+        loader.SaveCommand(TestRepository.TestCommand);
+        loader.DeleteCommand(TestRepository.TestCommand.Name);
 
-        _loader.SaveCommand(command);
-        _loader.DeleteCommand(command.Name);
-
-        _loader.CommandExists(command.Name).Should().BeFalse();
+        loader.CommandExists(TestRepository.TestCommand.Name)
+            .Should().BeFalse();
     }
-    
-    public async ValueTask DisposeAsync()
+
+    [Fact]
+    public void JsonLoader_DeleteCommand_UnknownCommand()
+    {
+        var act = () => TestLoader.DeleteCommand("unknown");
+
+        act.Should().Throw<ArgumentException>();
+    }
+
+    public void Dispose()
     {
         GC.SuppressFinalize(this);
-        if (Directory.Exists(_testFolderName))
-            Directory.Delete(_testFolderName, true);
-        await Task.CompletedTask;
+        if (Directory.Exists(TestRepository.TestFolderName))
+            Directory.Delete(TestRepository.TestFolderName, true);
+    }
+
+    [Fact]
+    public void JsonLoader_CriticalException_IfDeserializationFails()
+    {
+        if (!Directory.Exists(TestRepository.TestFolderName))
+            Directory.CreateDirectory(TestRepository.TestFolderName);
+        File.WriteAllText(
+            TestRepository.TestStoragePath,
+            "{}");
+        
+        var act = TestLoader.LoadCommands;
+
+        act.Should().Throw<CriticalException>();
     }
 }

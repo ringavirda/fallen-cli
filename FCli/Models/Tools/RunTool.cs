@@ -7,18 +7,22 @@ using static FCli.Models.Args;
 namespace FCli.Models.Tools;
 
 /// <summary>
-/// Prototype for the tool that tests given commands.
+/// A tool that runs given command without saving it. 
 /// </summary>
-public class RunProto : Tool, IToolProto
+public class RunTool : Tool
 {
     // From ToolExecutor.
     private readonly IToolExecutor _toolExecutor;
     private readonly ICommandFactory _commandFactory;
 
-    public RunProto(IToolExecutor toolExecutor, ICommandFactory commandFactory)
+    public RunTool(IToolExecutor toolExecutor, ICommandFactory commandFactory)
     {
-        Name = "Run";
-        Description = """
+        _toolExecutor = toolExecutor;
+        _commandFactory = commandFactory;
+    }
+
+    public override string Name => "Run";
+    public override string Description => """
         Run - executes given path or url without saving. Useful for testing.
         Requires path or url, as well as explicit specification of run type
         through a flag.
@@ -31,28 +35,25 @@ public class RunProto : Tool, IToolProto
             fcli run c:/awesome --script powershell
             fcli run https://awesome.com --url
         """;
-        Type = ToolType.Run;
-        Selectors = new() { "run", "r" };
-
-        _toolExecutor = toolExecutor;
-        _commandFactory = commandFactory;
-    }
-
-    /// <summary>
-    /// Construct configured RUN tool from this proto. 
-    /// </summary>
-    /// <returns>Tool that just runs commands.</returns>
-    /// <exception cref="FlagException"></exception>
-    public Tool GetTool()
-    {
-        // Begin RUN logic construction.
-        Action = (string arg, List<Flag> flags) =>
+    public override List<string> Selectors => new() { "run", "r" };
+    public override ToolType Type => ToolType.Run;
+    public override Action<string, List<Flag>> Action =>
+        (string arg, List<Flag> flags) =>
         {
             // Handle --help flag.
             if (flags.Any(flag => flag.Key == "help"))
             {
                 Helpers.DisplayInfo(Name, Description);
                 return;
+            }
+            // Guard against no argument.
+            if (arg == string.Empty)
+            {
+                Helpers.DisplayWarning(Name, """
+                    You need to specify a command to test.
+                    To see Run tool usage consult --help.
+                    """);
+                throw new ArgumentException("Run no type flag was given.");
             }
             // Extract flags.
             var typeFlags = flags
@@ -139,14 +140,9 @@ public class RunProto : Tool, IToolProto
                     CommandType.Url,
                     string.Empty);
             }
-            // Throw if flag is unrecognized.
-            else UnknownFlag(typeFlag, Name);
             // Guard against invalid initialization.
             if (command?.Action != null) command.Action();
             // It is impossible, so if it happens throw it into the root.
-            else throw new Exception("Command wasn't initialized.");
+            else throw new CriticalException("Command wasn't initialized.");
         };
-        // Return constructed RUN tool.
-        return this;
-    }
 }

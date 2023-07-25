@@ -7,20 +7,24 @@ using static FCli.Models.Args;
 namespace FCli.Models.Tools;
 
 /// <summary>
-/// Prototype for the tool that lists known selectors.
+/// A tool that lists all known selectors.
 /// </summary>
-public class ListProto : Tool, IToolProto
+public class ListTool : Tool
 {
     // From ToolExecutor.
     private readonly IToolExecutor _toolExecutor;
     private readonly ICommandLoader _commandLoader;
 
-    public ListProto(
+    public ListTool(
         IToolExecutor toolExecutor,
         ICommandLoader commandLoader)
     {
-        Name = "List";
-        Description = """
+        _toolExecutor = toolExecutor;
+        _commandLoader = commandLoader;
+    }
+
+    public override string Name => "List";
+    public override string Description => """
         List - echos existing commands to the console based on the selection
         given by flags. If no flags given - lists all existing commands.
         Flags:
@@ -34,21 +38,10 @@ public class ListProto : Tool, IToolProto
             fcli list --tools
             fcli ls --script --url 
         """;
-        Type = ToolType.List;
-        Selectors = new() { "list", "ls" };
-
-        _toolExecutor = toolExecutor;
-        _commandLoader = commandLoader;
-    }
-
-    /// <summary>
-    /// Construct a LIST tool from this prototype.
-    /// </summary>
-    /// <returns>Constructed LIST tool.</returns>
-    public Tool GetTool()
-    {
-        // Begin LIST logic construction.
-        Action = (string arg, List<Flag> flags) =>
+    public override List<string> Selectors => new() { "list", "ls" };
+    public override ToolType Type => ToolType.List;
+    public override Action<string, List<Flag>> Action =>
+        (string arg, List<Flag> flags) =>
         {
             // Handle --help flag.
             if (flags.Any(flag => flag.Key == "help"))
@@ -127,12 +120,11 @@ public class ListProto : Tool, IToolProto
                             "(--tool) cannot be used with a filer.");
                         throw new ArgumentException("--tool was called with arg.");
                     }
-                    var allTools = _toolExecutor.ToolProtos
-                        .Select(proto => (Tool)proto)
-                            .Select(tool =>
-                                $"{tool.Name}: {tool.Selectors.Aggregate((s1, s2)
-                                    => $"{s1}, {s2}")}")
-                                    .Aggregate((s1, s2) => $"{s1}\n{s2}");
+                    var allTools = _toolExecutor.KnownTools
+                        .Select(tool =>
+                            $"{tool.Name}: {tool.Selectors.Aggregate((s1, s2)
+                                => $"{s1}, {s2}")}")
+                                .Aggregate((s1, s2) => $"{s1}\n{s2}");
 
                     Helpers.DisplayInfo(Name, "All known tool selectors:");
                     Helpers.DisplayMessage(allTools);
@@ -141,9 +133,6 @@ public class ListProto : Tool, IToolProto
                 else UnknownFlag(flag, Name);
             }
         };
-        // Return constructed LIST tool.
-        return this;
-    }
 
     /// <summary>
     /// Prints to console an enumerable of Command in a formatted way.
