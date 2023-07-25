@@ -1,5 +1,6 @@
-# Basic
-## Tools:
+# Summary
+## Basic
+### Tools:
 add - appends new command to the known commands list and persists it.
 - name - explicitly specifies command name.
 - options - adds command line options (ignored for urls).
@@ -19,14 +20,14 @@ run - execute specified command or path, but does not persist the action (requir
 - url - run as website.
 - script - run as a shell script (requires supported shell type as value).
 
-## Shell types:
+### Shell types:
 Bash, Powershell, Cmd.
 
-## Supported command types:
+### Supported command types:
 Executable, Website, Script.
 
-# Extended
-## Tools:
+## Extended
+### Tools:
 config - manipulates dynamic configuration.
 - locale - overrides system local.
 - formatter - 
@@ -40,16 +41,16 @@ group - manipulates command groups (requires name).
 - override - overrides existing command (confirmation).
 - yes - skips confirmation.
 
-change - manipulates a known command.
+change - manipulates a known command (displays command info if no flag is given).
 - name - changes name to given.
 - path - changes path to given.
 - options - changes options to given.
 - type - changes type (confirmation).
 
-## Shell types:
+### Shell types:
 Fish.
 
-## Supported command types:
+### Supported command types:
 Dir, Shell.
 
 # Supported command types:
