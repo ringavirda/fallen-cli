@@ -1,10 +1,11 @@
 using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 
 using FCli.Services;
 using FCli.Models;
-using FCli.Common.Exceptions;
-using Moq;
+using FCli.Exceptions;
 using FCli.Services.Data;
+using FCli.Services.Format;
 
 namespace FCli.Tests.Services;
 
@@ -14,16 +15,19 @@ public class GenericExecutorTests
 
     private static readonly Mock<ICommandLoader> _fakeLoader;
     private static readonly Mock<ICommandFactory> _fakeFactory;
+    private static readonly Mock<ICommandLineFormatter> _fakeFormatter;
 
     static  GenericExecutorTests()
     {
         _fakeLoader = TestRepository.CommandLoaderFake;
         _fakeFactory = TestRepository.CommandFactoryFake;
+        _fakeFormatter = TestRepository.FormatterFake;
         
         _testExecutor = new GenericExecutor(
             _fakeLoader.Object,
             NullLogger<GenericExecutor>.Instance,
-            _fakeFactory.Object);
+            _fakeFactory.Object,
+            _fakeFormatter.Object);
     }
 
     [Fact]
@@ -37,6 +41,7 @@ public class GenericExecutorTests
     public void GenericExecutor_Execute()
     {
         var args = Args.Parse(new string[] { "list", "--exe" });
+
         var act = () => _testExecutor.Execute(args, _testExecutor.ParseType(args));
 
         act.Should().NotThrow();

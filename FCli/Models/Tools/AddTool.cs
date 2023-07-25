@@ -52,7 +52,7 @@ public class AddTool : Tool
             // Handle --help flag.
             if (flags.Any(flag => flag.Key == "help"))
             {
-                _formatter.DisplayInfo(Name, Description);
+                _formatter.DisplayMessage(Description);
                 return;
             }
             // Guard against empty path/url.
@@ -237,8 +237,8 @@ public class AddTool : Tool
                     manager.
                     """);
                 _formatter.DisplayMessage(
-                    "Are you sure you can run a powershell script? (yes/any):");
-                var response = Console.ReadLine();
+                    "Are you sure you can run a powershell script?");
+                var response = _formatter.ReadUserInput("(yes/any)");
                 if (response?.ToLower() != "yes")
                 {
                     _formatter.DisplayMessage("Averting add process...");

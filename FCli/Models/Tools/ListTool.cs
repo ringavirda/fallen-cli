@@ -48,7 +48,7 @@ public class ListTool : Tool
             // Handle --help flag.
             if (flags.Any(flag => flag.Key == "help"))
             {
-                _formatter.DisplayInfo(Name, Description);
+                _formatter.DisplayMessage(Description);
                 return;
             }
 

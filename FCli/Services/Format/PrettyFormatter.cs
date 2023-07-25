@@ -57,4 +57,17 @@ public class PrettyFormatter : ICommandLineFormatter
             .Aggregate((s1, s2) => s1 + s2));
         Console.ResetColor();
     }
+
+    /// <summary>
+    /// Formats input as a single line with a yellow preface.
+    /// </summary>
+    /// <param name="preface">Usually (yes/any).</param>
+    /// <returns>User input.</returns>
+    public string? ReadUserInput(string preface)
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write(preface + ": ");
+        Console.ResetColor();
+        return Console.ReadLine();
+    }
 }

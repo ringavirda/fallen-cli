@@ -47,7 +47,7 @@ public class RunTool : Tool
             // Handle --help flag.
             if (flags.Any(flag => flag.Key == "help"))
             {
-                _formatter.DisplayInfo(Name, Description);
+                _formatter.DisplayMessage(Description);
                 return;
             }
             // Guard against no argument.

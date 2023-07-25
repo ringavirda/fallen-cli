@@ -1,7 +1,8 @@
-using FCli.Common.Exceptions;
+using FCli.Exceptions;
 using FCli.Models.Tools;
 using FCli.Services;
 using FCli.Services.Data;
+using FCli.Services.Format;
 using Moq;
 using static FCli.Models.Args;
 
@@ -13,13 +14,16 @@ public class ListTests
 
     private static readonly Mock<IToolExecutor> _fakeExecutor;
     private static readonly Mock<ICommandLoader> _fakeLoader;
+    private static readonly Mock<ICommandLineFormatter> _fakeFormatter;
 
     static ListTests()
     {
         _fakeExecutor = TestRepository.ToolExecutorFake;
         _fakeLoader = TestRepository.CommandLoaderFake;
+        _fakeFormatter = TestRepository.FormatterFake;
 
         _testTool = new ListTool(
+            _fakeFormatter.Object,
             _fakeExecutor.Object,
             _fakeLoader.Object);
     }
@@ -28,7 +32,10 @@ public class ListTests
     public void List_HandleHelp()
     {
         var act = () => _testTool.Action("", new List<Flag>() { new Flag("help", "") });
+        
         act.Should().NotThrow();
+        _fakeFormatter.Verify(formatter => 
+            formatter.DisplayMessage(_testTool.Description), Times.Once);
     }
 
     [Fact]

@@ -1,8 +1,5 @@
-using Moq;
-
 using FCli.Services.Data;
-using FCli.Models;
-using FCli.Common.Exceptions;
+using FCli.Exceptions;
 
 namespace FCli.Tests.Services.Storage;
 
@@ -16,32 +13,33 @@ public class JsonLoaderTests : IDisposable
     {
         _ = new JsonLoader(TestRepository.ConfigFake.Object);
 
-        Directory.Exists(TestRepository.TestFolderName).Should().BeTrue();
+        Directory.Exists(TestRepository.FolderName).Should().BeTrue();
     }
 
     [Fact]
     public void JsonLoader_SaveCommand()
     {
-        TestLoader.SaveCommand(TestRepository.TestCommand);
+        TestLoader.SaveCommand(TestRepository.Command1);
 
-        File.Exists(TestRepository.TestStoragePath).Should().BeTrue();
-        TestLoader.CommandExists(TestRepository.TestCommand.Name).Should().BeTrue();
+        File.Exists(TestRepository.StoragePath).Should().BeTrue();
+        TestLoader.CommandExists(TestRepository.Command1.Name)
+            .Should().BeTrue();
     }
 
     [Fact]
     public void JsonLoader_CommandExists_Correctly()
     {
         var loader = TestLoader;
-        loader.SaveCommand(TestRepository.TestCommand);
+        loader.SaveCommand(TestRepository.Command1);
 
-        loader.CommandExists(TestRepository.TestCommand.Name).Should().BeTrue();
+        loader.CommandExists(TestRepository.Command1.Name).Should().BeTrue();
     }
 
     [Fact]
     public void JsonLoader_CommandExists_Fails()
     {
-        if (File.Exists(TestRepository.TestStoragePath))
-            File.Delete(TestRepository.TestStoragePath);
+        if (File.Exists(TestRepository.StoragePath))
+            File.Delete(TestRepository.StoragePath);
 
         TestLoader.CommandExists("test").Should().BeFalse();
     }
@@ -49,10 +47,10 @@ public class JsonLoaderTests : IDisposable
     [Fact]
     public void JsonLoader_LoadCommand_Buffer()
     {
-        TestLoader.SaveCommand(TestRepository.TestCommand);
+        TestLoader.SaveCommand(TestRepository.Command1);
         var loader = TestLoader;
-        var command1 = loader.LoadCommand(TestRepository.TestCommand.Name);
-        var command2 = loader.LoadCommand(TestRepository.TestCommand.Name);
+        var command1 = loader.LoadCommand(TestRepository.Command1.Name);
+        var command2 = loader.LoadCommand(TestRepository.Command1.Name);
 
         ReferenceEquals(command1, command2).Should().BeTrue();
     }
@@ -60,9 +58,9 @@ public class JsonLoaderTests : IDisposable
     [Fact]
     public void JsonLoader_LoadCommand_NoBuffer()
     {
-        TestLoader.SaveCommand(TestRepository.TestCommand);
-        var command1 = TestLoader.LoadCommand(TestRepository.TestCommand.Name);
-        var command2 = TestLoader.LoadCommand(TestRepository.TestCommand.Name);
+        TestLoader.SaveCommand(TestRepository.Command1);
+        var command1 = TestLoader.LoadCommand(TestRepository.Command1.Name);
+        var command2 = TestLoader.LoadCommand(TestRepository.Command1.Name);
 
         ReferenceEquals(command1, command2).Should().BeFalse();
     }
@@ -71,20 +69,23 @@ public class JsonLoaderTests : IDisposable
     public void JsonLoader_LoadCommands()
     {
         var loader = TestLoader;
-        loader.SaveCommand(TestRepository.TestCommand);
-        loader.SaveCommand(TestRepository.TestCommand);
-        loader.SaveCommand(TestRepository.TestCommand);
+        loader.SaveCommand(TestRepository.Command1);
+        loader.SaveCommand(TestRepository.Command2);
+        loader.SaveCommand(TestRepository.Command3);
 
         var commands = loader.LoadCommands();
 
-        commands.Should().HaveCount(3);
+        commands.Should().HaveCount(3)
+            .And.Contain(command => command.Name == TestRepository.Command1.Name)
+            .And.Contain(command => command.Name == TestRepository.Command2.Name)
+            .And.Contain(command => command.Name == TestRepository.Command3.Name);
     }
 
     [Fact]
     public void JsonLoader_LoadCommands_NoCommands()
     {
-        if (File.Exists(TestRepository.TestStoragePath))
-            File.Delete(TestRepository.TestStoragePath);
+        if (File.Exists(TestRepository.StoragePath))
+            File.Delete(TestRepository.StoragePath);
 
         TestLoader.LoadCommands().Should().BeNull();
     }
@@ -93,10 +94,10 @@ public class JsonLoaderTests : IDisposable
     public void JsonLoader_DeleteCommand()
     {
         var loader = TestLoader;
-        loader.SaveCommand(TestRepository.TestCommand);
-        loader.DeleteCommand(TestRepository.TestCommand.Name);
+        loader.SaveCommand(TestRepository.Command1);
+        loader.DeleteCommand(TestRepository.Command1.Name);
 
-        loader.CommandExists(TestRepository.TestCommand.Name)
+        loader.CommandExists(TestRepository.Command1.Name)
             .Should().BeFalse();
     }
 
@@ -111,17 +112,17 @@ public class JsonLoaderTests : IDisposable
     public void Dispose()
     {
         GC.SuppressFinalize(this);
-        if (Directory.Exists(TestRepository.TestFolderName))
-            Directory.Delete(TestRepository.TestFolderName, true);
+        if (Directory.Exists(TestRepository.FolderName))
+            Directory.Delete(TestRepository.FolderName, true);
     }
 
     [Fact]
     public void JsonLoader_CriticalException_IfDeserializationFails()
     {
-        if (!Directory.Exists(TestRepository.TestFolderName))
-            Directory.CreateDirectory(TestRepository.TestFolderName);
+        if (!Directory.Exists(TestRepository.FolderName))
+            Directory.CreateDirectory(TestRepository.FolderName);
         File.WriteAllText(
-            TestRepository.TestStoragePath,
+            TestRepository.StoragePath,
             "{}");
         
         var act = TestLoader.LoadCommands;

@@ -39,7 +39,7 @@ public class RemoveTool : Tool
             // Handle --help flag.
             if (flags.Any(flag => flag.Key == "help"))
             {
-                _formatter.DisplayInfo(Name, Description);
+                _formatter.DisplayMessage(Description);
                 return;
             }
             // Guard against invalid command name.
@@ -66,8 +66,8 @@ public class RemoveTool : Tool
                     _formatter.DisplayWarning(
                         Name,
                         "All flag: preparing to delete all known commands.");
-                    _formatter.DisplayMessage("Are you sure? (yes/any): ");
-                    var response = Console.ReadLine();
+                    _formatter.DisplayMessage("Are you sure?");
+                    var response = _formatter.ReadUserInput("(yes/any)");
                     if (response?.ToLower() != "yes")
                         _formatter.DisplayMessage("Deletion averted.");
                     else
@@ -105,8 +105,8 @@ public class RemoveTool : Tool
             if (!skipDialog)
             {
                 // Confirm user's intentions.
-                _formatter.DisplayMessage("Are you sure? (yes/any): ");
-                var response = Console.ReadLine();
+                _formatter.DisplayMessage("Are you sure?");
+                var response = _formatter.ReadUserInput("(yes/any)");
                 if (response != "yes")
                 {
                     _formatter.DisplayMessage("Deletion averted.");

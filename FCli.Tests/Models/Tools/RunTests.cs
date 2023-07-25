@@ -1,9 +1,11 @@
+using Moq;
+
 using FCli.Models;
-using FCli.Common.Exceptions;
+using FCli.Exceptions;
 using FCli.Models.Tools;
 using static FCli.Models.Args;
-using Moq;
 using FCli.Services;
+using FCli.Services.Format;
 
 namespace FCli.Tests.Models.Tools;
 
@@ -13,13 +15,16 @@ public class RunTests
     
     private static readonly Mock<IToolExecutor> _fakeExecutor;
     private static readonly Mock<ICommandFactory> _fakeFactory;
+    private static readonly Mock<ICommandLineFormatter> _fakeFormatter;
 
     static RunTests()
     {
         _fakeExecutor = TestRepository.ToolExecutorFake;
         _fakeFactory = TestRepository.CommandFactoryFake;
+        _fakeFormatter = TestRepository.FormatterFake;
 
         _testTool = new RunTool(
+            _fakeFormatter.Object,
             _fakeExecutor.Object,
             _fakeFactory.Object);
     }
@@ -28,7 +33,11 @@ public class RunTests
     public void Run_ShouldHandleHelp()
     {
         var act = () => _testTool.Action("", new() { new Flag("help", "") });
+
         act.Should().NotThrow();
+        _fakeFormatter.Verify(
+            formatter => formatter.DisplayMessage(_testTool.Description),
+            Times.Once);
     }
 
     [Fact]
@@ -93,7 +102,7 @@ public class RunTests
     {
         var path = commandType == CommandType.Url 
             ? "https://google.com/" 
-            : Path.Combine(TestRepository.TestFilesPath, TestRepository.TestExecutableName);
+            : Path.Combine(TestRepository.TestFilesPath, TestRepository.ExecutableName);
         var act = () => _testTool.Action(path, new()
         {
             new Flag(flag, value),

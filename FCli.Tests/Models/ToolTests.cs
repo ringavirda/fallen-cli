@@ -1,4 +1,4 @@
-using FCli.Common.Exceptions;
+using FCli.Exceptions;
 using FCli.Models;
 using static FCli.Models.Args;
 
@@ -11,6 +11,9 @@ public class ToolTests : Tool
     public override List<string> Selectors => new();
     public override ToolType Type => ToolType.None;
     public override Action<string, List<Flag>> Action => (str, flags) => { };
+
+    public ToolTests() 
+        : base(TestRepository.FormatterFake.Object) { }
 
     [Fact]
     public void Tool_FlagHasValue_Value()

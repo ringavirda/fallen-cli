@@ -129,4 +129,11 @@ public interface ICommandLineFormatter
     /// <param name="callerName">Tool or command name.</param>
     /// <param name="message">String to be printed to console.</param>
     public void DisplayError(string callerName, string message);
+
+    /// <summary>
+    /// Prints out a formatted preface and then reads user's input.
+    /// </summary>
+    /// <param name="preface">Usually (yes/any).</param>
+    /// <returns>User input.</returns>
+    public string? ReadUserInput(string preface);
 }
