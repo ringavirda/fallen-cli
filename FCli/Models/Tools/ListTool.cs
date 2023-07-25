@@ -1,4 +1,5 @@
 // FCli namespaces.
+using System.Resources;
 using FCli.Services;
 using FCli.Services.Data;
 using FCli.Services.Format;
@@ -17,29 +18,20 @@ public class ListTool : Tool
 
     public ListTool(
         ICommandLineFormatter formatter,
+        ResourceManager manager,
         IToolExecutor toolExecutor,
         ICommandLoader commandLoader)
-        : base(formatter)
+        : base(formatter, manager)
     {
         _executor = toolExecutor;
         _loader = commandLoader;
+
+        Description = _resources.GetString("ListHelp") 
+            ?? "Description hasn't loaded";
     }
 
     public override string Name => "List";
-    public override string Description => """
-        List - echos existing commands to the console based on the selection
-        given by flags. If no flags given - lists all existing commands.
-        Flags:
-            --script - adds scripts to listing.
-            --exe    - adds executables to listing.
-            --url    - adds urls to listing.
-            --tools  - lists all available tool selectors.
-            --help   - show description.
-        Usage:
-            fcli list
-            fcli list --tools
-            fcli ls --script --url 
-        """;
+    public override string Description { get; }
     public override List<string> Selectors => new() { "list", "ls" };
     public override ToolType Type => ToolType.List;
     public override Action<string, List<Flag>> Action =>

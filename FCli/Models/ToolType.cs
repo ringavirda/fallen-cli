@@ -9,5 +9,6 @@ public enum ToolType
     List,
     Remove,
     Run,
+    Config,
     None
 }

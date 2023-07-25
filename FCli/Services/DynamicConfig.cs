@@ -1,99 +1,84 @@
+using System.Text.Json;
+
 namespace FCli.Services;
 
 /// <summary>
-/// Static service for determining dynamic configs for the fallen-cli.
+/// Encapsulates the part of the config that can be changed by the user.
 /// </summary>
-/// <remarks>
-/// Changes configuration according to user's operating system.
-/// </remarks>
-public class DynamicConfig : IConfig
+public class DynamicConfig : StaticConfig
 {
-    /// <summary>
-    /// Name for the root app folder.
-    /// </summary>
-    public string AppFolderName { get; private set; }
-    /// <summary>
-    /// Root app path.
-    /// </summary>
-    public string AppFolderPath { get; private set; }
-    /// <summary>
-    /// Name for the command storage file.
-    /// </summary>
-    public string StorageFileName { get; private set; }
-    /// <summary>
-    /// Path to the command storage file.
-    /// </summary>
-    public string StorageFilePath { get; private set; }
-    /// <summary>
-    /// Template for log file names.
-    /// </summary>
-    public string LogsFileTemplate { get; private set; }
-    /// <summary>
-    /// Name for the folder that contains logs.
-    /// </summary>
-    public string LogsFolderName { get; private set; }
-    /// <summary>
-    /// Path to the logs template.
-    /// </summary>
-    public string LogsPath { get; private set; }
+    public override string Locale { get; protected set; } = "en";
+    public override string Formatter { get; protected set; } = "inline";
 
-#pragma warning disable 8618
     public DynamicConfig()
     {
-        if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-            ConfigureWindows();
-        else if (Environment.OSVersion.Platform == PlatformID.Unix)
-            ConfigureUnix();
-        else throw new PlatformNotSupportedException(
-            "FCli supports only WinNT and Unix based systems.");
-    }
-#pragma warning restore 8618
-
-    /// <summary>
-    /// Set up dynamic configuration for Windows.
-    /// </summary>
-    private void ConfigureWindows()
-    {
-        AppFolderName = "FCli";
-        AppFolderPath = Path.Combine(
-            Environment.GetFolderPath(
-                Environment.SpecialFolder.ApplicationData),
-            AppFolderName);
-
-        StorageFileName = "storage.json";
-        StorageFilePath = Path.Combine(
-            AppFolderPath,
-            StorageFileName);
-
-        LogsFolderName = "Logs";
-        LogsFileTemplate = "fcli-log.log";
-        LogsPath = Path.Combine(
-            AppFolderPath,
-            LogsFolderName,
-            LogsFileTemplate);
+        LoadConfig();
     }
 
     /// <summary>
-    /// Set up dynamic configuration for Linux.
+    /// Simple stub to fix json's infinite loading.
     /// </summary>
-    private void ConfigureUnix()
+    /// <param name="Locale">Stored locale.</param>
+    /// <param name="Formatter">Stored formatter.</param>
+    private record JsonFixture(
+        string Locale,
+        string Formatter);
+
+    /// <summary>
+    /// Serializes this object to json.
+    /// </summary>
+    public override void SaveConfig()
     {
-        AppFolderName = ".fcli";
-        AppFolderPath = Path.Combine(
-            Environment.GetFolderPath(
-                Environment.SpecialFolder.Personal),
-            ".fcli");
+        var json = JsonSerializer.Serialize(new JsonFixture(
+            Locale,
+            Formatter));
+        File.WriteAllText(ConfigFilePath, json);
+    }
+    
+    /// <summary>
+    /// Loads user config from storage and deserializes it.
+    /// </summary>
+    public override void LoadConfig()
+    {
+        if (File.Exists(ConfigFilePath))
+        {
+            var json = File.ReadAllText(ConfigFilePath);
+            JsonFixture? fixture = null;
+            if (!string.IsNullOrEmpty(json))
+                fixture = JsonSerializer.Deserialize<JsonFixture>(json);
+            Locale = fixture?.Locale ?? Locale;
+            Formatter = fixture?.Formatter ?? Formatter;
+        }
+        // Save default configs if first launch.
+        else SaveConfig();
+    }
 
-        StorageFileName = "storage.json";
-        StorageFilePath = Path.Combine(
-            AppFolderPath,
-            StorageFileName);
+    /// <summary>
+    /// Deletes saved config file.
+    /// </summary>
+    public override void PurgeConfig()
+    {
+        if (File.Exists(ConfigFilePath))
+            File.Delete(ConfigFilePath);
+    }
 
-        LogsFolderName = "logs";
-        LogsFileTemplate = "fcli-log.log";
-        LogsPath = Path.Combine(
-            AppFolderPath,
-            LogsFolderName,
-            LogsFileTemplate);
+    /// <summary>
+    /// Changes locale without validation.
+    /// </summary>
+    /// <param name="locale">New locale.</param>
+    public override void ChangeLocale(string locale)
+    {
+        Locale = locale;
+        SaveConfig();
+    }
+    
+    /// <summary>
+    /// Changes formatter without validation.
+    /// </summary>
+    /// <param name="formatter">New formatter.</param>
+    public override void ChangeFormatter(string formatter)
+    {
+        Formatter = formatter;
+        SaveConfig();
     }
 }

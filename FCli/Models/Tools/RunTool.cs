@@ -1,4 +1,5 @@
 // FCli namespaces.
+using System.Resources;
 using FCli.Exceptions;
 using FCli.Services;
 using FCli.Services.Format;
@@ -17,28 +18,20 @@ public class RunTool : Tool
 
     public RunTool(
         ICommandLineFormatter formatter,
-        IToolExecutor toolExecutor, 
+        ResourceManager manager,
+        IToolExecutor toolExecutor,
         ICommandFactory commandFactory)
-        : base(formatter)
+        : base(formatter, manager)
     {
         _executor = toolExecutor;
         _factory = commandFactory;
+
+        Description = _resources.GetString("RunHelp")
+            ?? "Description hasn't loaded";
     }
 
     public override string Name => "Run";
-    public override string Description => """
-        Run - executes given path or url without saving. Useful for testing.
-        Requires path or url, as well as explicit specification of run type
-        through a flag.
-        Flags:
-            --script <shell> - run as script.
-            --exe            - run as executable.
-            --url            - run as url.
-            --help           - show description.
-        Usage:
-            fcli run c:/awesome --script powershell
-            fcli run https://awesome.com --url
-        """;
+    public override string Description { get; }
     public override List<string> Selectors => new() { "run", "r" };
     public override ToolType Type => ToolType.Run;
     public override Action<string, List<Flag>> Action =>

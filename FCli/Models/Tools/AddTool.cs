@@ -1,4 +1,5 @@
 // FCli namespaces.
+using System.Resources;
 using FCli.Exceptions;
 using FCli.Services;
 using FCli.Services.Data;
@@ -19,31 +20,22 @@ public class AddTool : Tool
 
     public AddTool(
         ICommandLineFormatter formatter,
+        ResourceManager manager,
         IToolExecutor toolExecutor,
         ICommandFactory commandFactory,
         ICommandLoader commandLoader)
-        : base(formatter)
+        : base(formatter, manager)
     {
         _toolExecutor = toolExecutor;
         _commandFactory = commandFactory;
         _commandLoader = commandLoader;
+
+        Description = _resources.GetString("AddHelp") 
+            ?? "Description hasn't loaded";
     }
 
     public override string Name => "Add";
-    public override string Description => """
-        Add - validates a new command and adds it to the storage.
-        Requires a valid path or url as an argument.
-        Flags:
-            --script <shell> - the path points to the script file.
-            --exe            - the path points to the executable.
-            --url            - the argument is a url.
-            --name <value>   - explicitly specify the name for the command.
-            --options <args> - options to run exe or script with.
-            --help           - show description.
-        Usage:
-            fcli add c:/awesome.exe
-            fcli add .\scripts\script --script bash --name sc
-        """;
+    public override string Description { get; }
     public override List<string> Selectors => new() { "add", "a" };
     public override ToolType Type => ToolType.Add;
     public override Action<string, List<Flag>> Action =>

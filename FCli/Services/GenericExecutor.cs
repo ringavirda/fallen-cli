@@ -6,6 +6,7 @@ using FCli.Exceptions;
 using FCli.Models.Tools;
 using FCli.Services.Data;
 using FCli.Services.Format;
+using System.Resources;
 
 namespace FCli.Services;
 
@@ -16,24 +17,29 @@ public class GenericExecutor : IToolExecutor
 {
     // DI.
     private readonly ILogger<GenericExecutor> _logger;
+    private readonly ResourceManager _resources;
 
     public GenericExecutor(
         ICommandLoader commandLoader,
         ILogger<GenericExecutor> logger,
         ICommandFactory commandFactory,
-        ICommandLineFormatter formatter)
+        ICommandLineFormatter formatter,
+        IConfig config,
+        ResourceManager manager)
     {
         // Configure tool protos.
         KnownTools = new()
         {
-            new AddTool(formatter, this, commandFactory, commandLoader),
-            new RemoveTool(formatter, commandLoader),
-            new ListTool(formatter, this, commandLoader),
-            new RunTool(formatter, this, commandFactory)
+            new AddTool(formatter, manager, this, commandFactory, commandLoader),
+            new RemoveTool(formatter, manager, commandLoader),
+            new ListTool(formatter, manager, this, commandLoader),
+            new RunTool(formatter, manager, this, commandFactory),
+            new ConfigTool(formatter, manager, config)
         };
         KnownTypeFlags = new() { "script", "url", "exe" };
 
         _logger = logger;
+        _resources = manager;
     }
 
     public List<string> KnownTypeFlags { get; }

@@ -1,3 +1,5 @@
+// Vendor namespaces.
+using System.Resources;
 // FCli namespaces.
 using FCli.Exceptions;
 using FCli.Services.Format;
@@ -16,10 +18,14 @@ public abstract class Tool
     // DI.
     // Can be used by all tools.
     protected readonly ICommandLineFormatter _formatter;
+    protected readonly ResourceManager _resources;
 
-    protected Tool(ICommandLineFormatter formatter)
+    protected Tool(
+        ICommandLineFormatter formatter,
+        ResourceManager resources)
     {
         _formatter = formatter;
+        _resources = resources;
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
 // FCli namespaces.
+using System.Resources;
 using FCli.Services.Data;
 using FCli.Services.Format;
 using static FCli.Models.Args;
@@ -15,22 +16,18 @@ public class RemoveTool : Tool
 
     public RemoveTool(
         ICommandLineFormatter formatter,
+        ResourceManager manager,
         ICommandLoader commandLoader)
-        : base(formatter)
+        : base(formatter, manager)
     {
         _loader = commandLoader;
+
+        Description = _resources.GetString("RemoveHelp") 
+            ?? "Description hasn't loaded";
     }
 
     public override string Name => "Remove";
-    public override string Description => """
-            Remove - deletes command from storage.
-            Flags:
-                --yes  - skip confirmation.
-                --all  - removes all known commands.
-                --help - show description.
-            Usage:
-                fcli remove awesome --yes
-            """;
+    public override string Description { get; }
     public override List<string> Selectors => new() { "remove", "rm" };
     public override ToolType Type => ToolType.Remove;
     public override Action<string, List<Flag>> Action =>
