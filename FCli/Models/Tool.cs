@@ -1,6 +1,6 @@
 // FCli namespaces.
-using FCli.Common;
-using FCli.Common.Exceptions;
+using FCli.Exceptions;
+using FCli.Services.Format;
 using static FCli.Models.Args;
 
 namespace FCli.Models;
@@ -13,6 +13,15 @@ namespace FCli.Models;
 /// <remarks>
 public abstract class Tool
 {
+    // DI.
+    // Can be used by all tools.
+    protected readonly ICommandLineFormatter _formatter;
+
+    protected Tool(ICommandLineFormatter formatter)
+    {
+        _formatter = formatter;
+    }
+
     /// <summary>
     /// Toll's command line selector.
     /// </summary>
@@ -42,11 +51,11 @@ public abstract class Tool
     /// </summary>
     /// <param name="flag">Flag to test.</param>
     /// <exception cref="FlagException">If value is present.</exception>
-    protected static void FlagHasNoValue(Flag flag, string toolName)
+    protected void FlagHasNoValue(Flag flag, string toolName)
     {
         if (flag.Value != "")
         {
-            Helpers.DisplayWarning(toolName, $"""
+            _formatter.DisplayWarning(toolName, $"""
                 Flag (--{flag.Key}) shouldn't have any value.
                 To see list of all supported flags for {toolName} tool consult
                 help page using --help flag.
@@ -60,11 +69,11 @@ public abstract class Tool
     /// </summary>
     /// <param name="flag">Flag to test.</param>
     /// <exception cref="FlagException">If value is missing.</exception>
-    protected static void FlagHasValue(Flag flag, string toolName)
+    protected void FlagHasValue(Flag flag, string toolName)
     {
         if (flag.Value == "")
         {
-            Helpers.DisplayWarning(toolName, $"""
+            _formatter.DisplayWarning(toolName, $"""
                 Flag (--{flag.Key}) should have a value.
                 To see list of all supported flags for {toolName} tool consult
                 help page using --help flag.
@@ -79,9 +88,9 @@ public abstract class Tool
     /// <param name="flag">Unknown flag.</param>
     /// <param name="toolName">Tool name that doesn't recognize the flag.</param>
     /// <exception cref="FlagException">Flag is unknown.</exception>
-    protected static void UnknownFlag(Flag flag, string toolName)
+    protected void UnknownFlag(Flag flag, string toolName)
     {
-        Helpers.DisplayWarning(toolName, $"""
+        _formatter.DisplayWarning(toolName, $"""
             Flag (--{flag.Key}) is not a known flag for the {toolName} tool.
             To see list of all supported flags for {toolName} tool consult
             help page using --help flag.
@@ -96,7 +105,7 @@ public abstract class Tool
     /// <param name="url">URL to test.</param>
     /// <returns>Constructed URI object.</returns>
     /// <exception cref="ArgumentException">If URI construction fails.</exception>
-    protected static Uri ValidateUrl(string url, string toolName)
+    protected Uri ValidateUrl(string url, string toolName)
     {
         // Attempt create a URI from given url.
         var success = Uri.TryCreate(
@@ -109,7 +118,7 @@ public abstract class Tool
         // Guard against URI creation fail.
         if (!success || uri == null)
         {
-            Helpers.DisplayWarning(toolName, $"{url} - is not a valid url.");
+            _formatter.DisplayWarning(toolName, $"{url} - is not a valid url.");
             throw new ArgumentException($"Given url ({url}) is invalid.");
         }
         // Return constructed URI.
@@ -122,12 +131,12 @@ public abstract class Tool
     /// <param name="path">Path to test.</param>
     /// <returns>Full path.</returns>
     /// <exception cref="ArgumentException">If path doesn't exist.</exception>
-    protected static string ValidatePath(string path, string toolName)
+    protected string ValidatePath(string path, string toolName)
     {
         // Guard against bad path.
         if (!(File.Exists(path) || Directory.Exists(path)))
         {
-            Helpers.DisplayWarning(
+            _formatter.DisplayWarning(
                 toolName,
                 $"{path} - is not a valid system path.");
             throw new ArgumentException($"Given path ({path}) is invalid.");

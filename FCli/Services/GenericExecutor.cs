@@ -2,9 +2,10 @@
 using Microsoft.Extensions.Logging;
 // FCli namespaces.
 using FCli.Models;
+using FCli.Exceptions;
 using FCli.Models.Tools;
 using FCli.Services.Data;
-using FCli.Common.Exceptions;
+using FCli.Services.Format;
 
 namespace FCli.Services;
 
@@ -19,15 +20,16 @@ public class GenericExecutor : IToolExecutor
     public GenericExecutor(
         ICommandLoader commandLoader,
         ILogger<GenericExecutor> logger,
-        ICommandFactory commandFactory)
+        ICommandFactory commandFactory,
+        ICommandLineFormatter formatter)
     {
         // Configure tool protos.
         KnownTools = new()
         {
-            new AddTool(this, commandFactory, commandLoader),
-            new RemoveTool(commandLoader),
-            new ListTool(this, commandLoader),
-            new RunTool(this, commandFactory)
+            new AddTool(formatter, this, commandFactory, commandLoader),
+            new RemoveTool(formatter, commandLoader),
+            new ListTool(formatter, this, commandLoader),
+            new RunTool(formatter, this, commandFactory)
         };
         KnownTypeFlags = new() { "script", "url", "exe" };
 

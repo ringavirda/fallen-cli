@@ -1,4 +1,4 @@
-﻿namespace FCli.Common.Exceptions;
+﻿namespace FCli.Exceptions;
 
 /// <summary>
 /// This exception has semantics of an error concerning command line flags.

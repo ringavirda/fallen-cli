@@ -1,6 +1,6 @@
 // FCli namespaces.
-using FCli.Common;
 using FCli.Services.Data;
+using FCli.Services.Format;
 using static FCli.Models.Args;
 
 namespace FCli.Models.Tools;
@@ -11,11 +11,14 @@ namespace FCli.Models.Tools;
 public class RemoveTool : Tool
 {
     // From ToolExecutor.
-    private readonly ICommandLoader _commandLoader;
+    private readonly ICommandLoader _loader;
 
-    public RemoveTool(ICommandLoader commandLoader)
+    public RemoveTool(
+        ICommandLineFormatter formatter,
+        ICommandLoader commandLoader)
+        : base(formatter)
     {
-        _commandLoader = commandLoader;
+        _loader = commandLoader;
     }
 
     public override string Name => "Remove";
@@ -36,14 +39,14 @@ public class RemoveTool : Tool
             // Handle --help flag.
             if (flags.Any(flag => flag.Key == "help"))
             {
-                Helpers.DisplayInfo(Name, Description);
+                _formatter.DisplayInfo(Name, Description);
                 return;
             }
             // Guard against invalid command name.
-            if (!_commandLoader.CommandExists(arg)
+            if (!_loader.CommandExists(arg)
                 && !flags.Any(f => f.Key == "all"))
             {
-                Helpers.DisplayError(Name, $"""
+                _formatter.DisplayError(Name, $"""
                     ({arg}) - is not a recognized command name.
                     To see all command selectors try: fcli list.
                     """);
@@ -60,21 +63,21 @@ public class RemoveTool : Tool
                 if (flag.Key == "all")
                 {
                     // Confirm user's intentions.
-                    Helpers.DisplayWarning(
+                    _formatter.DisplayWarning(
                         Name,
                         "All flag: preparing to delete all known commands.");
-                    Helpers.DisplayMessage("Are you sure? (yes/any): ");
+                    _formatter.DisplayMessage("Are you sure? (yes/any): ");
                     var response = Console.ReadLine();
                     if (response?.ToLower() != "yes")
-                        Helpers.DisplayMessage("Deletion averted.");
+                        _formatter.DisplayMessage("Deletion averted.");
                     else
                     {
-                        Helpers.DisplayMessage("Deleting...");
-                        var commands = _commandLoader.LoadCommands();
+                        _formatter.DisplayMessage("Deleting...");
+                        var commands = _loader.LoadCommands();
                         // Guard against empty storage.
                         if (commands == null || !commands.Any())
                         {
-                            Helpers.DisplayError(
+                            _formatter.DisplayError(
                                 Name,
                                 "There are no commands to delete!");
                             return;
@@ -84,8 +87,8 @@ public class RemoveTool : Tool
                             // Delete all known commands.
                             foreach (var command in commands
                                 .Select(c => c.Name).ToList())
-                                _commandLoader.DeleteCommand(command);
-                            Helpers.DisplayInfo(
+                                _loader.DeleteCommand(command);
+                            _formatter.DisplayInfo(
                                 Name,
                                 "All existing commands have been deleted.");
                         }
@@ -98,21 +101,21 @@ public class RemoveTool : Tool
                 else UnknownFlag(flag, Name);
             }
             // Prepare to delete the command.
-            Helpers.DisplayInfo(Name, $"Preparing to delete {arg} command.");
+            _formatter.DisplayInfo(Name, $"Preparing to delete {arg} command.");
             if (!skipDialog)
             {
                 // Confirm user's intentions.
-                Helpers.DisplayMessage("Are you sure? (yes/any): ");
+                _formatter.DisplayMessage("Are you sure? (yes/any): ");
                 var response = Console.ReadLine();
                 if (response != "yes")
                 {
-                    Helpers.DisplayMessage("Deletion averted.");
+                    _formatter.DisplayMessage("Deletion averted.");
                     return;
                 }
             }
             // Delete command.
-            Helpers.DisplayMessage("Deleting...");
-            _commandLoader.DeleteCommand(arg);
-            Helpers.DisplayInfo(Name, $"Command ({arg}) was successfully deleted.");
+            _formatter.DisplayMessage("Deleting...");
+            _loader.DeleteCommand(arg);
+            _formatter.DisplayInfo(Name, $"Command ({arg}) was successfully deleted.");
         };
 }

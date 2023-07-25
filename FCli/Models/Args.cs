@@ -1,7 +1,7 @@
 ﻿// Vendor namespaces.
 using System.Text.RegularExpressions;
+using FCli.Services.Format;
 // FCli namespaces.
-using FCli.Common;
 
 namespace FCli.Models;
 
@@ -123,7 +123,8 @@ public partial class Args
             // Guard against inappropriate count of args.
             if (buffer.Count > 2)
             {
-                Helpers.DisplayWarning(
+                // Hardcode inline formatter.
+                new InlineFormatter().DisplayWarning(
                     nameof(Args),
                     "FCli accepts only <tool?> <arg>, but more then one arg was found.");
                 throw new ArgumentException(

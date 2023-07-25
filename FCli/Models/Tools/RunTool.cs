@@ -1,7 +1,7 @@
 // FCli namespaces.
-using FCli.Common;
-using FCli.Common.Exceptions;
+using FCli.Exceptions;
 using FCli.Services;
+using FCli.Services.Format;
 using static FCli.Models.Args;
 
 namespace FCli.Models.Tools;
@@ -12,13 +12,17 @@ namespace FCli.Models.Tools;
 public class RunTool : Tool
 {
     // From ToolExecutor.
-    private readonly IToolExecutor _toolExecutor;
-    private readonly ICommandFactory _commandFactory;
+    private readonly IToolExecutor _executor;
+    private readonly ICommandFactory _factory;
 
-    public RunTool(IToolExecutor toolExecutor, ICommandFactory commandFactory)
+    public RunTool(
+        ICommandLineFormatter formatter,
+        IToolExecutor toolExecutor, 
+        ICommandFactory commandFactory)
+        : base(formatter)
     {
-        _toolExecutor = toolExecutor;
-        _commandFactory = commandFactory;
+        _executor = toolExecutor;
+        _factory = commandFactory;
     }
 
     public override string Name => "Run";
@@ -43,13 +47,13 @@ public class RunTool : Tool
             // Handle --help flag.
             if (flags.Any(flag => flag.Key == "help"))
             {
-                Helpers.DisplayInfo(Name, Description);
+                _formatter.DisplayInfo(Name, Description);
                 return;
             }
             // Guard against no argument.
             if (arg == string.Empty)
             {
-                Helpers.DisplayWarning(Name, """
+                _formatter.DisplayWarning(Name, """
                     You need to specify a command to test.
                     To see Run tool usage consult --help.
                     """);
@@ -57,12 +61,12 @@ public class RunTool : Tool
             }
             // Extract flags.
             var typeFlags = flags
-                .Where(flag => _toolExecutor.KnownTypeFlags.Contains(flag.Key));
+                .Where(flag => _executor.KnownTypeFlags.Contains(flag.Key));
             var optionsFlag = flags.FirstOrDefault(flag => flag.Key == "options");
             // Guard against no type flag.
             if (!typeFlags.Any())
             {
-                Helpers.DisplayWarning(Name, """
+                _formatter.DisplayWarning(Name, """
                     With Run you need to explicitly specify the type to run.
                     To see all supported type flags use --help.
                     """);
@@ -70,7 +74,7 @@ public class RunTool : Tool
             }
             if (typeFlags.Count() != 1)
             {
-                Helpers.DisplayWarning(Name, """
+                _formatter.DisplayWarning(Name, """
                     Run can only have one type defining flag.
                     To see all supported type flags use --help.
                     """);
@@ -101,7 +105,7 @@ public class RunTool : Tool
                 }
                 catch (FlagException)
                 {
-                    Helpers.DisplayError(Name, $"""
+                    _formatter.DisplayError(Name, $"""
                         Specified shell ({typeFlag.Value}) is not recognized.
                         The only shells that are supported: cmd, powershell, bash. 
                         """);
@@ -110,7 +114,7 @@ public class RunTool : Tool
                 // Confirm path.
                 var fullPath = ValidatePath(arg, Name);
                 // Construct dummy command.
-                command = _commandFactory.Construct(
+                command = _factory.Construct(
                     "runner", fullPath, type,
                     optionsFlag?.Value ?? string.Empty);
 
@@ -122,7 +126,7 @@ public class RunTool : Tool
                 // Confirm path.
                 var fullPath = ValidatePath(arg, Name);
                 // Construct dummy command.
-                command = _commandFactory.Construct(
+                command = _factory.Construct(
                     "runner", fullPath,
                     CommandType.Executable,
                     optionsFlag?.Value ?? string.Empty);
@@ -134,7 +138,7 @@ public class RunTool : Tool
                 // Validate url.
                 var uri = ValidateUrl(arg, Name);
                 // Construct dummy command.
-                command = _commandFactory.Construct(
+                command = _factory.Construct(
                     "runner",
                     uri.ToString(),
                     CommandType.Url,

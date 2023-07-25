@@ -1,20 +1,13 @@
-﻿// Vendor namespaces.
 using System.Reflection;
 
-namespace FCli.Common;
+namespace FCli.Services.Format;
 
-/// <summary>
-/// Static class interactions with console.
-/// </summary>
-/// <remarks>
-/// Display methods format given message in a specific way. 
-/// </remarks>
-public static class Helpers
+public interface ICommandLineFormatter
 {
     /// <summary>
     /// Echos logo and basic helpful info about fallen-cli.
     /// </summary>
-    public static void EchoGreeting()
+    public void EchoGreeting()
     {
         EchoLogo();
         EchoNameAndVersion();
@@ -42,7 +35,7 @@ public static class Helpers
     /// <summary>
     /// Writes to the console assembly name and version.
     /// </summary>
-    public static void EchoNameAndVersion()
+    public void EchoNameAndVersion()
     {
         var assembly = Assembly.GetExecutingAssembly();
         Console.WriteLine(
@@ -54,7 +47,7 @@ public static class Helpers
     /// <summary>
     /// Everyone needs one.
     /// </summary>
-    public static void EchoLogo()
+    public void EchoLogo()
     {
         Console.ForegroundColor = ConsoleColor.Red;
         Console.WriteLine("""
@@ -71,7 +64,7 @@ public static class Helpers
     /// <summary>
     /// Displays more helpful info then the basic greeting.
     /// </summary>
-    public static void EchoHelp()
+    public void EchoHelp()
     {
         EchoNameAndVersion();
         Console.WriteLine("""
@@ -108,56 +101,32 @@ public static class Helpers
             """);
     }
 
+    // Actual interface methods.
+
     /// <summary>
     /// Simply prints out the message into the console.
     /// </summary>
     /// <param name="message">String to echo out.</param>
-    public static void DisplayMessage(string message)
-        => Console.WriteLine(message);
+    public void DisplayMessage(string message);
 
     /// <summary>
     /// Formats string as an Info message and displays it to the console.
     /// </summary>
     /// <param name="callerName">Tool or command name.</param>
     /// <param name="message">String to be printed to console.</param>
-    public static void DisplayInfo(string callerName, string message)
-    {
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine($"[{callerName}] Informs:");
-        Console.ResetColor();
-        Console.WriteLine(message);
-    }
+    public void DisplayInfo(string callerName, string message);
 
     /// <summary>
     /// Displays the string in the console as a Warning.
     /// </summary>
     /// <param name="callerName">Tool or command name.</param>
     /// <param name="message">String to be printed to console.</param>
-    public static void DisplayWarning(string callerName, string message)
-    {
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine($"[{callerName}] Warns that something is wrong:");
-        Console.WriteLine(message
-            .Split('\n')
-            .Select(s => $"\t{s}\n")
-            .Aggregate((s1, s2) => s1 + s2));
-        Console.ResetColor();
-    }
+    public void DisplayWarning(string callerName, string message);
 
     /// <summary>
-    /// Errors given message to console.
+    /// Errors the given message to console.
     /// </summary>
     /// <param name="callerName">Tool or command name.</param>
     /// <param name="message">String to be printed to console.</param>
-    public static void DisplayError(string callerName, string message)
-    {
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine($"[{callerName}] An error occurred during execution:");
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine(message
-            .Split('\n')
-            .Select(s => $"\t{s}\n")
-            .Aggregate((s1, s2) => s1 + s2));
-        Console.ResetColor();
-    }
+    public void DisplayError(string callerName, string message);
 }

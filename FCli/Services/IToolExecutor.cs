@@ -1,6 +1,5 @@
 // FCli namespaces.
 using FCli.Models;
-using FCli.Models.Tools;
 
 namespace FCli.Services;
 

@@ -1,10 +1,10 @@
 ﻿// Vendor namespaces.
 using System.Diagnostics;
 // FCli namespaces.
-using FCli.Services.Data;
 using FCli.Models;
-using FCli.Common;
-using FCli.Common.Exceptions;
+using FCli.Exceptions;
+using FCli.Services.Data;
+using FCli.Services.Format;
 
 namespace FCli.Services;
 
@@ -17,11 +17,15 @@ namespace FCli.Services;
 public class OSSpecificFactory : ICommandFactory
 {
     // DI.
-    private readonly ICommandLoader _commandLoader;
+    private readonly ICommandLoader _loader;
+    private readonly ICommandLineFormatter _formatter;
 
-    public OSSpecificFactory(ICommandLoader commandLoader)
+    public OSSpecificFactory(
+        ICommandLoader commandLoader,
+        ICommandLineFormatter formatter)
     {
-        _commandLoader = commandLoader;
+        _loader = commandLoader;
+        _formatter = formatter;
     }
 
     /// <summary>
@@ -32,11 +36,11 @@ public class OSSpecificFactory : ICommandFactory
     /// <exception cref="InvalidOperationException">If given name is unknown.</exception>
     public Command Construct(string name)
     {
-        var command = _commandLoader.LoadCommand(name);
+        var command = _loader.LoadCommand(name);
         // Guard against unknown command.
         if (command == null)
         {
-            Helpers.DisplayError("Command", $"""
+            _formatter.DisplayError("Command", $"""
                 Command ({name}) is not listed amongst stored commands.
                 To see all known commands try: fcli list.
                 """);
@@ -97,7 +101,7 @@ public class OSSpecificFactory : ICommandFactory
                 // Obviously.
                 if (Environment.OSVersion.Platform == PlatformID.Unix)
                 {
-                    Helpers.DisplayError(
+                    _formatter.DisplayError(
                         name,
                         "CMD scripts cannot be run on Linux systems!");
                     throw new InvalidOperationException(
@@ -118,7 +122,7 @@ public class OSSpecificFactory : ICommandFactory
                 // Try execute on linux.
                 if (Environment.OSVersion.Platform == PlatformID.Unix)
                 {
-                    Helpers.DisplayWarning(name, "Attempting to execute on Linux..");
+                    _formatter.DisplayWarning(name, "Attempting to execute on Linux..");
                     Process.Start("bash", $"powershell {path} {options}");
                 }
                 // Windows starts powershell.exe process with flags that bypass

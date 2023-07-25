@@ -7,6 +7,7 @@ using Serilog;
 using FCli;
 using FCli.Services;
 using FCli.Services.Data;
+using FCli.Services.Format;
 
 // Configure and run application host.
 Host.CreateDefaultBuilder()
@@ -27,6 +28,7 @@ Host.CreateDefaultBuilder()
     .ConfigureServices(services => {
         services
             .AddSingleton<IConfig, DynamicConfig>()
+            .AddSingleton<ICommandLineFormatter, InlineFormatter>()
             .AddScoped<ICommandLoader, JsonLoader>()
             .AddScoped<ICommandFactory, OSSpecificFactory>()
             .AddScoped<IToolExecutor, GenericExecutor>()
@@ -37,6 +39,7 @@ Host.CreateDefaultBuilder()
                     serviceProvider.GetRequiredService<ICommandFactory>(),
                     serviceProvider.GetRequiredService<ILogger<FallenCli>>(),
                     serviceProvider.GetRequiredService<IHost>(),
+                    serviceProvider.GetRequiredService<ICommandLineFormatter>(),
                     args
                 )
             );

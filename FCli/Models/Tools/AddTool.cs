@@ -1,8 +1,8 @@
 // FCli namespaces.
-using FCli.Common;
-using FCli.Common.Exceptions;
+using FCli.Exceptions;
 using FCli.Services;
 using FCli.Services.Data;
+using FCli.Services.Format;
 using static FCli.Models.Args;
 
 namespace FCli.Models.Tools;
@@ -18,9 +18,11 @@ public class AddTool : Tool
     private readonly ICommandLoader _commandLoader;
 
     public AddTool(
+        ICommandLineFormatter formatter,
         IToolExecutor toolExecutor,
         ICommandFactory commandFactory,
         ICommandLoader commandLoader)
+        : base(formatter)
     {
         _toolExecutor = toolExecutor;
         _commandFactory = commandFactory;
@@ -50,13 +52,13 @@ public class AddTool : Tool
             // Handle --help flag.
             if (flags.Any(flag => flag.Key == "help"))
             {
-                Helpers.DisplayInfo(Name, Description);
+                _formatter.DisplayInfo(Name, Description);
                 return;
             }
             // Guard against empty path/url.
             if (arg == string.Empty)
             {
-                Helpers.DisplayWarning(
+                _formatter.DisplayWarning(
                     Name,
                     "Add tool requires an argument - a path or url.");
                 throw new ArgumentException(
@@ -68,7 +70,7 @@ public class AddTool : Tool
                 .Intersect(_toolExecutor.KnownTypeFlags)
                 .Count() > 1)
             {
-                Helpers.DisplayWarning(
+                _formatter.DisplayWarning(
                     Name,
                     "Add tool can accept only one of the type flags.");
                 throw new FlagException(
@@ -127,7 +129,7 @@ public class AddTool : Tool
                     }
                     catch (ArgumentException)
                     {
-                        Helpers.DisplayWarning(Name, """
+                        _formatter.DisplayWarning(Name, """
                             Script flag must also specify type of shell.
                             Supported shells: cmd, powershell, bash.
                             """);
@@ -182,7 +184,7 @@ public class AddTool : Tool
                         }
                         catch (ArgumentException)
                         {
-                            Helpers.DisplayWarning(Name, """
+                            _formatter.DisplayWarning(Name, """
                                 Couldn't recognize the type of file.
                                 Please, specify it using flags:
                                     --exe
@@ -195,7 +197,7 @@ public class AddTool : Tool
                 // Throw if wan't able to determine command name and type.
                 else
                 {
-                    Helpers.DisplayInfo(Name, """
+                    _formatter.DisplayInfo(Name, """
                         The type of file wasn't determined. FCli recognizes only 
                         file path or url. You can force execution using type 
                         flags. Consult help page for more info.
@@ -208,7 +210,7 @@ public class AddTool : Tool
             if (_toolExecutor.KnownTools.Any(tool => tool.Selectors.Contains(name))
                 || _commandLoader.CommandExists(name))
             {
-                Helpers.DisplayError(Name, $"""
+                _formatter.DisplayError(Name, $"""
                     Name {name} is a known command or tool.
                     Use --name flag to specify explicitly a name for the command.
                     """);
@@ -218,7 +220,7 @@ public class AddTool : Tool
             if (type == CommandType.CMD
                 && Environment.OSVersion.Platform == PlatformID.Unix)
             {
-                Helpers.DisplayError(Name, $"""
+                _formatter.DisplayError(Name, $"""
                     Command ({name}) is interpreted as a batch file, but Linux
                     operating system is running. CMD is only supported on Windows.
                     """);
@@ -228,37 +230,37 @@ public class AddTool : Tool
             if (type == CommandType.Powershell
                 && Environment.OSVersion.Platform == PlatformID.Unix)
             {
-                Helpers.DisplayWarning(Name, $"""
+                _formatter.DisplayWarning(Name, $"""
                     Command ({name}) is interpreted as a powershell script, but
                     Linux operating system is running. PS scripts can be executed
                     on Linux, but powershell needs to be installed from the packet
                     manager.
                     """);
-                Helpers.DisplayMessage(
+                _formatter.DisplayMessage(
                     "Are you sure you can run a powershell script? (yes/any):");
                 var response = Console.ReadLine();
                 if (response?.ToLower() != "yes")
                 {
-                    Helpers.DisplayMessage("Averting add process...");
+                    _formatter.DisplayMessage("Averting add process...");
                     return;
                 }
-                else Helpers.DisplayMessage("Continuing add process...");
+                else _formatter.DisplayMessage("Continuing add process...");
             }
             // Display parsed command.
-            Helpers.DisplayInfo(Name, $"""
+            _formatter.DisplayInfo(Name, $"""
                 Command was parsed:
                 name    - {name}
                 type    - {type}
                 path    - {arg}
                 options - {options}
                 """);
-            Helpers.DisplayMessage("Saving to storage...");
+            _formatter.DisplayMessage("Saving to storage...");
             // Construct the command using parsed values.
             var command = _commandFactory.Construct(name, arg, type, options);
             // Save the command into storage.
             _commandLoader.SaveCommand(command);
             // Display confirmation.
-            Helpers.DisplayMessage($"""
+            _formatter.DisplayMessage($"""
                 Saved.
                 To use the command try:
                     fcli {name}
