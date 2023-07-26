@@ -1,6 +1,9 @@
+// Vendor namespaces.
 using System.Resources;
+// FCli namespaces.
 using FCli.Exceptions;
-using FCli.Services;
+using FCli.Models.Types;
+using FCli.Services.Config;
 using FCli.Services.Format;
 using static FCli.Models.Args;
 
@@ -19,8 +22,8 @@ public class ConfigTool : Tool
     {
         _config = config;
 
-        Description = _resources.GetString("ConfigHelp") 
-            ?? "Description hasn't loaded";
+        Description = _resources.GetString("Config_Help") 
+            ?? formatter.StringNotLoaded();
     }
 
     public override string Name => "Config";
@@ -43,19 +46,26 @@ public class ConfigTool : Tool
             // Guard against arg.
             if (arg != "")
             {
-                _formatter.DisplayWarning(Name, """
-                    Config tool cannot have any arguments.
-                    For Config tool syntax consult help page using --help.
-                    """);
+                _formatter.DisplayWarning(Name, 
+                    _resources.GetString("Config_Arg"));
                 throw new ArgumentException("Config attempt to call with arg");
             }
             // If no flags display config state.
             if (!flags.Any())
             {
-                _formatter.DisplayInfo(Name, "No flags given, listing current config:");
+                _formatter.DisplayInfo(Name, 
+                _resources.GetString("Config_ListConfig"));
                 // Temporary hardcode.
-                _formatter.DisplayMessage($"Formatter: {_config.Formatter}");
-                _formatter.DisplayMessage($"Locale: {_config.Locale}");
+                _formatter.DisplayMessage(string.Format(
+                    _resources.GetString("Config_Formatter")
+                    ?? _formatter.StringNotLoaded(),
+                    _config.Formatter.Selector
+                ));
+                _formatter.DisplayMessage(string.Format(
+                    _resources.GetString("Config_Locale")
+                    ?? _formatter.StringNotLoaded(),
+                    _config.Locale
+                ));
             }
             foreach (var flag in flags)
             {
@@ -65,55 +75,64 @@ public class ConfigTool : Tool
                     // Guard against unsupported locale.
                     if (!_config.KnownLocales.Contains(flag.Value))
                     {
-                        _formatter.DisplayError(Name, """
-                            Unsupported locale was specified via --locale flag.
-                            To see supported locales consult help page.
-                            """);
+                        _formatter.DisplayError(Name, 
+                            _resources.GetString("Config_UnknownLocale"));
                         throw new FlagException(
                             $"Unsupported locale ({flag.Value}) was specified.");
                     }
                     _formatter.DisplayWarning(
                         Name,
-                        $"Preparing to change locale from ({_config.Locale}) to ({flag.Value})...");
+                        string.Format(
+                            _resources.GetString("Config_LocaleChangeWarning")
+                            ?? _formatter.StringNotLoaded(),
+                            _config.Locale, flag.Value
+                        ));
                     _config.ChangeLocale(flag.Value);
-                    _formatter.DisplayMessage("Locale changed.");
+                    _formatter.DisplayMessage(
+                        _resources.GetString("Config_LocaleChanged"));
                 }
                 else if (flag.Key == "formatter")
                 {
                     FlagHasValue(flag, Name);
+                    var newFormatter = _config.KnownFormatters
+                        .FirstOrDefault(format => format.Selector == flag.Value);
                     // Guard against unsupported locale.
-                    if (!_config.KnownFormatters.ContainsKey(flag.Value))
+                    if (newFormatter == null)
                     {
-                        _formatter.DisplayError(Name, """
-                            Unsupported formatter was specified via --formatter flag.
-                            To see supported console formatters consult help page.
-                            """);
+                        _formatter.DisplayError(Name, 
+                            _resources.GetString("Config_UnsupportedFormatter"));
                         throw new FlagException(
                             $"Unsupported formatter ({flag.Value}) was specified.");
                     }
                     _formatter.DisplayWarning(
                         Name,
-                        $"Preparing to change command line formatter from ({_config.Formatter}) to ({flag.Value})...");
-                    _config.ChangeFormatter(flag.Value);
-                    _formatter.DisplayMessage("Formatter changed.");
+                        string.Format(
+                            _resources.GetString("Config_FormatterChangeWarning")
+                            ?? _formatter.StringNotLoaded(),
+                            _config.Formatter.Selector, flag.Value
+                        ));
+                    _config.ChangeFormatter(newFormatter);
+                    _formatter.DisplayMessage(
+                        _resources.GetString("Config_FormatterChanged"));
                 }
                 else if (flag.Key == "purge")
                 {
                     FlagHasNoValue(flag, Name);
                     // Require confirmation from user.
-                    _formatter.DisplayWarning(Name, """
-                        You are about to purge your dynamic configuration, all your
-                        setups will be lost. Are you sure you want to proceed?
-                        """);
+                    _formatter.DisplayWarning(Name, 
+                        _resources.GetString("Config_PurgeWarning"));
                     var response = _formatter.ReadUserInput("(yes/any)");
                     if (response != "yes")
                     {
-                        _formatter.DisplayMessage("Config purge averted.");
+                        _formatter.DisplayMessage(
+                            _resources.GetString("Config_PurgeAverted"));
                         return;
                     }
-                    _formatter.DisplayMessage("Purging...");
+                    _formatter.DisplayMessage(
+                        _resources.GetString("Config_Purging"));
                     _config.PurgeConfig();
-                    _formatter.DisplayMessage("Purged.");
+                    _formatter.DisplayMessage(
+                        _resources.GetString("Config_Purged"));
                 }
                 else UnknownFlag(flag, Name);
             }

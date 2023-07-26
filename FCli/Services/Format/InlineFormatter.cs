@@ -1,4 +1,7 @@
-﻿namespace FCli.Services.Format;
+﻿// Vendor namespaces.
+using System.Text;
+
+namespace FCli.Services.Format;
 
 /// <summary>
 /// Command line formatter that uses multiline messages and colors.
@@ -9,8 +12,9 @@ public class InlineFormatter : ICommandLineFormatter
     /// Writes the message to the console.
     /// </summary>
     /// <param name="message">String to be printed to console.</param>
-    public void DisplayMessage(string message)
-        => Console.WriteLine(message);
+    public void DisplayMessage(string? message)
+        => Console.WriteLine(message 
+            ?? ((ICommandLineFormatter)this).StringNotLoaded());
 
     /// <summary>
     /// Formats Info as a line starting with green caller name and normal 
@@ -18,12 +22,17 @@ public class InlineFormatter : ICommandLineFormatter
     /// </summary>
     /// <param name="callerName">Tool or command name.</param>
     /// <param name="message">String to be printed to console.</param>
-    public void DisplayInfo(string callerName, string message)
+    public void DisplayInfo(string callerName, string? message)
     {
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.Write($"[{callerName}] Info: ");
-        Console.ResetColor();
-        Console.WriteLine(Inline(message));
+        if (message == null)
+            ((ICommandLineFormatter)this).StringNotLoaded();
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write($"[{callerName}] Info: ");
+            Console.ResetColor();
+            Console.WriteLine(Inline(message));
+        }
     }
 
     /// <summary>
@@ -32,12 +41,17 @@ public class InlineFormatter : ICommandLineFormatter
     /// </summary>
     /// <param name="callerName">Tool or command name.</param>
     /// <param name="message">String to be printed to console.</param>
-    public void DisplayWarning(string callerName, string message)
+    public void DisplayWarning(string callerName, string? message)
     {
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.Write($"[{callerName}] Warn: ");
-        Console.ResetColor();
-        Console.WriteLine(Inline(message));
+        if (message == null)
+            ((ICommandLineFormatter)this).StringNotLoaded();
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write($"[{callerName}] Warn: ");
+            Console.ResetColor();
+            Console.WriteLine(Inline(message));
+        }
     }
 
     /// <summary>
@@ -45,12 +59,17 @@ public class InlineFormatter : ICommandLineFormatter
     /// </summary>
     /// <param name="callerName">Tool or command name.</param>
     /// <param name="message">String to be printed to console.</param>
-    public void DisplayError(string callerName, string message)
+    public void DisplayError(string callerName, string? message)
     {
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.Write($"[{callerName}] Err: ");
-        Console.ResetColor();
-        Console.WriteLine(Inline(message));
+        if (message == null)
+            ((ICommandLineFormatter)this).StringNotLoaded();
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write($"[{callerName}] Err: ");
+            Console.ResetColor();
+            Console.WriteLine(Inline(message));
+        }
     }
 
     /// <summary>
@@ -70,5 +89,9 @@ public class InlineFormatter : ICommandLineFormatter
     /// <param name="message">To reformat.</param>
     /// <returns>Inlined message.</returns>
     private static string Inline(string message)
-        => message.Replace('\n', ' ');
+    {
+        var builder = new StringBuilder(message);
+        builder.Replace(Environment.NewLine, " ");
+        return builder.ToString();
+    }
 }

@@ -1,7 +1,12 @@
-using System.Globalization;
+// FCli namespaces.
+using FCli.Models;
+using FCli.Models.Types;
 
-namespace FCli.Services;
+namespace FCli.Services.Config;
 
+/// <summary>
+/// Abstraction for fcli configuration. Includes both static and dynamic configs.
+/// </summary>
 public interface IConfig
 {
     // Static configs.
@@ -43,13 +48,45 @@ public interface IConfig
     /// </summary>
     public string LogsPath { get; }
     /// <summary>
-    /// Return pairs of formatter-selector and formatter-type.
-    /// </summary>
-    public Dictionary<string, Type> KnownFormatters { get; }
-    /// <summary>
     /// List of all known locales.
     /// </summary>
     public List<string> KnownLocales { get; }
+    /// <summary>
+    /// Return pairs of formatter-selector and formatter-type.
+    /// </summary>
+    public List<FormatterDescriptor> KnownFormatters { get; }
+    /// <summary>
+    /// List of all known flags that describe command flavors.
+    /// </summary>
+    /// <remarks>
+    /// Value consists of Command type and a flag that is true if this command executed in the shell.
+    /// </remarks>
+    public List<CommandDescriptor> KnownCommands { get; }
+    /// <summary>
+    /// List of all known shells designators with respective types.
+    /// </summary>
+    /// <remarks>
+    /// Value consists of Shell type and a specific shell file extension.
+    /// </remarks>
+    public List<ShellDescriptor> KnownShells { get; }
+
+    // Descriptors.
+
+    public record FormatterDescriptor(
+        string Selector,
+        Type Type
+    );
+    
+    public record CommandDescriptor(
+        string Selector,
+        CommandType Type,
+        bool IsShell,
+        string? FileExtension);
+
+    public record ShellDescriptor(
+        string Selector,
+        ShellType Type,
+        string FileExtension);
 
     // Dynamic configs.
 
@@ -61,7 +98,7 @@ public interface IConfig
     /// <summary>
     /// Returns current selected command line formatter.
     /// </summary>
-    public string Formatter { get; }
+    public FormatterDescriptor Formatter { get; }
 
     /// <summary>
     /// Saves current config to storage.
@@ -88,5 +125,5 @@ public interface IConfig
     /// Should change the default console formatter.
     /// </summary>
     /// <param name="formatter">New formatter.</param>
-    public void ChangeFormatter(string formatter);
+    public void ChangeFormatter(FormatterDescriptor formatter);
 }

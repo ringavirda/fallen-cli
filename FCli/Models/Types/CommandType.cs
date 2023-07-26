@@ -1,4 +1,4 @@
-﻿namespace FCli.Models;
+﻿namespace FCli.Models.Types;
 
 /// <summary>
 /// Types that describe command execution.
@@ -6,9 +6,10 @@
 public enum CommandType
 {
     None,
-    Url,
     Executable,
-    CMD,
-    Powershell,
-    Bash
+    Website,
+    Script,
+    Directory,
+    Group,
+    Shell
 }

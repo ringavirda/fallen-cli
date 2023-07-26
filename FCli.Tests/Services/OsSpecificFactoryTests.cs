@@ -4,6 +4,8 @@ using FCli.Exceptions;
 using FCli.Services;
 using FCli.Services.Data;
 using FCli.Services.Format;
+using FCli.Models.Types;
+using System.Resources;
 
 namespace FCli.Tests.Services;
 
@@ -13,15 +15,18 @@ public class OSSpecificFactoryTests
 
     private static readonly Mock<ICommandLoader> _fakeLoader;
     private static readonly Mock<ICommandLineFormatter> _fakeFormatter;
+    private static readonly Mock<ResourceManager> _fakeResources;
 
     static OSSpecificFactoryTests()
     {
         _fakeLoader = TestRepository.CommandLoaderFake;
         _fakeFormatter = TestRepository.FormatterFake;
+        _fakeResources = TestRepository.ResourcesFake;
 
         _testFactory = new OSSpecificFactory(
             _fakeLoader.Object,
-            _fakeFormatter.Object);
+            _fakeFormatter.Object,
+            _fakeResources.Object);
     }
 
     [Fact]
@@ -30,13 +35,15 @@ public class OSSpecificFactoryTests
         var command = _testFactory.Construct(
             "test",
             "dotnet",
-            FCli.Models.CommandType.Executable,
+            CommandType.Executable,
+            ShellType.None,
             "--help");
         
         command.Should().NotBeNull();
         command.Name.Should().Be("test");
         command.Path.Should().Be("dotnet");
-        command.Type.Should().Be(FCli.Models.CommandType.Executable);
+        command.Type.Should().Be(CommandType.Executable);
+        command.Shell.Should().Be(ShellType.None);
         command.Options.Should().Be("--help");
 
         command.Action.Should().NotThrow();
@@ -48,13 +55,15 @@ public class OSSpecificFactoryTests
         var command = _testFactory.Construct(
             "test",
             "https://google.com",
-            FCli.Models.CommandType.Url,
+            CommandType.Website,
+            ShellType.None,
             "");
         
         command.Should().NotBeNull();
         command.Name.Should().Be("test");
         command.Path.Should().Be("https://google.com");
-        command.Type.Should().Be(FCli.Models.CommandType.Url);
+        command.Type.Should().Be(CommandType.Website);
+        command.Shell.Should().Be(ShellType.None);
         command.Options.Should().Be("");
 
         command.Action.Should().NotThrow();
@@ -70,13 +79,15 @@ public class OSSpecificFactoryTests
         var command = _testFactory.Construct(
             "test",
             scriptPath,
-            FCli.Models.CommandType.CMD,
+            CommandType.Script,
+            ShellType.Cmd,
             "");
         
         command.Should().NotBeNull();
         command.Name.Should().Be("test");
         command.Path.Should().Be(scriptPath);
-        command.Type.Should().Be(FCli.Models.CommandType.CMD);
+        command.Type.Should().Be(CommandType.Script);
+        command.Shell.Should().Be(ShellType.Cmd);
         command.Options.Should().Be("");
         
         if (Environment.OSVersion.Platform == PlatformID.Unix)
@@ -94,13 +105,15 @@ public class OSSpecificFactoryTests
         var command = _testFactory.Construct(
             "test",
             scriptPath,
-            FCli.Models.CommandType.Powershell,
+            CommandType.Script,
+            ShellType.Powershell,
             "");
         
         command.Should().NotBeNull();
         command.Name.Should().Be("test");
         command.Path.Should().Be(scriptPath);
-        command.Type.Should().Be(FCli.Models.CommandType.Powershell);
+        command.Type.Should().Be(CommandType.Script);
+        command.Shell.Should().Be(ShellType.Powershell);
         command.Options.Should().Be("");
         
         command.Action.Should().NotThrow();
@@ -116,13 +129,15 @@ public class OSSpecificFactoryTests
         var command = _testFactory.Construct(
             "test",
             scriptPath,
-            FCli.Models.CommandType.Bash,
+            CommandType.Script,
+            ShellType.Bash,
             "");
         
         command.Should().NotBeNull();
         command.Name.Should().Be("test");
         command.Path.Should().Be(scriptPath);
-        command.Type.Should().Be(FCli.Models.CommandType.Bash);
+        command.Type.Should().Be(CommandType.Script);
+        command.Shell.Should().Be(ShellType.Bash);
         command.Options.Should().Be("");
 
         command.Action.Should().NotThrow();
@@ -134,7 +149,8 @@ public class OSSpecificFactoryTests
         var act = () => _testFactory.Construct(
             "test",
             "none",
-            FCli.Models.CommandType.None,
+            CommandType.None,
+            ShellType.None,
             "");
         
         act.Should().Throw<CriticalException>();

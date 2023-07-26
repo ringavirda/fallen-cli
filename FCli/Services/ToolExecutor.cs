@@ -1,49 +1,47 @@
 ﻿// Vendor namespaces.
 using Microsoft.Extensions.Logging;
+using System.Resources;
 // FCli namespaces.
 using FCli.Models;
 using FCli.Exceptions;
 using FCli.Models.Tools;
 using FCli.Services.Data;
 using FCli.Services.Format;
-using System.Resources;
+using FCli.Services.Config;
+using FCli.Models.Types;
 
 namespace FCli.Services;
 
 /// <summary>
 /// Generic implementation of ToolExecutor.
 /// </summary>
-public class GenericExecutor : IToolExecutor
+public class ToolExecutor : IToolExecutor
 {
     // DI.
-    private readonly ILogger<GenericExecutor> _logger;
-    private readonly ResourceManager _resources;
+    private readonly ILogger<ToolExecutor> _logger;
 
-    public GenericExecutor(
+    public ToolExecutor(
         ICommandLoader commandLoader,
-        ILogger<GenericExecutor> logger,
+        ILogger<ToolExecutor> logger,
         ICommandFactory commandFactory,
         ICommandLineFormatter formatter,
         IConfig config,
         ResourceManager manager)
     {
         // Configure tool protos.
-        KnownTools = new()
+        Tools = new()
         {
-            new AddTool(formatter, manager, this, commandFactory, commandLoader),
+            new AddTool(formatter, manager, this, commandFactory, commandLoader, config),
             new RemoveTool(formatter, manager, commandLoader),
-            new ListTool(formatter, manager, this, commandLoader),
-            new RunTool(formatter, manager, this, commandFactory),
+            new ListTool(formatter, manager, this, commandLoader, config),
+            new RunTool(formatter, manager, commandFactory, config),
             new ConfigTool(formatter, manager, config)
         };
-        KnownTypeFlags = new() { "script", "url", "exe" };
 
         _logger = logger;
-        _resources = manager;
     }
-
-    public List<string> KnownTypeFlags { get; }
-    public List<Tool> KnownTools { get; }
+    
+    public List<Tool> Tools { get; }
     
     /// <summary>
     /// Execute tool from given type and arg.
@@ -54,7 +52,7 @@ public class GenericExecutor : IToolExecutor
     public void Execute(Args args, ToolType type)
     {
         // Extract tool from the list of known tools.
-        var tool = KnownTools
+        var tool = Tools
             .FirstOrDefault(tool => tool.Type == type) 
             ?? throw new CriticalException("Tool prototype wasn't extracted.");
         // Perform action.
@@ -81,7 +79,7 @@ public class GenericExecutor : IToolExecutor
         if (args.Selector == "") return ToolType.None;
         // Parse selector.
         var selector = args.Selector;
-        foreach (var tool in KnownTools)
+        foreach (var tool in Tools)
         {
             if (tool.Selectors.Contains(selector))
                 return tool.Type;

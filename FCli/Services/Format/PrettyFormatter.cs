@@ -9,20 +9,26 @@ public class PrettyFormatter : ICommandLineFormatter
     /// Writes the message in the original format.
     /// </summary>
     /// <param name="message">String to be printed to console.</param>
-    public void DisplayMessage(string message)
-        => Console.WriteLine(message);
+    public void DisplayMessage(string? message)
+        => Console.WriteLine(message
+            ?? ((ICommandLineFormatter)this).StringNotLoaded());
 
     /// <summary>
     /// Formats Info with first line as green caller name and second as message.
     /// </summary>
     /// <param name="callerName">Tool or command name.</param>
     /// <param name="message">String to be printed to console.</param>
-    public void DisplayInfo(string callerName, string message)
+    public void DisplayInfo(string callerName, string? message)
     {
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine($"[{callerName}] Informs:");
-        Console.ResetColor();
-        Console.WriteLine(message);
+        if (message == null)
+            ((ICommandLineFormatter)this).StringNotLoaded();
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"[{callerName}] Wants to inform you:");
+            Console.ResetColor();
+            Console.WriteLine(message);
+        }
     }
 
     /// <summary>
@@ -30,15 +36,20 @@ public class PrettyFormatter : ICommandLineFormatter
     /// </summary>
     /// <param name="callerName">Tool or command name.</param>
     /// <param name="message">String to be printed to console.</param>
-    public void DisplayWarning(string callerName, string message)
+    public void DisplayWarning(string callerName, string? message)
     {
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine($"[{callerName}] Warns that something is wrong:");
-        Console.WriteLine(message
-            .Split('\n')
-            .Select(s => $"\t{s}\n")
-            .Aggregate((s1, s2) => s1 + s2));
-        Console.ResetColor();
+        if (message == null)
+            ((ICommandLineFormatter)this).StringNotLoaded();
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"[{callerName}] Warns you about this:");
+            Console.WriteLine(message
+                .Split('\n')
+                .Select(s => $"\t{s}\n")
+                .Aggregate((s1, s2) => s1 + s2));
+            Console.ResetColor();
+        }
     }
 
     /// <summary>
@@ -46,16 +57,21 @@ public class PrettyFormatter : ICommandLineFormatter
     /// </summary>
     /// <param name="callerName">Tool or command name.</param>
     /// <param name="message">String to be printed to console.</param>
-    public void DisplayError(string callerName, string message)
+    public void DisplayError(string callerName, string? message)
     {
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine($"[{callerName}] An error occurred during execution:");
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine(message
-            .Split('\n')
-            .Select(s => $"\t{s}\n")
-            .Aggregate((s1, s2) => s1 + s2));
-        Console.ResetColor();
+        if (message == null)
+            ((ICommandLineFormatter)this).StringNotLoaded();
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"[{callerName}] An error occurred during execution:");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine(message
+                .Split('\n')
+                .Select(s => $"\t{s}\n")
+                .Aggregate((s1, s2) => s1 + s2));
+            Console.ResetColor();
+        }
     }
 
     /// <summary>

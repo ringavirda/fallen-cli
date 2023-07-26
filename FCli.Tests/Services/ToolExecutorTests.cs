@@ -6,35 +6,43 @@ using FCli.Models;
 using FCli.Exceptions;
 using FCli.Services.Data;
 using FCli.Services.Format;
+using FCli.Models.Types;
+using FCli.Services.Config;
+using System.Resources;
 
 namespace FCli.Tests.Services;
 
-public class GenericExecutorTests
+public class ToolExecutorTests
 {
-    private static readonly GenericExecutor _testExecutor;
+    private static readonly ToolExecutor _testExecutor;
 
     private static readonly Mock<ICommandLoader> _fakeLoader;
     private static readonly Mock<ICommandFactory> _fakeFactory;
     private static readonly Mock<ICommandLineFormatter> _fakeFormatter;
+    private static readonly Mock<IConfig> _fakeConfig;
+    private static readonly Mock<ResourceManager> _fakeResources;
 
-    static  GenericExecutorTests()
+    static ToolExecutorTests()
     {
         _fakeLoader = TestRepository.CommandLoaderFake;
         _fakeFactory = TestRepository.CommandFactoryFake;
         _fakeFormatter = TestRepository.FormatterFake;
+        _fakeConfig = TestRepository.ConfigFake;
+        _fakeResources = TestRepository.ResourcesFake;
         
-        _testExecutor = new GenericExecutor(
+        _testExecutor = new ToolExecutor(
             _fakeLoader.Object,
-            NullLogger<GenericExecutor>.Instance,
+            NullLogger<ToolExecutor>.Instance,
             _fakeFactory.Object,
-            _fakeFormatter.Object);
+            _fakeFormatter.Object,
+            _fakeConfig.Object,
+            _fakeResources.Object);
     }
 
     [Fact]
     public void GenericExecutor_Create()
     {
-        _testExecutor.KnownTools.Should().NotBeNullOrEmpty();
-        _testExecutor.KnownTypeFlags.Should().NotBeNullOrEmpty();
+        _testExecutor.Tools.Should().NotBeNullOrEmpty();
     }
 
     [Fact]

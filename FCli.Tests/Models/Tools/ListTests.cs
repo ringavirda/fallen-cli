@@ -1,6 +1,8 @@
+using System.Resources;
 using FCli.Exceptions;
 using FCli.Models.Tools;
 using FCli.Services;
+using FCli.Services.Config;
 using FCli.Services.Data;
 using FCli.Services.Format;
 using Moq;
@@ -12,20 +14,26 @@ public class ListTests
 {
     private static readonly ListTool _testTool;
 
-    private static readonly Mock<IToolExecutor> _fakeExecutor;
     private static readonly Mock<ICommandLoader> _fakeLoader;
+    private static readonly Mock<IToolExecutor> _fakeExecutor;
+    private static readonly Mock<IConfig> _fakeConfig;
     private static readonly Mock<ICommandLineFormatter> _fakeFormatter;
+    private static readonly Mock<ResourceManager> _fakeResources;
 
     static ListTests()
     {
-        _fakeExecutor = TestRepository.ToolExecutorFake;
         _fakeLoader = TestRepository.CommandLoaderFake;
+        _fakeExecutor = TestRepository.ToolExecutorFake;
+        _fakeConfig = TestRepository.ConfigFake;
         _fakeFormatter = TestRepository.FormatterFake;
+        _fakeResources = TestRepository.ResourcesFake;
 
         _testTool = new ListTool(
             _fakeFormatter.Object,
+            _fakeResources.Object,
             _fakeExecutor.Object,
-            _fakeLoader.Object);
+            _fakeLoader.Object,
+            _fakeConfig.Object);
     }
 
     [Fact]
@@ -70,7 +78,7 @@ public class ListTests
         var act = () => _testTool.Action("", new List<Flag>() { new Flag(flag, "") });
         act.Should().NotThrow();
         if (flag == "tool")
-            _fakeExecutor.VerifyGet(executor => executor.KnownTools);
+            _fakeExecutor.VerifyGet(executor => executor.Tools);
     }
 
     [Fact]

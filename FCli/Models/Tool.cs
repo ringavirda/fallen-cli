@@ -2,6 +2,7 @@
 using System.Resources;
 // FCli namespaces.
 using FCli.Exceptions;
+using FCli.Models.Types;
 using FCli.Services.Format;
 using static FCli.Models.Args;
 
@@ -61,11 +62,11 @@ public abstract class Tool
     {
         if (flag.Value != "")
         {
-            _formatter.DisplayWarning(toolName, $"""
-                Flag (--{flag.Key}) shouldn't have any value.
-                To see list of all supported flags for {toolName} tool consult
-                help page using --help flag.
-                """);
+            _formatter.DisplayError(
+                toolName,
+                string.Format(_resources.GetString("Tool_FlagShouldNotHaveValue") 
+                    ?? _formatter.StringNotLoaded(), 
+                    flag.Key, toolName));
             throw new FlagException($"--{flag.Key} - cannot have value.");
         }
     }
@@ -79,11 +80,11 @@ public abstract class Tool
     {
         if (flag.Value == "")
         {
-            _formatter.DisplayWarning(toolName, $"""
-                Flag (--{flag.Key}) should have a value.
-                To see list of all supported flags for {toolName} tool consult
-                help page using --help flag.
-                """);
+            _formatter.DisplayError(
+                toolName,
+                string.Format(_resources.GetString("Tool_FlagShouldHaveValue") 
+                    ?? _formatter.StringNotLoaded(), 
+                    flag.Key, toolName));
             throw new FlagException($"--{flag.Key} - should have value.");
         }
     }
@@ -96,11 +97,11 @@ public abstract class Tool
     /// <exception cref="FlagException">Flag is unknown.</exception>
     protected void UnknownFlag(Flag flag, string toolName)
     {
-        _formatter.DisplayWarning(toolName, $"""
-            Flag (--{flag.Key}) is not a known flag for the {toolName} tool.
-            To see list of all supported flags for {toolName} tool consult
-            help page using --help flag.
-            """);
+        _formatter.DisplayError(
+                toolName,
+                string.Format(_resources.GetString("Tool_FlagIsUnknown") 
+                    ?? _formatter.StringNotLoaded(), 
+                    flag.Key, toolName, toolName));
         throw new FlagException(
              $"--{flag.Key} - is not a valid flag for {toolName} tool.");
     }
@@ -124,7 +125,11 @@ public abstract class Tool
         // Guard against URI creation fail.
         if (!success || uri == null)
         {
-            _formatter.DisplayWarning(toolName, $"{url} - is not a valid url.");
+            _formatter.DisplayError(
+                toolName,
+                string.Format(_resources.GetString("Tool_UrlIsInvalid") 
+                    ?? _formatter.StringNotLoaded(), 
+                    url));
             throw new ArgumentException($"Given url ({url}) is invalid.");
         }
         // Return constructed URI.
@@ -144,7 +149,9 @@ public abstract class Tool
         {
             _formatter.DisplayWarning(
                 toolName,
-                $"{path} - is not a valid system path.");
+                string.Format(_resources.GetString("Tool_UrlIsInvalid") 
+                    ?? _formatter.StringNotLoaded(), 
+                    path));
             throw new ArgumentException($"Given path ({path}) is invalid.");
         }
         // Return path converting to full.

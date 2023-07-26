@@ -1,17 +1,26 @@
+// Vendor namespaces.
 using System.Text.Json;
 
-namespace FCli.Services;
+namespace FCli.Services.Config;
 
 /// <summary>
 /// Encapsulates the part of the config that can be changed by the user.
 /// </summary>
 public class DynamicConfig : StaticConfig
 {
-    public override string Locale { get; protected set; } = "en";
-    public override string Formatter { get; protected set; } = "inline";
+    // Inline defaults.
+    public override string Locale { get; protected set; }
+    public override IConfig.FormatterDescriptor Formatter { get; protected set; }
 
     public DynamicConfig()
+        : base()
     {
+        // Defaults
+        Locale = "en";
+        Formatter = KnownFormatters
+            .First(format => format.Selector == "inline");
+
+        // Load user settings.
         LoadConfig();
     }
 
@@ -31,7 +40,7 @@ public class DynamicConfig : StaticConfig
     {
         var json = JsonSerializer.Serialize(new JsonFixture(
             Locale,
-            Formatter));
+            Formatter.Selector));
         File.WriteAllText(ConfigFilePath, json);
     }
     
@@ -47,7 +56,9 @@ public class DynamicConfig : StaticConfig
             if (!string.IsNullOrEmpty(json))
                 fixture = JsonSerializer.Deserialize<JsonFixture>(json);
             Locale = fixture?.Locale ?? Locale;
-            Formatter = fixture?.Formatter ?? Formatter;
+            Formatter = KnownFormatters
+                .FirstOrDefault(format => format.Selector == fixture?.Formatter) 
+                ?? Formatter;
         }
         // Save default configs if first launch.
         else SaveConfig();
@@ -76,7 +87,7 @@ public class DynamicConfig : StaticConfig
     /// Changes formatter without validation.
     /// </summary>
     /// <param name="formatter">New formatter.</param>
-    public override void ChangeFormatter(string formatter)
+    public override void ChangeFormatter(IConfig.FormatterDescriptor formatter)
     {
         Formatter = formatter;
         SaveConfig();

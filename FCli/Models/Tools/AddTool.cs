@@ -1,7 +1,10 @@
-// FCli namespaces.
+// Vendor namespaces.
 using System.Resources;
+// FCli namespaces.
 using FCli.Exceptions;
+using FCli.Models.Types;
 using FCli.Services;
+using FCli.Services.Config;
 using FCli.Services.Data;
 using FCli.Services.Format;
 using static FCli.Models.Args;
@@ -17,21 +20,24 @@ public class AddTool : Tool
     private readonly IToolExecutor _toolExecutor;
     private readonly ICommandFactory _commandFactory;
     private readonly ICommandLoader _commandLoader;
+    private readonly IConfig _config;
 
     public AddTool(
         ICommandLineFormatter formatter,
         ResourceManager manager,
         IToolExecutor toolExecutor,
         ICommandFactory commandFactory,
-        ICommandLoader commandLoader)
+        ICommandLoader commandLoader,
+        IConfig config)
         : base(formatter, manager)
     {
         _toolExecutor = toolExecutor;
         _commandFactory = commandFactory;
         _commandLoader = commandLoader;
+        _config = config;
 
-        Description = _resources.GetString("AddHelp") 
-            ?? "Description hasn't loaded";
+        Description = _resources.GetString("Add_Help")
+            ?? formatter.StringNotLoaded();
     }
 
     public override string Name => "Add";
@@ -50,29 +56,29 @@ public class AddTool : Tool
             // Guard against empty path/url.
             if (arg == string.Empty)
             {
-                _formatter.DisplayWarning(
+                _formatter.DisplayError(
                     Name,
-                    "Add tool requires an argument - a path or url.");
+                    _resources.GetString("Add_NoArg"));
                 throw new ArgumentException(
                     "Add tool was called without an argument.");
             }
             // Guard against multiple type flags.
-            if (flags
-                .Select(f => f.Key)
-                .Intersect(_toolExecutor.KnownTypeFlags)
+            if (flags.Select(f => f.Key)
+                .Intersect(_config.KnownCommands.Select(c => c.Selector))
                 .Count() > 1)
             {
-                _formatter.DisplayWarning(
+                _formatter.DisplayError(
                     Name,
-                    "Add tool can accept only one of the type flags.");
+                    _resources.GetString("Add_MultipleTypeFlags"));
                 throw new FlagException(
-                    "Attempted to pass multiple arguments into the add tool.");
+                    "Attempted to pass multiple command types flags into the Add tool.");
             }
             // Forward declare future command properties.
             var name = string.Empty;
             var type = CommandType.None;
+            var shell = ShellType.None;
             var options = string.Empty;
-            // Handle flags.
+            // Parse flags.
             foreach (var flag in flags)
             {
                 // Set custom command name.
@@ -87,46 +93,44 @@ public class AddTool : Tool
                     FlagHasValue(flag, Name);
                     options = flag.Value;
                 }
-                // Force set executable type.
-                else if (flag.Key == "exe")
+                else if (_config.KnownCommands.Any(c => c.Selector == flag.Key))
                 {
-                    FlagHasNoValue(flag, Name);
-                    // Guard against bad path and convert to absolute.
-                    arg = ValidatePath(arg, Name);
-                    type = CommandType.Executable;
-                }
-                // Force set website type.
-                else if (flag.Key == "url")
-                {
-                    FlagHasNoValue(flag, Name);
-                    // Guard against invalid url.
-                    ValidateUrl(arg, Name);
-                    type = CommandType.Url;
-                }
-                // Force set script flavour.
-                else if (flag.Key == "script")
-                {
-                    FlagHasValue(flag, Name);
-                    // Parse actual script type.
-                    try
+                    var descriptor = _config.KnownCommands
+                        .First(c => c.Selector == flag.Key);
+                    // Check if this command a shell one,
+                    if (descriptor.IsShell)
                     {
-                        type = flag.Value switch
+                        // Guard against no shell specified.
+                        FlagHasValue(flag, Name);
+                        var shellDescriptor = _config.KnownShells
+                            .FirstOrDefault(sh => sh.Selector == flag.Value);
+                        // Guard against unknown shell.
+                        if (shellDescriptor != null)
+                            shell = shellDescriptor.Type;
+                        else
                         {
-                            "cmd" => CommandType.CMD,
-                            "powershell" => CommandType.Powershell,
-                            "bash" => CommandType.Bash,
-                            _ => throw new ArgumentException(
-                                $"Wasn't able to determine shell type on ({arg}).")
-                        };
+                            _formatter.DisplayWarning(Name,
+                                string.Format(
+                                    _resources.GetString("FCli_UnknownShell")
+                                    ?? _formatter.StringNotLoaded(),
+                                    string.Join(
+                                        ", ", 
+                                        _config.KnownShells.Select(sh => sh.Selector)))
+                                );
+                            throw new ArgumentException(
+                                $"Wasn't able to determine shell type on ({arg}).");
+                        }
                     }
-                    catch (ArgumentException)
-                    {
-                        _formatter.DisplayWarning(Name, """
-                            Script flag must also specify type of shell.
-                            Supported shells: cmd, powershell, bash.
-                            """);
-                        throw;
-                    }
+                    // Guard against shell execution.
+                    else FlagHasNoValue(flag, Name);
+
+                    // Set command type.
+                    type = descriptor.Type;
+
+                    // Validate path/url.
+                    if (type == CommandType.Website)
+                        ValidateUrl(arg, Name);
+                    else ValidatePath(arg, Name);
                 }
                 // Throw if flag is unrecognized.
                 else UnknownFlag(flag, Name);
@@ -145,117 +149,181 @@ public class AddTool : Tool
                         name = host.First() == "www" ? host[1] : host[0];
                     // Set website type.
                     if (type == CommandType.None)
-                        type = CommandType.Url;
+                        type = CommandType.Website;
                 }
                 // If arg is a path.
                 else if (arg.Contains('/') || arg.Contains('\\'))
                 {
                     // Guard against bad path and convert to absolute.
                     arg = ValidatePath(arg, Name);
-                    // Extract file's name and extension.
-                    var filename = Path.GetFileName(arg).Split('.');
-                    var possibleExtension = filename.Last();
-                    // Set command name equal file name.
-                    if (name == string.Empty)
-                        name = filename[0..^1].Aggregate((s1, s2) => $"{s1}{s2}");
-                    // Try parse command type from the file extension.
-                    if (type == CommandType.None)
+                    // Switch between file and directory.
+                    if (Directory.Exists(arg))
                     {
-                        try
+                        // Set directory command type.
+                        type = CommandType.Directory;
+                    }
+                    else
+                    {
+                        // Extract file's name and extension.
+                        var filename = Path.GetFileName(arg).Split('.');
+                        var possibleExtension = filename.Last();
+                        // Set command name equal file name.
+                        if (name == string.Empty)
+                            name = filename[0..^1].Aggregate((s1, s2) => $"{s1}{s2}");
+                        // Try parse command type from the file extension.
+                        if (type == CommandType.None)
                         {
-                            type = possibleExtension switch
+                            // If top level command.
+                            var commandDesc = _config.KnownCommands
+                                .Where(desc => desc.FileExtension == possibleExtension)
+                                .FirstOrDefault();
+                            if (commandDesc != null)
+                                type = commandDesc.Type;
+                            // If shell script.
+                            else
                             {
-                                "exe" => CommandType.Executable,
-                                "bat" => CommandType.CMD,
-                                "ps1" => CommandType.Powershell,
-                                "sh" => CommandType.Bash,
-                                // Throw if file type isn't recognized.
-                                _ => throw new ArgumentException(
-                                    $"Unknown file extension ({possibleExtension}).")
-                            };
-                        }
-                        catch (ArgumentException)
-                        {
-                            _formatter.DisplayWarning(Name, """
-                                Couldn't recognize the type of file.
-                                Please, specify it using flags:
-                                    --exe
-                                    --script <shell>
-                                """);
-                            throw;
+                                var shellDesc = _config.KnownShells
+                                    .Where(desc => desc.FileExtension == possibleExtension)
+                                    .FirstOrDefault();
+                                if (shellDesc != null)
+                                {
+                                    // Set script type.
+                                    type = CommandType.Script;
+                                    // Set script shell.
+                                    shell = shellDesc.Type;
+                                }
+                                // Throw if command unidentified.
+                                else
+                                {
+                                    _formatter.DisplayError(Name, 
+                                        _resources.GetString("Add_FileUnrecognized"));
+                                    throw new ArgumentException(
+                                        $"Unknown file extension ({possibleExtension}).");
+                                }
+                            }
                         }
                     }
                 }
                 // Throw if wan't able to determine command name and type.
                 else
                 {
-                    _formatter.DisplayInfo(Name, """
-                        The type of file wasn't determined. FCli recognizes only 
-                        file path or url. You can force execution using type 
-                        flags. Consult help page for more info.
-                        """);
+                    _formatter.DisplayError(Name,
+                        _resources.GetString("Add_CommandNotDetermined"));
                     throw new ArgumentException(
-                        $"The type of file ({arg}) wasn't determined.");
+                        $"Command wasn't determined from ({arg}).");
                 }
             }
             // Guard against name duplication.
-            if (_toolExecutor.KnownTools.Any(tool => tool.Selectors.Contains(name))
+            if (_toolExecutor.Tools.Any(tool => tool.Selectors.Contains(name))
                 || _commandLoader.CommandExists(name))
             {
-                _formatter.DisplayError(Name, $"""
-                    Name {name} is a known command or tool.
-                    Use --name flag to specify explicitly a name for the command.
-                    """);
+                _formatter.DisplayError(Name, 
+                    string.Format(
+                        _resources.GetString("Add_NameAlreadyExists")
+                        ?? _formatter.StringNotLoaded(),
+                        name
+                    ));
                 throw new ArgumentException($"Name {name} already exists.");
             }
-            // Guard against Windows shells on Linux.
-            if (type == CommandType.CMD
-                && Environment.OSVersion.Platform == PlatformID.Unix)
+            // Guard against Linux shells on windows.
+            if (shell == ShellType.Bash
+                && Environment.OSVersion.Platform == PlatformID.Win32NT
+                && ScriptConfirm(name, "Add_BashOnWindows"))
             {
-                _formatter.DisplayError(Name, $"""
-                    Command ({name}) is interpreted as a batch file, but Linux
-                    operating system is running. CMD is only supported on Windows.
-                    """);
-                throw new ArgumentException(
-                    $"Attempted creation of a CMD command on Linux.");
+                // Exit fcli.
+                return;
             }
-            if (type == CommandType.Powershell
+            if (shell == ShellType.Fish
+                && Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                UnsupportedScript(name, "Fish", "Windows", "Add_FishOnWindows");
+            }
+            // Guard against Windows shells on Linux.
+            if (shell == ShellType.Cmd
                 && Environment.OSVersion.Platform == PlatformID.Unix)
             {
-                _formatter.DisplayWarning(Name, $"""
-                    Command ({name}) is interpreted as a powershell script, but
-                    Linux operating system is running. PS scripts can be executed
-                    on Linux, but powershell needs to be installed from the packet
-                    manager.
-                    """);
-                _formatter.DisplayMessage(
-                    "Are you sure you can run a powershell script?");
-                var response = _formatter.ReadUserInput("(yes/any)");
-                if (response?.ToLower() != "yes")
-                {
-                    _formatter.DisplayMessage("Averting add process...");
-                    return;
-                }
-                else _formatter.DisplayMessage("Continuing add process...");
+                UnsupportedScript(name, "Cmd", "Linux", "Add_CmdOnLinux");
+            }
+            if (shell == ShellType.Powershell
+                && Environment.OSVersion.Platform == PlatformID.Unix
+                && ScriptConfirm(name, "Add_PowershellOnLinux"))
+            {
+                // Exit fcli.
+                return;
             }
             // Display parsed command.
-            _formatter.DisplayInfo(Name, $"""
-                Command was parsed:
-                name    - {name}
-                type    - {type}
-                path    - {arg}
-                options - {options}
-                """);
-            _formatter.DisplayMessage("Saving to storage...");
+            _formatter.DisplayInfo(Name, 
+                string.Format(
+                    _resources.GetString("Add_ParsedCommand")
+                    ?? _formatter.StringNotLoaded(),
+                    name, type, shell, arg, options
+                ));
+            _formatter.DisplayMessage(
+                _resources.GetString("Add_Saving"));
             // Construct the command using parsed values.
-            var command = _commandFactory.Construct(name, arg, type, options);
+            var command = _commandFactory.Construct(
+                name,
+                arg,
+                type,
+                shell,
+                options);
             // Save the command into storage.
             _commandLoader.SaveCommand(command);
             // Display confirmation.
-            _formatter.DisplayMessage($"""
-                Saved.
-                To use the command try:
-                    fcli {name}
-                """);
+            _formatter.DisplayMessage(string.Format(
+                _resources.GetString("Add_Saved")
+                ?? _formatter.StringNotLoaded(),
+                name
+            ));
         };
+    
+    /// <summary>
+    /// Prevents creation of commands unsupported by operating system.
+    /// </summary>
+    private void UnsupportedScript(
+        string commandName,
+        string scriptType,
+        string osName,
+        string resourceString)
+    {
+        _formatter.DisplayError(Name, 
+            string.Format(
+                _resources.GetString(resourceString)
+                ?? _formatter.StringNotLoaded(),
+                commandName
+            ));
+        throw new ArgumentException(
+            $"Attempted creation of a {scriptType} command on {osName}.");
+    }
+
+    /// <summary>
+    /// Confirm user's intention of creating maybe unsupported script command.
+    /// </summary>
+    /// <returns>True if confirmed.</returns>
+    private bool ScriptConfirm(
+        string commandName,
+        string resourceString)
+    {
+        _formatter.DisplayWarning(Name, 
+            string.Format(
+                _resources.GetString(resourceString)
+                ?? _formatter.StringNotLoaded(),
+                commandName
+            ));
+        _formatter.DisplayMessage(
+            _resources.GetString("Add_OSScript_Question"));
+        var response = _formatter.ReadUserInput("(yes/any)");
+        if (response?.ToLower() != "yes")
+        {
+            _formatter.DisplayMessage(
+                _resources.GetString("Add_OSScript_Avert"));
+            return false;
+        }
+        else 
+        {
+            _formatter.DisplayMessage(
+                _resources.GetString("Add_OSScript_Continue"));
+            return true;
+        }
+    }
 }

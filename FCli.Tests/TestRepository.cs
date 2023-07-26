@@ -3,8 +3,11 @@ using Moq;
 using FCli.Models;
 using FCli.Models.Tools;
 using FCli.Services;
+using FCli.Services.Config;
 using FCli.Services.Data;
 using FCli.Services.Format;
+using FCli.Models.Types;
+using System.Resources;
 
 namespace FCli.Tests;
 
@@ -28,7 +31,8 @@ public static class TestRepository
     {
         Name = "test1",
         Path = "test/path",
-        Type = CommandType.Bash,
+        Type = CommandType.Script,
+        Shell = ShellType.Powershell,
         Options = "--test option",
         Action = () => { }
     };
@@ -44,7 +48,7 @@ public static class TestRepository
     {
         Name = "test3",
         Path = "http://url",
-        Type = CommandType.Url,
+        Type = CommandType.Website,
         Options = "",
         Action = () => { }
     };
@@ -52,7 +56,7 @@ public static class TestRepository
     {
         Name = "test-savable",
         Path = Path.Combine(TestFilesPath, BashScriptName),
-        Type = CommandType.Bash,
+        Type = CommandType.Directory,
         Options = "option",
         Action = () => { }
     };
@@ -83,6 +87,17 @@ public static class TestRepository
                 .Setup(format => format.ReadUserInput("(yes/any)"))
                 .Returns("yes");
             return formatter;
+        }
+    }
+
+    public static Mock<ResourceManager> ResourcesFake
+    {
+        get
+        {
+            var resources = new Mock<ResourceManager>();
+            resources.Setup(manager => manager.GetString(It.IsAny<string>()))
+                .Returns("Test resource");
+            return resources;
         }
     }
 
@@ -125,21 +140,25 @@ public static class TestRepository
                 Command1.Name,
                 Command1.Path,
                 Command1.Type,
+                Command1.Shell,
                 Command1.Options)).Returns(Command1);
             factory.Setup(factory => factory.Construct(
                 Command2.Name,
                 Command2.Path,
                 Command2.Type,
+                Command2.Shell,
                 Command2.Options)).Returns(Command2);
             factory.Setup(factory => factory.Construct(
                 Command3.Name,
                 Command3.Path,
                 Command3.Type,
+                Command3.Shell,
                 Command3.Options)).Returns(Command3);
             factory.Setup(factory => factory.Construct(
                 CommandSavable.Name,
                 CommandSavable.Path,
                 CommandSavable.Type,
+                CommandSavable.Shell,
                 CommandSavable.Options)).Returns(CommandSavable);
             return factory;
         }
@@ -149,26 +168,30 @@ public static class TestRepository
         get
         {
             var executor = new Mock<IToolExecutor>();
-            executor.SetupGet(executor => executor.KnownTypeFlags)
-                .Returns(new List<string>() { "script", "url", "exe" });
-            executor.SetupGet(executor => executor.KnownTools)
+            executor.SetupGet(executor => executor.Tools)
                 .Returns(new List<Tool>() {
                 new AddTool(
                     FormatterFake.Object,
+                    ResourcesFake.Object,
                     executor.Object,
                     CommandFactoryFake.Object,
+                    CommandLoaderFake.Object,
+                    ConfigFake.Object),
+                new RemoveTool(
+                    FormatterFake.Object,
+                    ResourcesFake.Object,
                     CommandLoaderFake.Object),
-            new RemoveTool(
-                FormatterFake.Object,
-                CommandLoaderFake.Object),
-            new ListTool(
-                FormatterFake.Object,
-                executor.Object,
-                CommandLoaderFake.Object),
-            new RunTool(
-                FormatterFake.Object,
-                executor.Object,
-                CommandFactoryFake.Object)
+                new ListTool(
+                    FormatterFake.Object,
+                    ResourcesFake.Object,
+                    executor.Object,
+                    CommandLoaderFake.Object,
+                    ConfigFake.Object),
+                new RunTool(
+                    FormatterFake.Object,
+                    ResourcesFake.Object,
+                    CommandFactoryFake.Object,
+                    ConfigFake.Object)
                 });
             return executor;
         }

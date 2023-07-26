@@ -1,6 +1,9 @@
+// Vendor namespaces.
+using FCli.Models;
+using FCli.Models.Types;
 using FCli.Services.Format;
 
-namespace FCli.Services;
+namespace FCli.Services.Config;
 
 /// <summary>
 /// Encapsulates the static layer of the config.
@@ -16,13 +19,28 @@ public abstract class StaticConfig : IConfig
     public string LogsFileTemplate { get; private set; }
     public string LogsFolderName { get; private set; }
     public string LogsPath { get; private set; }
-    public Dictionary<string, Type> KnownFormatters => new() {
-        { "inline", typeof(InlineFormatter)},
-        { "pretty", typeof(PrettyFormatter)},
-    };
-    public List<string> KnownLocales => new() 
+    public List<string> KnownLocales => new()
     {
         "en", "ru", "ua"
+    };
+    public List<IConfig.FormatterDescriptor> KnownFormatters => new() {
+        new("inline", typeof(InlineFormatter)),
+        new("pretty", typeof(PrettyFormatter)),
+    };
+    public List<IConfig.CommandDescriptor> KnownCommands => new()
+    {
+        new("exe", CommandType.Executable, false, "exe"),
+        new("url", CommandType.Website, false, null),
+        new("script", CommandType.Script, true, null),
+        new("dir", CommandType.Directory, false, null),
+        new("shell", CommandType.Shell, true, null)
+    };
+    public List<IConfig.ShellDescriptor> KnownShells => new()
+    {
+        new("bash", ShellType.Bash, "sh"),
+        new("cmd", ShellType.Cmd, "bat"),
+        new("powershell", ShellType.Powershell, "ps1"),
+        new("fish", ShellType.Fish, "fish")
     };
 
 #pragma warning disable 8618, 8604
@@ -52,7 +70,7 @@ public abstract class StaticConfig : IConfig
                 Environment.SpecialFolder.ApplicationData),
             AppFolderName);
 
-        StorageFileName = "storage.json";
+        StorageFileName = "storage-x.json";
         StorageFilePath = Path.Combine(
             AppFolderPath,
             StorageFileName);
@@ -79,7 +97,7 @@ public abstract class StaticConfig : IConfig
                 Environment.SpecialFolder.Personal),
             ".fcli");
 
-        StorageFileName = "storage.json";
+        StorageFileName = "storage-x.json";
         StorageFilePath = Path.Combine(
             AppFolderPath,
             StorageFileName);
@@ -96,12 +114,12 @@ public abstract class StaticConfig : IConfig
     }
 
     // Pass down the hierarchy.
-    public abstract string Locale { get; protected set;}
-    public abstract string Formatter { get; protected set; }
+    public abstract string Locale { get; protected set; }
+    public abstract IConfig.FormatterDescriptor Formatter { get; protected set; }
 
     public abstract void SaveConfig();
     public abstract void LoadConfig();
     public abstract void PurgeConfig();
     public abstract void ChangeLocale(string locale);
-    public abstract void ChangeFormatter(string formatter);
+    public abstract void ChangeFormatter(IConfig.FormatterDescriptor formatter);
 }

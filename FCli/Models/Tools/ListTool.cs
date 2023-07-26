@@ -1,6 +1,9 @@
-// FCli namespaces.
+// Vendor namespaces.
 using System.Resources;
+using FCli.Models.Types;
+// FCli namespaces.
 using FCli.Services;
+using FCli.Services.Config;
 using FCli.Services.Data;
 using FCli.Services.Format;
 using static FCli.Models.Args;
@@ -15,19 +18,22 @@ public class ListTool : Tool
     // From ToolExecutor.
     private readonly IToolExecutor _executor;
     private readonly ICommandLoader _loader;
+    private readonly IConfig _config;
 
     public ListTool(
         ICommandLineFormatter formatter,
         ResourceManager manager,
         IToolExecutor toolExecutor,
-        ICommandLoader commandLoader)
+        ICommandLoader commandLoader,
+        IConfig config)
         : base(formatter, manager)
     {
         _executor = toolExecutor;
         _loader = commandLoader;
+        _config = config;
 
-        Description = _resources.GetString("ListHelp") 
-            ?? "Description hasn't loaded";
+        Description = _resources.GetString("List_Help") 
+            ?? formatter.StringNotLoaded();
     }
 
     public override string Name => "List";
@@ -49,78 +55,57 @@ public class ListTool : Tool
             // Guard against empty command list.
             if (commands == null || !commands.Any())
             {
-                _formatter.DisplayInfo(Name, "There are no known commands.");
+                _formatter.DisplayInfo(Name, 
+                    _resources.GetString("List_NoCommands"));
                 return;
             }
             // Display all commands if no flags are given.
             if (flags.Count == 0)
             {
-                _formatter.DisplayInfo(
-                    Name,
-                    "No flags given, listing all commands:");
+                _formatter.DisplayInfo(Name,
+                    _resources.GetString("List_ListAllCommands"));
                 DisplayCommands(commands, arg);
                 return;
             }
             // Parse flags.
             foreach (var flag in flags)
             {
-                // No LIST flags have values.
+                // No List flags have values.
                 FlagHasNoValue(flag, Name);
                 // Display all scripts.
-                if (flag.Key == "script")
+                var commandDesc = _config.KnownCommands
+                    .FirstOrDefault(c => c.Selector == flag.Key);
+                if (commandDesc != null)
                 {
-                    var scripts = commands.Where(command =>
-                        command.Type == CommandType.CMD
-                        || command.Type == CommandType.Powershell
-                        || command.Type == CommandType.Bash);
-                    if (scripts.Any())
-                    {
-                        _formatter.DisplayInfo(Name, "Listing all scripts:");
-                        DisplayCommands(scripts, arg);
-                    }
-                    else _formatter.DisplayInfo(Name, "There are no known scripts.");
-                }
-                // List all websites.
-                else if (flag.Key == "url")
-                {
-                    var urls = commands.Where(command =>
-                        command.Type == CommandType.Url);
-                    if (urls.Any())
-                    {
-                        _formatter.DisplayInfo(Name, "Listing all urls:");
-                        DisplayCommands(urls, arg);
-                    }
-                    else _formatter.DisplayInfo(Name, "There are no known urls.");
-                }
-                // List all known executables.
-                else if (flag.Key == "exe")
-                {
-                    var executables = commands.Where(command =>
-                        command.Type == CommandType.Executable);
-                    if (executables.Any())
-                    {
-                        _formatter.DisplayInfo(Name, "Listing all executables:");
-                        DisplayCommands(executables, arg);
-                    }
-                    else _formatter.DisplayInfo(Name, "There are no known executables.");
+                    _formatter.DisplayInfo(Name, string.Format(
+                        _resources.GetString("List_ListCommands")
+                        ?? _formatter.StringNotLoaded(),
+                        commandDesc.Selector));
+                    var selected = commands.Where(c => c.Type == commandDesc.Type);
+                    if (selected.Any())
+                        DisplayCommands(selected, arg);
+                    else _formatter.DisplayMessage(string.Format(
+                            _resources.GetString("List_NoCommandsSelected")
+                            ?? _formatter.StringNotLoaded(),
+                            commandDesc.Selector));
                 }
                 // List all known tools.
                 else if (flag.Key == "tool")
                 {
                     if (arg != "")
                     {
-                        _formatter.DisplayWarning(
-                            Name,
-                            "(--tool) cannot be used with a filer.");
-                        throw new ArgumentException("--tool was called with arg.");
+                        _formatter.DisplayWarning(Name,
+                            _resources.GetString("List_ToolArg"));
+                        throw new ArgumentException("--tool was called with an arg.");
                     }
-                    var allTools = _executor.KnownTools
+                    var allTools = _executor.Tools
                         .Select(tool =>
                             $"{tool.Name}: {tool.Selectors.Aggregate((s1, s2)
                                 => $"{s1}, {s2}")}")
                                 .Aggregate((s1, s2) => $"{s1}\n{s2}");
 
-                    _formatter.DisplayInfo(Name, "All known tool selectors:");
+                    _formatter.DisplayInfo(Name,
+                        _resources.GetString("List_Tools"));
                     _formatter.DisplayMessage(allTools);
                 }
                 // Throw if flag is unrecognized.
@@ -141,8 +126,10 @@ public class ListTool : Tool
             commands = commands.Where(command => command.Name.Contains(filter));
             if (!commands.Any())
             {
-                _formatter.DisplayMessage(
-                    $"No commands were found with given filter: {filter}");
+                _formatter.DisplayMessage(string.Format(
+                    _resources.GetString("List_NothingFiltered") 
+                    ?? _formatter.StringNotLoaded(), 
+                    filter));
                 return;
             }
         }

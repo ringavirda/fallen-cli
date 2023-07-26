@@ -1,12 +1,14 @@
 using Moq;
 
-using FCli.Models;
 using FCli.Exceptions;
 using FCli.Models.Tools;
 using static FCli.Models.Args;
 using FCli.Services;
 using FCli.Services.Data;
 using FCli.Services.Format;
+using FCli.Models.Types;
+using FCli.Services.Config;
+using System.Resources;
 
 namespace FCli.Tests.Models.Tools;
 
@@ -18,6 +20,8 @@ public class AddTests
     private static readonly Mock<ICommandFactory> _fakeFactory;
     private static readonly Mock<ICommandLoader> _fakeLoader;
     private static readonly Mock<ICommandLineFormatter> _fakeFormatter;
+    private static readonly Mock<IConfig> _fakeConfig;
+    private static readonly Mock<ResourceManager> _fakeResources;
 
     static AddTests()
     {
@@ -25,12 +29,16 @@ public class AddTests
         _fakeFactory = TestRepository.CommandFactoryFake;
         _fakeLoader = TestRepository.CommandLoaderFake;
         _fakeFormatter = TestRepository.FormatterFake;
+        _fakeConfig = TestRepository.ConfigFake;
+        _fakeResources = TestRepository.ResourcesFake;
 
         _testTool = new AddTool(
             _fakeFormatter.Object,
+            _fakeResources.Object,
             _fakeExecutor.Object,
             _fakeFactory.Object,
-            _fakeLoader.Object);
+            _fakeLoader.Object,
+            _fakeConfig.Object);
     }
 
     [Fact]
@@ -70,7 +78,8 @@ public class AddTests
         _fakeFactory.Verify(factory => factory.Construct(
             name,
             path,
-            CommandType.Bash,
+            CommandType.Script,
+            ShellType.Bash,
             ""), Times.Once);
     }
 
@@ -87,7 +96,8 @@ public class AddTests
         _fakeFactory.Verify(factory => factory.Construct(
             commandName,
             path,
-            CommandType.Bash,
+            CommandType.Script,
+            ShellType.Bash,
             options), Times.Once);
     }
 
@@ -108,17 +118,18 @@ public class AddTests
         _fakeFactory.Verify(factory => factory.Construct(
             name,
             path,
-            CommandType.Bash,
+            CommandType.Script,
+            ShellType.Bash,
             options), Times.Once);
     }
 
     [Theory]
-    [InlineData("exe", "", CommandType.Executable)]
-    [InlineData("url", "", CommandType.Url)]
-    [InlineData("script", "bash", CommandType.Bash)]
-    [InlineData("script", "powershell", CommandType.Powershell)]
-    [InlineData("script", "cmd", CommandType.CMD)]
-    public void Add_ParseFlags_TypeFlags(string flag, string value, CommandType commandType)
+    [InlineData("exe", "", CommandType.Executable, ShellType.None)]
+    [InlineData("url", "", CommandType.Website, ShellType.None)]
+    [InlineData("script", "bash", CommandType.Script, ShellType.Bash)]
+    [InlineData("script", "powershell", CommandType.Script, ShellType.Powershell)]
+    [InlineData("script", "cmd", CommandType.Script, ShellType.Cmd)]
+    public void Add_ParseFlags_TypeFlags(string flag, string value, CommandType commandType, ShellType shellType)
     {
         var name = "testName1";
         var options = "testOptions1";
@@ -137,7 +148,8 @@ public class AddTests
             });
 
         if (Environment.OSVersion.Platform == PlatformID.Unix
-            && commandType == CommandType.CMD)
+            && commandType == CommandType.Script
+            && shellType == ShellType.Cmd)
         {
             act.Should().Throw<ArgumentException>();
             return;
@@ -148,6 +160,7 @@ public class AddTests
         name,
         path,
         commandType,
+        shellType,
         options), Times.Once);
     }
 
@@ -210,7 +223,8 @@ public class AddTests
             _fakeFactory.Verify(factory => factory.Construct(
                 name,
                 Path.Combine(TestRepository.TestFilesPath, TestRepository.BashScriptName),
-                CommandType.CMD,
+                CommandType.Script,
+                ShellType.Cmd,
                 options), Times.Once);
         }
     }
@@ -248,19 +262,20 @@ public class AddTests
         _fakeFactory.Verify(factory => factory.Construct(
                 name,
                 url,
-                CommandType.Url,
+                CommandType.Website,
+                ShellType.None,
                 ""), Times.Once);
     }
 
     [Fact]
     public void Add_ParsePaths()
     {
-        var testFiles = new Dictionary<string, CommandType> {
-            {TestRepository.CmdScriptName, CommandType.CMD},
-            {TestRepository.PSScriptName, CommandType.Powershell},
-            {TestRepository.BashScriptName, CommandType.Bash},
-            {TestRepository.ExecutableName, CommandType.Executable},
-            {TestRepository.TxtName, CommandType.None}
+        var testFiles = new Dictionary<string, (CommandType, ShellType)> {
+            {TestRepository.CmdScriptName, (CommandType.Script, ShellType.Cmd)},
+            {TestRepository.PSScriptName, (CommandType.Script, ShellType.Powershell)},
+            {TestRepository.BashScriptName, (CommandType.Script, ShellType.Bash)},
+            {TestRepository.ExecutableName, (CommandType.Executable, ShellType.None)},
+            {TestRepository.TxtName, (CommandType.None, ShellType.None)}
         };
 
         foreach (var file in testFiles.Keys)
@@ -272,7 +287,8 @@ public class AddTests
             if (file != TestRepository.TxtName)
             {
                 if (Environment.OSVersion.Platform == PlatformID.Unix
-                    && testFiles[file] == CommandType.CMD)
+                    && testFiles[file].Item1 == CommandType.Script
+                    && testFiles[file].Item2 == ShellType.Cmd)
                 {
                     act.Should().Throw<ArgumentException>();
                     return;
@@ -283,7 +299,8 @@ public class AddTests
                 _fakeFactory.Verify(factory => factory.Construct(
                         name,
                         path,
-                        testFiles[file],
+                        testFiles[file].Item1,
+                        testFiles[file].Item2,
                         ""), Times.Once);
             }
             else act.Should().Throw<ArgumentException>();
@@ -350,7 +367,8 @@ public class AddTests
         _fakeFactory.Verify(factory => factory.Construct(
             TestRepository.CommandSavable.Name,
             TestRepository.CommandSavable.Path,
-            CommandType.Bash,
+            CommandType.Script,
+            ShellType.Bash,
             TestRepository.CommandSavable.Options), Times.Once);
         _fakeLoader.Verify(loader =>
             loader.SaveCommand(TestRepository.CommandSavable), Times.Once);

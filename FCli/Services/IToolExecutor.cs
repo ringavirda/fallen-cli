@@ -1,5 +1,6 @@
 // FCli namespaces.
 using FCli.Models;
+using FCli.Models.Types;
 
 namespace FCli.Services;
 
@@ -9,13 +10,9 @@ namespace FCli.Services;
 public interface IToolExecutor
 {
     /// <summary>
-    /// List of all known flags that describe command flavors.
-    /// </summary>
-    public List<string> KnownTypeFlags { get; }
-    /// <summary>
     /// List of all tool prototypes.
     /// </summary>
-    public List<Tool> KnownTools { get; }
+    public List<Tool> Tools { get; }
     /// <summary>
     /// Should execute tool of given type with given args.
     /// </summary>

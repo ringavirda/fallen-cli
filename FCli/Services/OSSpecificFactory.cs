@@ -1,10 +1,12 @@
 ﻿// Vendor namespaces.
 using System.Diagnostics;
+using System.Resources;
 // FCli namespaces.
 using FCli.Models;
 using FCli.Exceptions;
 using FCli.Services.Data;
 using FCli.Services.Format;
+using FCli.Models.Types;
 
 namespace FCli.Services;
 
@@ -19,13 +21,16 @@ public class OSSpecificFactory : ICommandFactory
     // DI.
     private readonly ICommandLoader _loader;
     private readonly ICommandLineFormatter _formatter;
+    private readonly ResourceManager _resources;
 
     public OSSpecificFactory(
         ICommandLoader commandLoader,
-        ICommandLineFormatter formatter)
+        ICommandLineFormatter formatter,
+        ResourceManager resources)
     {
         _loader = commandLoader;
         _formatter = formatter;
+        _resources = resources;
     }
 
     /// <summary>
@@ -51,6 +56,7 @@ public class OSSpecificFactory : ICommandFactory
             command.Name,
             command.Path,
             command.Type,
+            command.Shell,
             command.Options);
     }
 
@@ -58,11 +64,12 @@ public class OSSpecificFactory : ICommandFactory
         string name,
         string path,
         CommandType type,
+        ShellType shell,
         string options)
     {
         Action action = type switch
         {
-            // Parse executable option.
+            // Parse Executable option.
             CommandType.Executable => () =>
             {
                 // Linux considers everything as scripts.
@@ -80,8 +87,8 @@ public class OSSpecificFactory : ICommandFactory
                 });
             }
             ,
-            // Parse website option.
-            CommandType.Url => () =>
+            // Parse Website option.
+            CommandType.Website => () =>
             {
                 // Linux uses xdg to open default browser.
                 if (Environment.OSVersion.Platform == PlatformID.Unix)
@@ -95,69 +102,83 @@ public class OSSpecificFactory : ICommandFactory
                 });
             }
             ,
-            // Parse CMD script option.
-            CommandType.CMD => () =>
+            // Parse Script option.
+            CommandType.Script => () =>
             {
-                // Obviously.
-                if (Environment.OSVersion.Platform == PlatformID.Unix)
+                if (shell == ShellType.Cmd)
                 {
-                    _formatter.DisplayError(
-                        name,
-                        "CMD scripts cannot be run on Linux systems!");
-                    throw new InvalidOperationException(
-                        $"Attempt to run a CMD script ({path}) on Linux.");
+                    // Obviously.
+                    if (Environment.OSVersion.Platform == PlatformID.Unix)
+                    {
+                        _formatter.DisplayError(name,
+                            _resources.GetString("Command_CmdOnWindows"));
+                        throw new InvalidOperationException(
+                            $"Attempt to run a CMD script ({path}) on Linux.");
+                    }
+                    // Windows starts cmd.exe process without shell.
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "cmd.exe",
+                        Arguments = $"/c {path} {options}",
+                        UseShellExecute = false
+                    });
                 }
-                // Windows starts cmd.exe process without shell.
-                Process.Start(new ProcessStartInfo
+                else if (shell == ShellType.Powershell)
                 {
-                    FileName = "cmd.exe",
-                    Arguments = $"/c {path} {options}",
-                    UseShellExecute = false
-                });
-            }
-            ,
-            // Parse Powershell script option.
-            CommandType.Powershell => () =>
-            {
-                // Try execute on linux.
-                if (Environment.OSVersion.Platform == PlatformID.Unix)
-                {
-                    _formatter.DisplayWarning(name, "Attempting to execute on Linux..");
-                    Process.Start("bash", $"powershell {path} {options}");
-                }
-                // Windows starts powershell.exe process with flags that bypass
-                // execution policy and allow for script execution.
-                else Process.Start(new ProcessStartInfo()
-                {
-                    FileName = "powershell.exe",
-                    Arguments = $"-NoProfile -ExecutionPolicy ByPass -File \"{path}\" -- {options}",
-                    UseShellExecute = false
-                })?.WaitForExit();
-            }
-            ,
-            // Parse Bash script option.
-            CommandType.Bash => () =>
-            {
-                // Linux executes script using bash shell.
-                if (Environment.OSVersion.Platform == PlatformID.Unix)
-                    Process.Start("bash", path);
-                // Windows uses WSL if it is available to run bash script.
-                else
-                {
-                    // Convert Windows path to WSL path.
-                    path = path.Replace(@"\", @"/");
-                    var drive = path.First();
-                    path = path.Replace($"{drive}:/", $"/mnt/{char.ToLower(drive)}/");
-                    // Start bash process in WSL.
-                    Process.Start(new ProcessStartInfo()
+                    // Try execute on linux.
+                    if (Environment.OSVersion.Platform == PlatformID.Unix)
+                    {
+                        _formatter.DisplayWarning(name,
+                            _resources.GetString("Command_PowershellOnLinux"));
+                        Process.Start("bash", $"powershell {path} {options}");
+                    }
+                    // Windows starts powershell.exe process with flags that bypass
+                    // execution policy and allow for script execution.
+                    else Process.Start(new ProcessStartInfo()
                     {
                         FileName = "powershell.exe",
-                        Arguments = $"wsl -e bash {path} {options}",
+                        Arguments = $"-NoProfile -ExecutionPolicy ByPass -File \"{path}\" -- {options}",
                         UseShellExecute = false
                     })?.WaitForExit();
                 }
-            }
-            ,
+                else if (shell == ShellType.Bash)
+                {
+                    // Linux executes script using bash shell.
+                    if (Environment.OSVersion.Platform == PlatformID.Unix)
+                        Process.Start("bash", path);
+                    // Windows uses WSL if it is available to run bash script.
+                    else
+                    {
+                        _formatter.DisplayWarning(name,
+                            _resources.GetString("Command_BashOnWindows"));
+                        // Convert Windows path to WSL path.
+                        path = path.Replace(@"\", @"/");
+                        var drive = path.First();
+                        path = path.Replace($"{drive}:/", $"/mnt/{char.ToLower(drive)}/");
+                        // Start bash process in WSL.
+                        Process.Start(new ProcessStartInfo()
+                        {
+                            FileName = "powershell.exe",
+                            Arguments = $"wsl -e bash {path} {options}",
+                            UseShellExecute = false
+                        })?.WaitForExit();
+                    }
+                }
+                else if (shell == ShellType.Fish)
+                {
+                    // TODO: Implement Fish
+                    throw new NotImplementedException();
+                }
+                else throw new CriticalException("CommandFactory received unknown shell type.");
+            },
+            CommandType.Directory => () => {
+                // TODO: Implement directory
+                throw new NotImplementedException();
+            },
+            CommandType.Group => () => {
+                // TODO: Implement group
+                throw new NotImplementedException();
+            },
             // Throws if received unrecognized command type. 
             _ => throw new CriticalException("Unknown command type was parsed!")
         };
@@ -167,6 +188,7 @@ public class OSSpecificFactory : ICommandFactory
             Name = name,
             Path = path,
             Type = type,
+            Shell = shell,
             Action = action,
             Options = options
         };

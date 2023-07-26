@@ -1,5 +1,6 @@
 using FCli.Exceptions;
 using FCli.Models;
+using FCli.Models.Types;
 using static FCli.Models.Args;
 
 namespace FCli.Tests.Models;
@@ -13,7 +14,10 @@ public class ToolTests : Tool
     public override Action<string, List<Flag>> Action => (str, flags) => { };
 
     public ToolTests() 
-        : base(TestRepository.FormatterFake.Object) { }
+        : base(
+            TestRepository.FormatterFake.Object,
+            TestRepository.ResourcesFake.Object
+        ) { }
 
     [Fact]
     public void Tool_FlagHasValue_Value()

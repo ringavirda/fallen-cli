@@ -1,4 +1,4 @@
-﻿namespace FCli.Models;
+﻿namespace FCli.Models.Types;
 
 /// <summary>
 /// Unique identifiers for tools.
@@ -10,5 +10,6 @@ public enum ToolType
     Remove,
     Run,
     Config,
+    Group,
     None
 }

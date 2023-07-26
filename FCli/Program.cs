@@ -10,6 +10,7 @@ using System.Globalization;
 using FCli.Services.Format;
 using System.Resources;
 using System.Reflection;
+using FCli.Services.Config;
 
 // Configure application host.
 var host = Host.CreateDefaultBuilder()
@@ -31,9 +32,9 @@ var host = Host.CreateDefaultBuilder()
         // Load user's dynamic config.
         var config = new DynamicConfig();
         // Set user's preferred formatter.
-        if (config.KnownFormatters.ContainsKey(config.Formatter))
+        if (config.KnownFormatters.Contains(config.Formatter))
             services.AddSingleton(
-                typeof(ICommandLineFormatter), config.KnownFormatters[config.Formatter]);
+                typeof(ICommandLineFormatter), config.Formatter.Type);
         // Guard against unknown formatter.
         // Use default if so.
         else
@@ -41,7 +42,8 @@ var host = Host.CreateDefaultBuilder()
             Console.WriteLine(
                 "Warn! Config contains unknown formatter - using default instead.");
             services.AddSingleton(
-                typeof(ICommandLineFormatter), config.KnownFormatters["inline"]);
+                typeof(ICommandLineFormatter), config.KnownFormatters
+                    .First(format => format.Selector == "inline"));
         }
         // Set user's preferred locale.
         if (config.KnownLocales.Contains(config.Locale))
@@ -64,7 +66,7 @@ var host = Host.CreateDefaultBuilder()
                 Assembly.GetExecutingAssembly()))
             .AddScoped<ICommandLoader, JsonLoader>()
             .AddScoped<ICommandFactory, OSSpecificFactory>()
-            .AddScoped<IToolExecutor, GenericExecutor>()
+            .AddScoped<IToolExecutor, ToolExecutor>()
             // Main entry point.
             .AddSingleton<FallenCli>();
     })

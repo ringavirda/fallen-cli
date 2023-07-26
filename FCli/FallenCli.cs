@@ -1,11 +1,12 @@
 // Vendor namespaces.
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Hosting;
+using System.Resources;
 // FCli namespaces.
 using FCli.Models;
 using FCli.Exceptions;
 using FCli.Services;
 using FCli.Services.Format;
+using FCli.Models.Types;
 
 namespace FCli;
 
@@ -22,19 +23,22 @@ public class FallenCli
     private readonly ICommandFactory _factory;
     private readonly ILogger<FallenCli> _logger;
     private readonly ICommandLineFormatter _formatter;
+    private readonly ResourceManager _resources;
 
     public FallenCli(
         IToolExecutor toolExecutor,
         ICommandFactory commandFactory,
         ILogger<FallenCli> logger,
-        ICommandLineFormatter formatter)
+        ICommandLineFormatter formatter,
+        ResourceManager resources)
     {
         _executor = toolExecutor;
         _factory = commandFactory;
         _logger = logger;
         _formatter = formatter;
+        _resources = resources;
     }
-    
+
     /// <summary>
     /// Executes main fcli logic.
     /// </summary>
@@ -93,11 +97,14 @@ public class FallenCli
         // Root exception selector.
         catch (Exception ex)
         {
-            _formatter.DisplayError("FCli", $"""
-                Something went horribly wrong!
-                [{ex.GetType().Name}]: {ex.Message}
-                """);
-            _logger.LogCritical(ex, "An unexpected exception was thrown.");
+            _formatter.DisplayError(
+                "FCli", 
+                string.Format(
+                    _resources.GetString("FCli_CriticalError")
+                    ?? _formatter.StringNotLoaded(),
+                    ex.GetType().Name, ex.Message
+                ));
+            _logger.LogCritical(ex, "An unexpected or critical exception was thrown.");
             return;
         }
     }

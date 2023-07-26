@@ -5,6 +5,7 @@ using FCli.Models.Tools;
 using FCli.Services.Data;
 using FCli.Services.Format;
 using static FCli.Models.Args;
+using System.Resources;
 
 namespace FCli.Tests.Models.Tools;
 
@@ -14,14 +15,17 @@ public class RemoveTests : IDisposable
 
     private static readonly Mock<ICommandLoader> _fakeLoader;
     private static readonly Mock<ICommandLineFormatter> _fakeFormatter;
+    private static readonly Mock<ResourceManager> _fakeResources;
 
     static RemoveTests()
     {
         _fakeLoader = TestRepository.CommandLoaderFake;
         _fakeFormatter = TestRepository.FormatterFake;
+        _fakeResources = TestRepository.ResourcesFake;
 
         _testTool = new RemoveTool(
             _fakeFormatter.Object,
+            _fakeResources.Object,
             _fakeLoader.Object);
     }
 

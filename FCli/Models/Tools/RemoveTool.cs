@@ -1,5 +1,7 @@
-// FCli namespaces.
+// Vendor namespaces.
 using System.Resources;
+using FCli.Models.Types;
+// FCli namespaces.
 using FCli.Services.Data;
 using FCli.Services.Format;
 using static FCli.Models.Args;
@@ -22,8 +24,8 @@ public class RemoveTool : Tool
     {
         _loader = commandLoader;
 
-        Description = _resources.GetString("RemoveHelp") 
-            ?? "Description hasn't loaded";
+        Description = _resources.GetString("Remove_Help") 
+            ?? formatter.StringNotLoaded();
     }
 
     public override string Name => "Remove";
@@ -43,10 +45,11 @@ public class RemoveTool : Tool
             if (!_loader.CommandExists(arg)
                 && !flags.Any(f => f.Key == "all"))
             {
-                _formatter.DisplayError(Name, $"""
-                    ({arg}) - is not a recognized command name.
-                    To see all command selectors try: fcli list.
-                    """);
+                _formatter.DisplayError(Name, string.Format(
+                    _resources.GetString("Remove_InvalidArg")
+                    ?? _formatter.StringNotLoaded(),
+                    arg
+                ));
                 throw new ArgumentException($"({arg}) - is not a command name.");
             }
             // Forward declare.
@@ -54,29 +57,28 @@ public class RemoveTool : Tool
             // Parse flags.
             foreach (var flag in flags)
             {
-                // No REMOVE flags have values.
+                // No Remove flags have values.
                 FlagHasNoValue(flag, Name);
                 // Remove all flags.
                 if (flag.Key == "all")
                 {
                     // Confirm user's intentions.
-                    _formatter.DisplayWarning(
-                        Name,
-                        "All flag: preparing to delete all known commands.");
-                    _formatter.DisplayMessage("Are you sure?");
+                    _formatter.DisplayWarning(Name,
+                        _resources.GetString("Remove_AllWarning"));
                     var response = _formatter.ReadUserInput("(yes/any)");
                     if (response?.ToLower() != "yes")
-                        _formatter.DisplayMessage("Deletion averted.");
+                        _formatter.DisplayMessage(
+                            _resources.GetString("Remove_Averted"));
                     else
                     {
-                        _formatter.DisplayMessage("Deleting...");
+                        _formatter.DisplayMessage(
+                            _resources.GetString("Remove_Deleting"));
                         var commands = _loader.LoadCommands();
                         // Guard against empty storage.
                         if (commands == null || !commands.Any())
                         {
-                            _formatter.DisplayError(
-                                Name,
-                                "There are no commands to delete!");
+                            _formatter.DisplayMessage(
+                                _resources.GetString("Remove_NoCommands"));
                             return;
                         }
                         else
@@ -85,9 +87,8 @@ public class RemoveTool : Tool
                             foreach (var command in commands
                                 .Select(c => c.Name).ToList())
                                 _loader.DeleteCommand(command);
-                            _formatter.DisplayInfo(
-                                Name,
-                                "All existing commands have been deleted.");
+                            _formatter.DisplayInfo(Name,
+                                _resources.GetString("Remove_AllDeleted"));
                         }
                     }
                     return;
@@ -98,21 +99,30 @@ public class RemoveTool : Tool
                 else UnknownFlag(flag, Name);
             }
             // Prepare to delete the command.
-            _formatter.DisplayInfo(Name, $"Preparing to delete {arg} command.");
             if (!skipDialog)
             {
                 // Confirm user's intentions.
-                _formatter.DisplayMessage("Are you sure?");
+                _formatter.DisplayWarning(Name, string.Format(
+                    _resources.GetString("Remove_Warning")
+                    ?? _formatter.StringNotLoaded(),
+                    arg
+                ));
                 var response = _formatter.ReadUserInput("(yes/any)");
                 if (response != "yes")
                 {
-                    _formatter.DisplayMessage("Deletion averted.");
+                    _formatter.DisplayMessage(
+                        _resources.GetString("Remove_Averted"));
                     return;
                 }
             }
             // Delete command.
-            _formatter.DisplayMessage("Deleting...");
+            _formatter.DisplayMessage(
+                _resources.GetString("Remove_Deleting"));
             _loader.DeleteCommand(arg);
-            _formatter.DisplayInfo(Name, $"Command ({arg}) was successfully deleted.");
+            _formatter.DisplayInfo(Name, string.Format(
+                _resources.GetString("Remove_Deleted")
+                ?? _formatter.StringNotLoaded(),
+                arg
+            ));
         };
 }

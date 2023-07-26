@@ -1,7 +1,10 @@
-// FCli namespaces.
+// Vendor namespaces.
 using System.Resources;
+// FCli namespaces.
 using FCli.Exceptions;
+using FCli.Models.Types;
 using FCli.Services;
+using FCli.Services.Config;
 using FCli.Services.Format;
 using static FCli.Models.Args;
 
@@ -13,21 +16,21 @@ namespace FCli.Models.Tools;
 public class RunTool : Tool
 {
     // From ToolExecutor.
-    private readonly IToolExecutor _executor;
     private readonly ICommandFactory _factory;
+    private readonly IConfig _config;
 
     public RunTool(
         ICommandLineFormatter formatter,
         ResourceManager manager,
-        IToolExecutor toolExecutor,
-        ICommandFactory commandFactory)
+        ICommandFactory commandFactory,
+        IConfig config)
         : base(formatter, manager)
     {
-        _executor = toolExecutor;
         _factory = commandFactory;
+        _config = config;
 
-        Description = _resources.GetString("RunHelp")
-            ?? "Description hasn't loaded";
+        Description = _resources.GetString("Run_Help")
+            ?? formatter.StringNotLoaded();
     }
 
     public override string Name => "Run";
@@ -46,97 +49,85 @@ public class RunTool : Tool
             // Guard against no argument.
             if (arg == string.Empty)
             {
-                _formatter.DisplayWarning(Name, """
-                    You need to specify a command to test.
-                    To see Run tool usage consult --help.
-                    """);
+                _formatter.DisplayError(Name, 
+                    _resources.GetString("Run_NoArg"));
                 throw new ArgumentException("Run no type flag was given.");
             }
-            // Extract flags.
-            var typeFlags = flags
-                .Where(flag => _executor.KnownTypeFlags.Contains(flag.Key));
-            var optionsFlag = flags.FirstOrDefault(flag => flag.Key == "options");
-            // Guard against no type flag.
-            if (!typeFlags.Any())
+            // Guard against multiple type flags.
+            if (flags.Select(f => f.Key)
+                .Intersect(_config.KnownCommands.Select(c => c.Selector))
+                .Count() > 1)
             {
-                _formatter.DisplayWarning(Name, """
-                    With Run you need to explicitly specify the type to run.
-                    To see all supported type flags use --help.
-                    """);
-                throw new FlagException("Run no type flag was given.");
+                _formatter.DisplayError(
+                    Name,
+                    _resources.GetString("Run_MultipleTypeArgs"));
+                throw new FlagException(
+                    "Attempted to pass multiple command types flags into the Run tool.");
             }
-            if (typeFlags.Count() != 1)
-            {
-                _formatter.DisplayWarning(Name, """
-                    Run can only have one type defining flag.
-                    To see all supported type flags use --help.
-                    """);
-                throw new FlagException("Run was called with multiple type flags.");
-            }
-            // Confirm flags.
-            var typeFlag = typeFlags.First();
-            if (optionsFlag != null)
-                FlagHasValue(optionsFlag, Name);
             // Forward declare.
-            Command? command = null;
-            // Run as shell script.
-            if (typeFlag.Key == "script")
+            var type = CommandType.None;
+            var shell = ShellType.None;
+            var options = string.Empty;
+            // Parse f
+            foreach (var flag in flags)
             {
-                // Script flag has to specify shell type.
-                FlagHasValue(typeFlag, Name);
-                var type = CommandType.None;
-                try
+                // Specify command line args to run command with.
+                if (flag.Key == "options")
                 {
-                    type = typeFlag.Value switch
+                    FlagHasValue(flag, Name);
+                    options = flag.Value;
+                }
+                // Parse command and shell type.
+                else if (_config.KnownCommands.Any(c => c.Selector == flag.Key))
+                {
+                    var descriptor = _config.KnownCommands
+                        .First(c => c.Selector == flag.Key);
+                    // Check if this command a shell one,
+                    if (descriptor.IsShell)
                     {
-                        "cmd" => CommandType.CMD,
-                        "powershell" => CommandType.Powershell,
-                        "bash" => CommandType.Bash,
-                        _ => throw new FlagException(
-                            $"{typeFlag.Value} - unknown shell.")
-                    };
-                }
-                catch (FlagException)
-                {
-                    _formatter.DisplayError(Name, $"""
-                        Specified shell ({typeFlag.Value}) is not recognized.
-                        The only shells that are supported: cmd, powershell, bash. 
-                        """);
-                    throw;
-                }
-                // Confirm path.
-                var fullPath = ValidatePath(arg, Name);
-                // Construct dummy command.
-                command = _factory.Construct(
-                    "runner", fullPath, type,
-                    optionsFlag?.Value ?? string.Empty);
+                        // Guard against no shell specified.
+                        FlagHasValue(flag, Name);
+                        var shellDescriptor = _config.KnownShells
+                            .FirstOrDefault(sh => sh.Selector == flag.Value);
+                        // Guard against unknown shell.
+                        if (shellDescriptor != null)
+                            shell = shellDescriptor.Type;
+                        else
+                        {
+                            _formatter.DisplayError(Name,
+                                string.Format(
+                                    _resources.GetString("FCli_UnknownShell")
+                                    ?? _formatter.StringNotLoaded(),
+                                    string.Join(
+                                        ", ", 
+                                        _config.KnownShells.Select(sh => sh.Selector)))
+                                );
+                            throw new ArgumentException(
+                                $"Wasn't able to determine shell type on ({arg}).");
+                        }
+                    }
+                    // Guard against shell execution.
+                    else FlagHasNoValue(flag, Name);
 
+                    // Set command type.
+                    type = descriptor.Type;
+                }
+                // Throw if flag is unrecognized.
+                else UnknownFlag(flag, Name);
             }
-            // Run as executable.
-            else if (typeFlag.Key == "exe")
+            // Guard against no type flag.
+            if (type == CommandType.None)
             {
-                FlagHasNoValue(typeFlag, Name);
-                // Confirm path.
-                var fullPath = ValidatePath(arg, Name);
-                // Construct dummy command.
-                command = _factory.Construct(
-                    "runner", fullPath,
-                    CommandType.Executable,
-                    optionsFlag?.Value ?? string.Empty);
+                _formatter.DisplayError(Name, 
+                    _resources.GetString("Run_UnknownCommand"));
+                throw new ArgumentException("Run failed to parse given command");
             }
-            // Run as website.
-            else if (typeFlag.Key == "url")
-            {
-                FlagHasNoValue(typeFlag, Name);
-                // Validate url.
-                var uri = ValidateUrl(arg, Name);
-                // Construct dummy command.
-                command = _factory.Construct(
-                    "runner",
-                    uri.ToString(),
-                    CommandType.Url,
-                    string.Empty);
-            }
+            var command = _factory.Construct(
+                "runner",
+                arg,
+                type,
+                shell,
+                options);
             // Guard against invalid initialization.
             if (command?.Action != null) command.Action();
             // It is impossible, so if it happens throw it into the root.
