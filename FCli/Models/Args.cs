@@ -1,7 +1,7 @@
 ﻿// Vendor namespaces.
 using System.Text.RegularExpressions;
-using FCli.Services.Format;
 // FCli namespaces.
+using FCli.Services.Format;
 
 namespace FCli.Models;
 

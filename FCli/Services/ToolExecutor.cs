@@ -3,12 +3,12 @@ using Microsoft.Extensions.Logging;
 using System.Resources;
 // FCli namespaces.
 using FCli.Models;
-using FCli.Exceptions;
 using FCli.Models.Tools;
+using FCli.Models.Types;
+using FCli.Exceptions;
 using FCli.Services.Data;
 using FCli.Services.Format;
 using FCli.Services.Config;
-using FCli.Models.Types;
 
 namespace FCli.Services;
 

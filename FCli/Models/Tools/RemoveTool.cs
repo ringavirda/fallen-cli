@@ -1,7 +1,7 @@
 // Vendor namespaces.
 using System.Resources;
-using FCli.Models.Types;
 // FCli namespaces.
+using FCli.Models.Types;
 using FCli.Services.Data;
 using FCli.Services.Format;
 using static FCli.Models.Args;

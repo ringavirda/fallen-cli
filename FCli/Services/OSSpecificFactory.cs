@@ -3,10 +3,10 @@ using System.Diagnostics;
 using System.Resources;
 // FCli namespaces.
 using FCli.Models;
+using FCli.Models.Types;
 using FCli.Exceptions;
 using FCli.Services.Data;
 using FCli.Services.Format;
-using FCli.Models.Types;
 
 namespace FCli.Services;
 

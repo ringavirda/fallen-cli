@@ -141,8 +141,7 @@ To list all tools or commands use:
     fcli list --tool</value>
   </data>
   <data name="Full_Help" xml:space="preserve">
-    <value>This tool can be used to remember apps, sites and script files, and
-call them afterwards. This should help with using command line.
+    <value>This tool can be used to remember apps, sites and script files, and call them afterwards. This should help with using command line.
 
 Syntax:
     fcli &lt;tool/command&gt; [flags...]
@@ -155,13 +154,10 @@ Tools:
     list   - displays all known commands or tools.
     run    - performs a command without saving it.
 
-    More detailed info about each command can be access by specifying
-    special flag --help after that specific tool.
+    More detailed info about each command can be access by specifying special flag --help after that specific tool.
 
 Commands:
-    If given argument doesn't align with a known tool or it's alias
-    it is considered a command. If this command is known, then it gets
-    executed in the most appropriate vay.
+    If given argument doesn't align with a known tool or it's alias it is considered a command. If this command is known, then it gets executed in the most appropriate vay.
     All known commands can be listed using list tool.
 
 Usage:
@@ -172,8 +168,7 @@ Usage:
     fcli google</value>
   </data>
   <data name="Add_Help" xml:space="preserve">
-    <value>Add - validates a new command and adds it to the storage.
-Requires a valid path or url as an argument.
+    <value>Add - validates a new command and adds it to the storage. Requires a valid path or url as an argument.
 Flags:
     --script &lt;shell&gt; - the path points to the script file.
     --exe            - the path points to the executable.
@@ -186,8 +181,7 @@ Usage:
     fcli add .\scripts\script --script bash --name sc</value>
   </data>
   <data name="List_Help" xml:space="preserve">
-    <value>List - echos existing commands to the console based on the selection
-given by flags. If no flags given - lists all existing commands.
+    <value>List - echos existing commands to the console based on the selection given by flags. If no flags given - lists all existing commands.
 Flags:
     --script - adds scripts to listing.
     --exe    - adds executables to listing.
@@ -209,9 +203,7 @@ Usage:
     fcli remove awesome --yes</value>
   </data>
   <data name="Run_Help" xml:space="preserve">
-    <value>Run - executes given path or url without saving. Useful for testing.
-Requires path or url, as well as explicit specification of run type
-through a flag.
+    <value>Run - executes given path or url without saving. Useful for testing. Requires path or url, as well as explicit specification of run type through a flag.
 Flags:
     --script &lt;shell&gt; - run as script.
     --exe            - run as executable.
@@ -222,16 +214,18 @@ Usage:
     fcli run https://awesome.com --url</value>
   </data>
   <data name="Config_Help" xml:space="preserve">
-    <value>Config tool allows to manipulate current user config.
-Using this you can change some values store or purge config.
-List current config state if nothing is specified.
+    <value>Config tool allows to manipulate current user config. Using this you can change some values store or purge config. List current config state if nothing is specified.
 Flags:
     --locale &lt;loc&gt;     - sets culture locale for the tool.
-        - supported locales: en, ru, ua.
+        - supported locales: en, ru, uk.
     --formatter &lt;type&gt; - sets console formatter to use for messaging.
         - inline       - displays most messages as a single line.
         - pretty       - more verbose and uses multiline templates.
-    --purge            - deletes current config.</value>
+    --purge            - deletes current config.
+Usage:
+    fcli config
+    fcli cnf --locale en --formatter pretty
+    fcli config --purge</value>
   </data>
 
   <!--
@@ -256,18 +250,15 @@ Supported shells: {0}.</value>
   -->
   <data name="Tool_FlagShouldNotHaveValue" xml:space="preserve">
     <value>Flag (--{0}) shouldn't have any value.
-To see list of all supported flags for {1} tool consult
-help page using --help flag.</value>
+To see list of all supported flags for {1} tool consult help page using --help flag.</value>
   </data>
   <data name="Tool_FlagShouldHaveValue" xml:space="preserve">
     <value>Flag (--{0}) should have a value.
-To see list of all supported flags for {1} tool consult
-help page using --help flag.</value>
+To see list of all supported flags for {1} tool consult help page using --help flag.</value>
   </data>
   <data name="Tool_FlagIsUnknown" xml:space="preserve">
     <value>Flag (--{0}) is not a known flag for the {1} tool.
-To see list of all supported flags for {2} tool consult
-help page using --help flag.</value>
+To see list of all supported flags for {2} tool consult help page using --help flag.</value>
   </data>
   <data name="Tool_UrlIsInvalid" xml:space="preserve">
     <value>({0}) - is not a valid url.</value>
@@ -292,34 +283,23 @@ Please, specify it using type flags.
 To see the list of type flags use --help.</value>
   </data>
   <data name="Add_CommandNotDetermined" xml:space="preserve">
-    <value>The type of file wasn't determined. FCli recognizes only 
-file path or url. You can force execution using type 
-flags. Consult help page for more info.</value>
+    <value>The type of file wasn't determined. FCli recognizes only file path or url. You can force execution using type flags. Consult help page for more info.</value>
   </data>
   <data name="Add_NameAlreadyExists" xml:space="preserve">
     <value>Name ({0}) is a known command or tool.
 Use --name flag to specify explicitly a name for the command.</value>
   </data>
   <data name="Add_BashOnWindows" xml:space="preserve">
-    <value>Command ({0}) is interpreted as a bash script, but Windows
-operating system is currently running. Bash scripts can be executed
-on Windows, FCli uses WSL for that. You need to make sure that
-your system has WSL installed and default distro enabled.</value>
+    <value>Command ({0}) is interpreted as a bash script, but Windows operating system is currently running. Bash scripts can be executed on Windows, FCli uses WSL for that. You need to make sure that your system has WSL installed and default distro enabled.</value>
   </data>
   <data name="Add_FishOnWindows" xml:space="preserve">
-    <value>Command ({0}) is interpreted as a Fish script, but Windows
-operating system is currently running. Fish is only supported 
-on Unix-like operating systems.</value>
+    <value>Command ({0}) is interpreted as a Fish script, but Windows operating system is currently running. Fish is only supported on Unix-like operating systems.</value>
   </data>
   <data name="Add_CmdOnLinux" xml:space="preserve">
-    <value>Command ({0}) is interpreted as a batch file, but Linux
-operating system is running. CMD is only supported on Windows.</value>
+    <value>Command ({0}) is interpreted as a batch file, but Linux operating system is running. CMD is only supported on Windows.</value>
   </data>
   <data name="Add_PowershellOnLinux" xml:space="preserve">
-    <value>Command ({0}) is interpreted as a powershell script, but
-Linux operating system is running. PS scripts can be executed
-on Linux, but powershell needs to be installed from the packet
-manager.</value>
+    <value>Command ({0}) is interpreted as a powershell script, but Linux operating system is running. PS scripts can be executed on Linux, but powershell needs to be installed from the packet manager.</value>
   </data>
   <data name="Add_OSScript_Question" xml:space="preserve">
     <value>Are you sure you can run this type of script?</value>
@@ -385,8 +365,7 @@ To see supported console formatters consult help page.</value>
     <value>Formatter changed.</value>
   </data>
   <data name="Config_PurgeWarning" xml:space="preserve">
-    <value>You are about to purge your dynamic configuration, all your
-setups will be lost. Are you sure you want to proceed?</value>
+    <value>You are about to purge your dynamic configuration, all your setups will be lost. Are you sure you want to proceed?</value>
   </data>
   <data name="Config_PurgeAverted" xml:space="preserve">
     <value>Config purge averted.</value>

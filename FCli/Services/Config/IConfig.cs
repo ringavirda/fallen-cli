@@ -1,5 +1,4 @@
 // FCli namespaces.
-using FCli.Models;
 using FCli.Models.Types;
 
 namespace FCli.Services.Config;

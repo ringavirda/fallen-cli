@@ -1,7 +1,7 @@
 ﻿// Vendor namespaces.
 using System.Text.Json;
-using FCli.Exceptions;
 // FCli namespaces.
+using FCli.Exceptions;
 using FCli.Models;
 using FCli.Services.Config;
 

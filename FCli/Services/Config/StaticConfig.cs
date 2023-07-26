@@ -1,5 +1,4 @@
-// Vendor namespaces.
-using FCli.Models;
+// FCli namespaces.
 using FCli.Models.Types;
 using FCli.Services.Format;
 
@@ -21,7 +20,7 @@ public abstract class StaticConfig : IConfig
     public string LogsPath { get; private set; }
     public List<string> KnownLocales => new()
     {
-        "en", "ru", "ua"
+        "en", "ru", "uk"
     };
     public List<IConfig.FormatterDescriptor> KnownFormatters => new() {
         new("inline", typeof(InlineFormatter)),

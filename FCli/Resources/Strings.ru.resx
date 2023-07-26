@@ -117,6 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <!-- FCli strings -->
   <!-- 
     
     All help messages 
@@ -141,30 +142,27 @@
     fcli list --tool</value>
   </data>
   <data name="Full_Help" xml:space="preserve">
-    <value>This tool can be used to remember apps, sites and script files, and
-call them afterwards. This should help with using command line.
+    <value>Этот инструмент может быть использован для того, чтобы запоминать приложения, сайты, скрипты, и позже вызывать их по команде. Это должно быть полезным при использовании командной строки.
 
-Syntax:
+Синтаксис:
     fcli &lt;tool/command&gt; [flags...]
 
-Tools:
-    Tools manipulate command storage and do informational work.
+Инструменты:
+    Инструменты управляют хранилищем команд и дополнительными функциями FCli.
 
-    add    - stores new command to storage.
-    remove - deletes a known command from storage.
-    list   - displays all known commands or tools.
-    run    - performs a command without saving it.
+    add    - добавляет новые команды в хранилище.
+    remove - удаляет известные команды.
+    list   - выводит состояние хранилища.
+    run    - виполняет даную команду без валидации и не сохраняя её.
 
-    More detailed info about each command can be access by specifying
-    special flag --help after that specific tool.
+    Более детальную информацию об каждом инструменте можно получить использовав на
+    нём флаг --help. Он выведет более подробное описание этого инструмента.
 
-Commands:
-    If given argument doesn't align with a known tool or it's alias
-    it is considered a command. If this command is known, then it gets
-    executed in the most appropriate vay.
-    All known commands can be listed using list tool.
+Команды:
+    Если аргумент не является одним из известных селекторов инструментов, то он рассматривается как команда. Если эта комнда находится в хранилише, то FCli реконструирует её и попытается выполнить наиболее подходящим образом.
+    Все сохранённые команды можно вывести используя инструмент list.
 
-Usage:
+Использование:
     fcli add c:\awesome --exe -name aw
     fcli aw --options "-s 2"
     fcli remove aw
@@ -172,67 +170,64 @@ Usage:
     fcli google</value>
   </data>
   <data name="Add_Help" xml:space="preserve">
-    <value>Add - validates a new command and adds it to the storage.
-Requires a valid path or url as an argument.
-Flags:
-    --script &lt;shell&gt; - the path points to the script file.
-    --exe            - the path points to the executable.
-    --url            - the argument is a url.
-    --name &lt;value&gt;   - explicitly specify the name for the command.
-    --options &lt;args&gt; - options to run exe or script with.
-    --help           - show description.
-Usage:
+    <value>Add - валидирует указаные свойства команды и добавляет её в хранилище. Требует существующий путь или корректную ссылку как аргумент.
+Флаги:
+    --script &lt;shell&gt; - путь указывает на скриптовый файл.
+    --exe            - путь ведёт к выполняемому файлу.
+    --url            - аргумент это ссылка на сайт.
+    --name &lt;value&gt;   - указывает конкретное имя для команды.
+    --options &lt;args&gt; - дополнительные аргументы кмандой строки.
+    --help           - показывает эту страницу.
+Использование:
     fcli add c:/awesome.exe
     fcli add .\scripts\script --script bash --name sc</value>
   </data>
   <data name="List_Help" xml:space="preserve">
-    <value>List - echos existing commands to the console based on the selection
-given by flags. If no flags given - lists all existing commands.
-Flags:
-    --script - adds scripts to listing.
-    --exe    - adds executables to listing.
-    --url    - adds urls to listing.
-    --tools  - lists all available tool selectors.
-    --help   - show description.
-Usage:
+    <value>List - выводит в консоль списки известных команд/инструментов зависимо от указанных флагов. Выводит все команды, если флаги не указаны.
+Флаги:
+    --script - добавляет скрипты в список.
+    --exe    - добавляет исполняемые файлы в список.
+    --url    - добавляет сайты в список.
+    --tools  - выводит все известные селекторы инструментов.
+    --help   - показывает эту страницу.
+Использование:
     fcli list
     fcli list --tools
     fcli ls --script --url</value>
   </data>
   <data name="Remove_Help" xml:space="preserve">
-    <value>Remove - deletes command from storage.
-Flags:
-    --yes  - skip confirmation.
-    --all  - removes all known commands.
-    --help - show description.
-Usage:
+    <value>Remove - удаляет команду из хранилища.
+Флаги:
+    --yes  - пропускает подтверждение.
+    --all  - удаляет все команды (непропускаемое подтверждение).
+    --help - показывает эту страницу.
+Использование:
     fcli remove awesome --yes</value>
   </data>
   <data name="Run_Help" xml:space="preserve">
-    <value>Run - executes given path or url without saving. Useful for testing.
-Requires path or url, as well as explicit specification of run type
-through a flag.
-Flags:
-    --script &lt;shell&gt; - run as script.
-    --exe            - run as executable.
-    --url            - run as url.
-    --help           - show description.
-Usage:
+    <value>Run - выполняет даный путь или ссылку без валидации и сохранения. Полезно для тестирования. Требует путь или ссылку, а так же конктрено указаный тип команды через соответствующий флаг.
+Флаги:
+    --script &lt;shell&gt; - запустить как скрипт.
+    --exe            - запустить как выполняемый файл.
+    --url            - запустить как ссылку.
+    --help           - показать эту страницу.
+Использование:
     fcli run c:/awesome --script powershell
     fcli run https://awesome.com --url</value>
   </data>
   <data name="Config_Help" xml:space="preserve">
-    <value>Config tool allows to manipulate current user config.
-Using this you can change some values store or purge config.
-List current config state if nothing is specified.
-Flags:
-    --locale &lt;loc&gt;     - sets culture locale for the tool.
-        - supported locales: en, ru, ua.
-    --formatter &lt;type&gt; - sets console formatter to use for messaging.
-        - inline       - displays most messages as a single line.
-        - pretty       - more verbose and uses multiline templates.
-    --purge            - deletes current config.</value>
-  </data>
+    <value>Config - позволяет управлять пользовательским конфигурационным файлом. Используя этот инструмент вы можете изменять некоторые значения, или же удалить конфигурационный файл целиком.
+Флаги:
+    --locale &lt;loc&gt;     - указывает культуру которую использовать.
+        - поддерживаемые локали: en, ru, uk.
+    --formatter &lt;type&gt; - устанавливает использоваемый форматировальщик.
+        - inline       - склонен показывать сообщения одной строкой.
+        - pretty       - более многословен, разноцвентный и многострочный.
+    --purge            - удаляет существующую конфигурацию.</value>
+Использование:
+    fcli config
+    fcli cnf --locale en --formatter pretty
+    fcli config --purge</data>
 
   <!--
 
@@ -241,12 +236,12 @@ Flags:
   -->
 
   <data name="FCli_CriticalError" xml:space="preserve">
-    <value>Something went horribly wrong!
-[{exName}]: {exMessage}</value>
+    <value>Случилось что-то ужасное!
+[{0}]: {1}</value>
   </data>
   <data name="FCli_UnknownShell" xml:space="preserve">
-    <value>Script flag must also specify type of shell.
-Supported shells: {shells}.</value>
+    <value>Флаг --script должен так же указывать окружение.
+Поддерживаемые окружения: {0}.</value>
   </data>
 
   <!--
@@ -255,25 +250,22 @@ Supported shells: {shells}.</value>
 
   -->
   <data name="Tool_FlagShouldNotHaveValue" xml:space="preserve">
-    <value>Flag (--{flag}) shouldn't have any value.
-To see list of all supported flags for {toolName} tool consult
-help page using --help flag.</value>
+    <value>Флаг (--{0}) не должен иметь никакого значения.
+Чтобы увидеть список всех поддерживаемых флагов для {1} воспользуйстесь страницой помощи указав флаг --help.</value>
   </data>
   <data name="Tool_FlagShouldHaveValue" xml:space="preserve">
-    <value>Flag (--{flag}) should have a value.
-To see list of all supported flags for {toolName} tool consult
-help page using --help flag.</value>
+    <value>Флаг (--{0}) должен иметь значение.
+Чтобы увидеть список всех поддерживаемых флагов для {1} воспользуйстесь страницой помощи указав флаг --help.</value>
   </data>
   <data name="Tool_FlagIsUnknown" xml:space="preserve">
-    <value>Flag (--{flag}) is not a known flag for the {toolName} tool.
-To see list of all supported flags for {toolName} tool consult
-help page using --help flag.</value>
+    <value>Флаг (--{0}) не есть флагом инструмента {1}.
+Чтобы увидеть список всех поддерживаемых флагов для {1} воспользуйстесь страницой помощи указав флаг --help.</value>
   </data>
   <data name="Tool_UrlIsInvalid" xml:space="preserve">
-    <value>({url}) - is not a valid url.</value>
+    <value>({0}) - невалидныя ссылка.</value>
   </data>
   <data name="Tool_PathIsInvalid" xml:space="preserve">
-    <value>({path}) - is not a valid system path.</value>
+    <value>({0}) - недействительный путь.</value>
   </data>
   <!--
 
@@ -281,69 +273,57 @@ help page using --help flag.</value>
 
   -->
   <data name="Add_NoArg" xml:space="preserve">
-    <value>Add tool requires an argument - a path or url.</value>
+    <value>Инструмент Add требует аргумент - путь или ссылку.</value>
   </data>
   <data name="Add_MultipleTypeFlags" xml:space="preserve">
-    <value>Add tool can accept only one of the type flags.</value>
+    <value>Инструмент Add может иметь только один флаг типа.</value>
   </data>
   <data name="Add_FileUnrecognized" xml:space="preserve">
-    <value>Couldn't recognize the type of file.
-Please, specify it using type flags. 
-To see the list of type flags use --help.</value>
+    <value>Невозможно определить тип файла. Пожалуйста, укажите его используя флаг типа. Чтобы увидеть список всех флагов типа, воспользуйстесь --help.</value>
   </data>
   <data name="Add_CommandNotDetermined" xml:space="preserve">
-    <value>The type of file wasn't determined. FCli recognizes only 
-file path or url. You can force execution using type 
-flags. Consult help page for more info.</value>
+    <value>Тип команды не был определён. FCli может распознать только путь или ссылку. Вы можете напрямую указать тип команды используя флаги типов. Страница помощи содержит больше информации.</value>
   </data>
   <data name="Add_NameAlreadyExists" xml:space="preserve">
-    <value>Name ({name}) is a known command or tool.
-Use --name flag to specify explicitly a name for the command.</value>
+    <value>Имя ({0}) - это известная команда или инструмент.
+Вы можете использовать флаг --name чтобы указать другое имя для команды.</value>
   </data>
   <data name="Add_BashOnWindows" xml:space="preserve">
-    <value>Command ({name}) is interpreted as a bash script, but Windows
-operating system is currently running. Bash scripts can be executed
-on Windows, FCli uses WSL for that. You need to make sure that
-your system has WSL installed and default distro enabled.</value>
+    <value>Команда ({0}) была распознана как Bash скрипт, но окружением сейчас является Windows. Bash скрипты могут быть выполнены на Windows, FCli использует WSL для этого. Вам нужно убедиться что ваша Windows имеет подсистему WSL установленую и с включённым стандартным дистрибутивом чтобы это сработало.</value>
   </data>
   <data name="Add_FishOnWindows" xml:space="preserve">
-    <value>Command ({name}) is interpreted as a Fish script, but Windows
-operating system is currently running. Fish is only supported 
-on Unix-like operating systems.</value>
+    <value>Команда ({0}) была распознана Fish скрипт, но окружением является операционная система Windows. Fish только поддерживается на Unix-подобных системах.</value>
   </data>
   <data name="Add_CmdOnLinux" xml:space="preserve">
-    <value>Command ({name}) is interpreted as a batch file, but Linux
-operating system is running. CMD is only supported on Windows.</value>
+    <value>Команда ({0}) была распознана как Бат файл, но окружением сейчас является операционная система Linux. CMD поддерживается только на Windows.</value>
   </data>
   <data name="Add_PowershellOnLinux" xml:space="preserve">
-    <value>Command ({name}) is interpreted as a powershell script, but
-Linux operating system is running. PS scripts can be executed
-on Linux, but powershell needs to be installed from the packet
-manager.</value>
+    <value>Команда ({0}) распознана как Powershell скрипт, но окружением сейчас является операционная система Linux. PS скрипты могут быть запущены на Linux, но powershell должен быть установлен используя ваш пакетный менеджер.</value>
   </data>
   <data name="Add_OSScript_Question" xml:space="preserve">
-    <value>Are you sure you can run this type of script?</value>
+    <value>Вы уверены что ваша система может запустить этот тип скрипта?</value>
   </data>
   <data name="Add_OSScript_Avert" xml:space="preserve">
-    <value>Averting add process...</value>
+    <value>Отмена продеса add...</value>
   </data>
   <data name="Add_OSScript_Continue" xml:space="preserve">
-    <value>Continuing add process...</value>
+    <value>Продолжаем процесс add...</value>
   </data>
   <data name="Add_ParsedCommand" xml:space="preserve">
-    <value>Command was parsed:
-  name    - {name}
-  type    - {type}
-  path    - {arg}
-  options - {options}</value>
+    <value>Команда была реконструирована:
+  name    - {0}
+  type    - {1}
+  shell   - {2}
+  path    - {3}
+  options - {4}</value>
   </data>
   <data name="Add_Saving" xml:space="preserve">
-    <value>Saving to storage...</value>
+    <value>Сохранение в хранилище...</value>
   </data>
   <data name="Add_Saved" xml:space="preserve">
-    <value>Saved.
-To use the command try:
-  fcli {name}</value>
+    <value>Сохранено.
+Чтобы вызвать эту команду воспользуйтесь:
+  fcli {0}</value>
   </data>
   <!--
 
@@ -351,50 +331,49 @@ To use the command try:
 
   -->
   <data name="Config_Arg" xml:space="preserve">
-    <value>Config tool cannot have any arguments.
-For Config tool syntax consult help page using --help.</value>
+    <value>Инструмент Config не может иметь никаких аргументов.
+Чтобы увидеть информацию об инструменте Config воспользуйстесь страницей помощи, указав флаг --help.</value>
   </data>
   <data name="Config_ListConfig" xml:space="preserve">
-    <value>No flags given, listing current config:</value>
+    <value>Не указано никаких флагов, вывожу состояние конфигурации:</value>
   </data>
   <data name="Config_Formatter" xml:space="preserve">
-    <value>Formatter: {formatter}</value>
+    <value>Форатировщик: {0}</value>
   </data>
   <data name="Config_Locale" xml:space="preserve">
-    <value>Locale: {Locale}</value>
+    <value>Локаль: {0}</value>
   </data>
   <data name="Config_UnknownLocale" xml:space="preserve">
-    <value>Unsupported locale was specified via --locale flag.
-To see supported locales consult help page.</value>
+    <value>Неподдерживаемая локаль была указана через флаг --locale.
+Чтобы увидеть поддерживаемые локали воспользуйтесь страницей помощи.</value>
   </data>
   <data name="Config_LocaleChangeWarning" xml:space="preserve">
-    <value>Preparing to change locale from ({oldLocale}) to ({newLocale})...</value>
+    <value>Смена локали с ({0}) на ({1})...</value>
   </data>
   <data name="Config_LocaleChanged" xml:space="preserve">
-    <value>Locale changed.</value>
+    <value>Локаль изменена.</value>
   </data>
   <data name="Config_UnsupportedFormatter" xml:space="preserve">
-    <value>Unsupported formatter was specified via --formatter flag.
-To see supported console formatters consult help page.</value>
+    <value>Неподдерживаемый форматировщик был указан через флаг --formatter.
+Чтобы увидеть поддерживаемые форматировшики воспользуйтесь страницей помощи.</value>
   </data>
   <data name="Config_FormatterChangeWarning" xml:space="preserve">
-    <value>Preparing to change command line formatter from ({oldFormatter}) to ({newFormatter})...</value>
+    <value>Смена форматировщика командной строки с ({0}) на ({1})...</value>
   </data>
   <data name="Config_FormatterChanged" xml:space="preserve">
-    <value>Formatter changed.</value>
+    <value>Форматировщик изменён.</value>
   </data>
   <data name="Config_PurgeWarning" xml:space="preserve">
-    <value>You are about to purge your dynamic configuration, all your
-setups will be lost. Are you sure you want to proceed?</value>
+    <value>Вы собираетесть удалить файл пользовательской конфигурации, все ваши установки будут утеряны. Вы уверены, что вы хотите продолжить?</value>
   </data>
   <data name="Config_PurgeAverted" xml:space="preserve">
-    <value>Config purge averted.</value>
+    <value>Удаление конфигурации предотвращена.</value>
   </data>
   <data name="Config_Purging" xml:space="preserve">
-    <value>Purging...</value>
+    <value>Удаление конфигурацию...</value>
   </data>
   <data name="Config_Purged" xml:space="preserve">
-    <value>Purged.</value>
+    <value>Удалено.</value>
   </data>
   <!--
 
@@ -402,25 +381,25 @@ setups will be lost. Are you sure you want to proceed?</value>
 
   -->
   <data name="List_NoCommands" xml:space="preserve">
-    <value>There are no known commands.</value>
+    <value>Сейчас в хранилище нет известных команд.</value>
   </data>
   <data name="List_ListAllCommands" xml:space="preserve">
-    <value>No flags given, listing all commands:</value>
+    <value>Никаких флагов не указано, выводим все команды:</value>
   </data>
   <data name="List_ListCommands" xml:space="preserve">
-    <value>Listing all commands of type ({type}):</value>
+    <value>Список всех команд типа ({0}):</value>
   </data>
   <data name="List_NoCommandsSelected" xml:space="preserve">
-    <value>There are no known ({type}) commands.</value>
+    <value>В системе не записано команд ({0}) типа.</value>
   </data>
   <data name="List_ToolArg" xml:space="preserve">
-    <value>(--tool) cannot be used with a filer.</value>
+    <value>(--tool) не может иметь фильтр.</value>
   </data>
   <data name="List_Tools" xml:space="preserve">
-    <value>All known tool selectors:</value>
+    <value>Сисок всех известных селекторов инструментов:</value>
   </data>
   <data name="List_NothingFiltered" xml:space="preserve">
-    <value>No commands were found with given filter: {filter}</value>
+    <value>Не было найдено команд подходящих под фильтр: {0}</value>
   </data>
   <!--
 
@@ -428,31 +407,31 @@ setups will be lost. Are you sure you want to proceed?</value>
 
   -->
   <data name="Remove_InvalidArg" xml:space="preserve">
-    <value>({arg}) - is not a recognized command name.
-To see all command selectors try: fcli list.</value>
+    <value>({0}) - не является известным именем команды.
+Чтобы увидеть все имена команд попробуйте: fcli list.</value>
   </data>
   <data name="Remove_AllWarning" xml:space="preserve">
-    <value>All flag: preparing to delete all known commands.
-Are you sure?</value>
+    <value>Флаг (--all): вы собираетесь удалить все команды из хранилища.
+Вы уверены?</value>
   </data>
   <data name="Remove_NoCommands" xml:space="preserve">
-    <value>There are no commands to delete!</value>
+    <value>В хранилище нет команд!</value>
   </data>
   <data name="Remove_AllDeleted" xml:space="preserve">
-    <value>All existing commands have been deleted.</value>
+    <value>Все существующие команды были удалены.</value>
   </data>
   <data name="Remove_Averted" xml:space="preserve">
-    <value>Deletion averted.</value>
+    <value>Удаление предотвращено.</value>
   </data>
   <data name="Remove_Deleting" xml:space="preserve">
-    <value>Deleting...</value>
+    <value>Удаление...</value>
   </data>
   <data name="Remove_Warning" xml:space="preserve">
-    <value>Preparing to delete {arg} command.
-Are you sure?</value>
+    <value>Команда ({0}) будет удалена.
+Вы уверены?</value>
   </data>
   <data name="Remove_Deleted" xml:space="preserve">
-    <value>Command ({arg}) was successfully deleted.</value>
+    <value>Команда ({0}) была успешно удалена.</value>
   </data>
   <!--
 
@@ -460,15 +439,15 @@ Are you sure?</value>
 
   -->
   <data name="Run_NoArg" xml:space="preserve">
-    <value>You need to specify a command to test.
-To see Run tool usage consult --help.</value>
+    <value>Вам нужно указать путь или ссылку которую вы хотите протестировать.
+Чтобы увидеть использование Run укажите флаг --help.</value>
   </data>
   <data name="Run_MultipleTypeFlags" xml:space="preserve">
-    <value>Run tool can accept only one of the type flags.</value>
+    <value>Инструмент Run не может имент несколько флагов типа.</value>
   </data>  
   <data name="Run_UnknownCommand" xml:space="preserve">
-    <value>Command type wasn't recognized. Please specify it using a type flag.
-To see Run syntax and available type flags use --help.</value>
+    <value>Тип команды не был распознан, пожалуйста, укажите его используя флаг типа.
+Чтобы увидеть использование Run укажите флаг --help.</value>
   </data>
   <!--
 
@@ -476,10 +455,10 @@ To see Run syntax and available type flags use --help.</value>
 
   -->
   <data name="Command_CmdOnWindows" xml:space="preserve">
-    <value>CMD scripts cannot be run on Linux systems!</value>
+    <value>Скрипты CMD не могут быть запущены на системах Linux!</value>
   </data>
   <data name="Command_PowershellOnLinux" xml:space="preserve">
-    <value>Attempting to execute on Linux..</value>
+    <value>Попытка запуска Powershell скрипта на Linux..</value>
   </data>
   <data name="Command_BashOnWindows" xml:space="preserve">
     <value></value>
