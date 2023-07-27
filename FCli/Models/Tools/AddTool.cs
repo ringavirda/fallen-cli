@@ -174,7 +174,7 @@ public class AddTool : Tool
                         var possibleExtension = filename.Last();
                         // Set command name equal file name.
                         if (name == string.Empty)
-                            name = new FileInfo(arg).Name;
+                            name = new FileInfo(arg).Name.Split('.').First();
                         // Try parse command type from the file extension.
                         if (type == CommandType.None)
                         {
