@@ -379,9 +379,6 @@
   <data name="List_NoCommandsSelected" xml:space="preserve">
     <value>В системі не записано команд типу ({0}).</value>
   </data>
-  <data name="List_NoToolsFiltered" xml:space="preserve">
-    <value>Не знайдено інструментів за фільтром ({0}).</value>
-  </data>
   <data name="List_Tools" xml:space="preserve">
     <value>Список всіх відомих селекторів інструментів:</value>
   </data>

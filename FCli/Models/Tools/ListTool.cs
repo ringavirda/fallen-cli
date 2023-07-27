@@ -90,7 +90,7 @@ public class ListTool : Tool
                             commandDesc.Selector));
                 }
                 // List all known tools.
-                else if (flag.Key == "tool")
+                else if (flag.Key == "tools")
                 {
                     var tools = _executor.Tools
                         .Where(tool => tool.Name.Contains(arg))
@@ -98,20 +98,43 @@ public class ListTool : Tool
                             $"{tool.Name}: {tool.Selectors.Aggregate((s1, s2)
                                 => $"{s1}, {s2}")}")
                                 .Aggregate((s1, s2) => $"{s1}\n{s2}");
-
-                    _formatter.DisplayInfo(Name,
-                        _resources.GetString("List_Tools"));
-                    if (tools == string.Empty)
-                        _formatter.DisplayMessage(string.Format(
-                            _resources.GetString("List_NoToolsFiltered")
-                            ?? _formatter.StringNotLoaded(),
-                            arg));
-                    else _formatter.DisplayMessage(tools);
+                    DisplayString(arg, tools);
+                }
+                else if (flag.Key == "shells")
+                {
+                    var shells = _config.KnownShells
+                        .Select(sh => sh.Selector)
+                        .Where(sh => sh.Contains(arg))
+                        .Aggregate((s1, s2) => $"{s1}, {s2}");
+                    DisplayString(arg, shells);
+                }
+                else if (flag.Key == "types")
+                {
+                    var types = _config.KnownCommands
+                        .Select(sh => sh.Selector)
+                        .Where(sh => sh.Contains(arg))
+                        .Aggregate((s1, s2) => $"{s1}, {s2}");
+                    DisplayString(arg, types);
                 }
                 // Throw if flag is unrecognized.
                 else UnknownFlag(flag, Name);
             }
         };
+
+    /// <summary>
+    /// Checks if string is not null and then prints it out.
+    /// </summary>
+    /// <param name="arg">Filter.</param>
+    /// <param name="conf">String to print.</param>
+    private void DisplayString(string arg, string? conf)
+    {
+        if (conf == string.Empty)
+            _formatter.DisplayMessage(string.Format(
+                _resources.GetString("List_NothingFiltered")
+                ?? _formatter.StringNotLoaded(),
+                arg));
+        else _formatter.DisplayMessage(conf);
+    }
 
     /// <summary>
     /// Prints to console an enumerable of Command in a formatted way.

@@ -385,10 +385,13 @@ Usage:
   <data name="List_NoCommandsSelected" xml:space="preserve">
     <value>There are no known commands of type ({0}).</value>
   </data>
-  <data name="List_NoToolsFiltered" xml:space="preserve">
-    <value>No tools were found with given filter: {0}</value>
-  </data>
   <data name="List_Tools" xml:space="preserve">
+    <value>Known tool selectors:</value>
+  </data>
+  <data name="List_Shells" xml:space="preserve">
+    <value>All known tool selectors:</value>
+  </data>
+  <data name="List_Types" xml:space="preserve">
     <value>All known tool selectors:</value>
   </data>
   <data name="List_NothingFiltered" xml:space="preserve">
