@@ -1,0 +1,582 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <!-- FCli strings -->
+  <!-- 
+    
+    Help messages 
+    
+    -->
+  <data name="Basic_Help" xml:space="preserve">
+    <value>Цей інструмент може запам'ятовувати дії, а потім повторювати їх.
+Зараз підтримує наступні типи комнад:
+    Url
+    Script
+    Executable
+    Dirctory
+
+Використання:
+    fcli &lt;tool?&gt; [params ...] [flags ...]
+
+    fcli add C:\Awesome --exe --name awe
+    fcli awe
+
+Щоб отримати більше інформації по цьому інструменту використайте прапорець --help.
+Команди, які виводять список всіх команд/інструментів:
+    fcli list
+    fcli list --tool</value>
+  </data>
+  <data name="Full_Help" xml:space="preserve">
+    <value>Цей інструмент може бути використаний для того, щоб запам'ятовувати додатки, сайти, скрипти, а потім викликати їх за командою. Це може опинитися доволі корисним при використанні командної строки.
+
+Синтаксис:
+    fcli &lt;tool/command&gt; [flags...]
+
+Інструменти:
+    Інструменти керують сховищем команд та додатковим функціоналом FCli.
+
+    add    - додає нові команди до зберігання.
+    remove - видаляє відомі команди.
+    list   - показує стан сходвища.
+    run    - виконує команду без валідації да не зберігає її.
+    config - змінює користувацьку конфігурацію.
+    group  - створює виконувані послідовності команд.
+    change - змінює існуючу команду.
+
+    Більш детальну інформацію по кожному інструменту можна отримати вказавши флаг --help після нього. Він виведе більш детальний опис обраного інструменту.
+
+Команди:
+    Якщо аргумент не є однім із відомих селекторів команд, то він розглядається як команда. Якщо ця команда знаходится в сховище, то FCli реконструює її та намагається виконати в найбільш коректний спосіб.
+    Всі збережені команди можна вивести за допомогою інструменту list.
+
+Використання:
+    fcli add c:\awesome --exe -name aw
+    fcli aw --options "-s 2"
+    fcli remove aw
+    fcli add https://google.com --name google
+    fcli google</value>
+  </data>
+  <!--
+
+    Global messages
+
+  -->
+
+  <data name="FCli_CriticalError" xml:space="preserve">
+    <value>Трапилось щось дуже погане!
+[{0}]: {1}</value>
+  </data>
+  <data name="FCli_UnknownShell" xml:space="preserve">
+    <value>Прапорец --script повинен також вказувати оточення.
+Підтримувані оточення: {0}.</value>
+  </data>
+  <data name="FCli_UnknownCommandType" xml:space="preserve">
+    <value>({0}) - не є відомим типом команди.</value>
+  </data>
+  <data name="FCli_NameExists" xml:space="preserve">
+    <value>({0}) - це ім'я відомої команди або селектора інструменту.</value>
+  </data>
+  <data name="FCli_UnknownName" xml:space="preserve">
+    <value>({0}) - не є відомим ім'ям команди або групи.</value>
+  </data>
+  <data name="FCli_Confirm" xml:space="preserve">
+    <value>Ви впевнені, що бажаєте продовжити?</value>
+  </data>
+  <data name="FCli_Averted" xml:space="preserve">
+    <value>Операція зупинена.</value>
+  </data>
+  <data name="FCli_Continued" xml:space="preserve">
+    <value>Операція продовжується...</value>
+  </data>
+  <data name="FCli_ArgMissing" xml:space="preserve">
+    <value>({0}) був викликаний без аргументу.</value>
+  </data>
+  <data name="FCli_UnexpectedArg" xml:space="preserve">
+    <value>({0}) не підтримує аргумент, але отримав його.</value>
+  </data>
+  <data name="FCli_MultipleTypeFlags" xml:space="preserve">
+    <value>({0}) може приймати тільки один прапорець типу.</value>
+  </data>
+  <data name="FCli_CommandNotDetermined" xml:space="preserve">
+    <value>Тип команди неможливо визначити. FCli може розпізнати лише шлях або посилання. Ви можете вказати напряму тип через відповідний прапорець. Сторінка допомоги містить більше інформації.</value>
+  </data>
+  <data name="FCli_Saving" xml:space="preserve">
+    <value>Зберігання в сховище...</value>
+  </data>
+  <data name="FCli_CommandSaved" xml:space="preserve">
+    <value>Збережено.
+Щоб використати команду/групу спробуйте:
+        fcli {0}</value>
+  </data>
+
+  <!--
+
+    Tool strings
+
+  -->
+  <data name="Tool_FlagShouldNotHaveValue" xml:space="preserve">
+    <value>Прапорець (--{0}) не повинен мати ниякого значення.
+Щоб побачити список всіх відомих флагів для {1} використайте сторінку допомоги вказавши прапорець --help.</value>
+  </data>
+  <data name="Tool_FlagShouldHaveValue" xml:space="preserve">
+    <value>Прапорець (--{0}) повинен мати значення.
+Щоб побачити список всіх відомих флагів для {1} використайте сторінку допомоги вказавши прапорець --help.</value>
+  </data>
+  <data name="Tool_FlagIsUnknown" xml:space="preserve">
+    <value>Прапорець (--{0}) не є відомим для інструменту {1}.
+Щоб побачити список всіх відомих флагів для {1} використайте сторінку допомоги вказавши прапорець --help.</value>
+  </data>
+  <data name="Tool_UrlIsInvalid" xml:space="preserve">
+    <value>({0}) - посилання некоректне.</value>
+  </data>
+  <data name="Tool_PathIsInvalid" xml:space="preserve">
+    <value>({0}) - недійсний шлях.</value>
+  </data>
+  <!--
+
+    Add tool strings
+
+  -->
+  <data name="Add_Help" xml:space="preserve">
+    <value>Add - валідує надані властивості команди та додає її до сховища. Потребує правильне посилання або інстуючій системний шлях як аргумент.
+Прапорці:
+    --script &lt;shell&gt; - шлях веде до файлу скрипту.
+    --exe            - шлях вказує на виконуваний файл.
+    --url            - аргументом є посилання на веб сайт.
+    --dir            - шлях вказує на директорію.
+    --name &lt;value&gt;   - вказує конкретне ім'я для команди.
+    --options &lt;args&gt; - додаткові аргументи командної строки.
+    --help           - виводить цю сторінку.
+Використання:
+    fcli add c:/awesome.exe
+    fcli add .\scripts\script --script bash --name sc</value>
+  </data>
+  <data name="Add_FileUnrecognized" xml:space="preserve">
+    <value>Неможливо визначити тип файлу. Будьласка, вкажіть його використовуючі прапорець типу. Щоб побачити всі прапорці типу, використайте --help.</value>
+  </data>
+  <data name="Add_BashOnWindows" xml:space="preserve">
+    <value>Команда ({0}) була роспізнана як Bash скрипт, але оточенням зараз є Windows. Bash скрипти можуть бути виконані на Windows, FCli використовує WSL для цього. Вам потрібно впевнитись що ваша Windows має підсистему WSL встановлену та з включеним стандартним дистрибутивом щоб це спрацювало.</value>
+  </data>
+  <data name="Add_FishOnWindows" xml:space="preserve">
+    <value>Команда ({0}) була розпізнана Fish скрипт, але оточенням є операційна система Windows. Fish тільки підтримується на Unix-подібних системах.</value>
+  </data>
+  <data name="Add_CmdOnLinux" xml:space="preserve">
+    <value>Команда ({0}) була розпізнана як Батч файл, але оточенням зараз є операційна система Linux. CMD підтримується лише на Windows.</value>
+  </data>
+  <data name="Add_PowershellOnLinux" xml:space="preserve">
+    <value>Команда ({0}) розпізнана як Powershell скрипт, але оточенням зараз є операційна система Linux. PS скрипти можуть бути запущені на Linux, але powershell має бути встановленим за допомогою вашого мереджеру пакетів.</value>
+  </data>
+  <data name="Add_OSScript_Question" xml:space="preserve">
+    <value>Ви впевнені що ваша система може запустити цей тип скрипту?</value>
+  </data>
+  <data name="Add_ParsedCommand" xml:space="preserve">
+    <value>Команда була реконструйована:
+  name    - {0}
+  type    - {1}
+  shell   - {2}
+  path    - {3}
+  options - {4}</value>
+  </data>
+  <!--
+
+    Config tool strings
+
+  -->
+  <data name="Config_Help" xml:space="preserve">
+    <value>Config - дозволяє керувати файлом користувацьких налаштувань. Використовуя цей інструмент ви можете змінювати деякі значення, або цільком видалити конфігураційний файл.
+Флаги:
+    --locale &lt;loc&gt;     - вказує культуру, яку потрібно використовувати.
+        Підтримувані локалі: en, ru, uk.
+    --formatter &lt;type&gt; - встановлює форматувальник командної строки.
+        - inline       - має тенденцію показувати все однією строкою.
+        - pretty       - більш різнокольоровий, багатослівний та багатостроковий.
+    --purge            - видаляє існуючу конфігурацію.
+    --help             - виводить цю сторінку.</value>
+Використання:
+    fcli config
+    fcli cnf --locale en --formatter pretty
+    fcli config --purge</data>
+  <data name="Config_ListConfig" xml:space="preserve">
+    <value>Не вказано ніяких прапорців, виводжу стан конфігурації:</value>
+  </data>
+  <data name="Config_Formatter" xml:space="preserve">
+    <value>Форматувальник: {0}</value>
+  </data>
+  <data name="Config_Locale" xml:space="preserve">
+    <value>Локаль: {0}</value>
+  </data>
+  <data name="Config_UnknownLocale" xml:space="preserve">
+    <value>Непідтримувана локаль вказана через прапорець --locale.
+Щоб побачити підтримувані локалі скористайтеся сторінкою допомоги.</value>
+  </data>
+  <data name="Config_LocaleChangeWarning" xml:space="preserve">
+    <value>Зміна локалі з ({0}) на ({1})...</value>
+  </data>
+  <data name="Config_LocaleChanged" xml:space="preserve">
+    <value>Локаль змінена.</value>
+  </data>
+  <data name="Config_UnsupportedFormatter" xml:space="preserve">
+    <value>Непідтримуваний форматувальник вказано через прапорець --formatter.
+Щоб побачити підтримувані форматувальники скористайтеся сторінкою допомоги.</value>
+  </data>
+  <data name="Config_FormatterChangeWarning" xml:space="preserve">
+    <value>Зміна форматувльника командної строки з ({0}) на ({1})...</value>
+  </data>
+  <data name="Config_FormatterChanged" xml:space="preserve">
+    <value>Форматувальник змінено.</value>
+  </data>
+  <data name="Config_PurgeWarning" xml:space="preserve">
+    <value>Ви збираєтесь видалити файл конфігурації, всі ваші налаштування будуть втрачені. Ви впевнені, що ви бажаєте продовжити?</value>
+  </data>
+  <data name="Config_Purged" xml:space="preserve">
+    <value>Конфігурацію очищено.</value>
+  </data>
+  <!--
+
+    List tool strings
+
+  -->
+  <data name="List_Help" xml:space="preserve">
+    <value>List - виводить в консоль сисок відомих команд або інструментів залежно від вказаних прапорців. Виводить всі команди, якщо вони не вказані. Використовує аргумент як фільтр.
+Аргумент використовується як фільр для цього інструменту.
+Прапорці:
+  Команди
+    --script - додає файли скриптів до списку.
+    --exe    - додає виконувані файли до списку.
+    --url    - додає вебсайти до списку.
+    --dir    - додає директорії до списку.
+  Спеціальні:
+    --tools  - виводить доступні селектори інструментів.
+    --shells - виводить підтримувані типи оточення.
+    --types  - виводить відомі типи команд.
+    --groups  - додає групи до списку.
+    --help   - виводить цю сторінку.
+Використання:
+    fcli list
+    fcli list --tools
+    fcli ls --script --url</value>
+  </data>
+  <data name="List_NoCommands" xml:space="preserve">
+    <value>Зараз сховище не має відомих команд.</value>
+  </data>
+  <data name="List_ListAllCommands" xml:space="preserve">
+    <value>Ніяких прапорців не вказано, виводжу всі команди:</value>
+  </data>
+  <data name="List_ListCommands" xml:space="preserve">
+    <value>Список всіх команд типу ({0}):</value>
+  </data>
+  <data name="List_NoCommandsSelected" xml:space="preserve">
+    <value>В системі не записано команд типу ({0}).</value>
+  </data>
+  <data name="List_Tools" xml:space="preserve">
+    <value>Список всіх відомих селекторів інструментів:</value>
+  </data>
+  <data name="List_NothingFiltered" xml:space="preserve">
+    <value>Не було знайдено підходящих команд для фільтру: {0}</value>
+  </data>
+  <!--
+
+    Remove tool strings
+
+  -->
+  <data name="Remove_Help" xml:space="preserve">
+    <value>Remove - видаляє команди зі сховища.
+Прапорці:
+    --yes  - опускає підтвердження.
+    --all  - видаляє всі відомі команди (непропускне підтвердження).
+    --help - виводить цю сторінку.
+Використання:
+    fcli remove awesome --yes</value>
+  </data>
+  <data name="Remove_AllWarning" xml:space="preserve">
+    <value>Прапорець (--all): ви намагаєтесь видалити всі команди зі зберігання.
+Ви впевнені?</value>
+  </data>
+  <data name="Remove_NoCommands" xml:space="preserve">
+    <value>Сховище не має команд!</value>
+  </data>
+  <data name="Remove_AllDeleted" xml:space="preserve">
+    <value>Всі існуючі команди були видалені.</value>
+  </data>
+  <data name="Remove_Warning" xml:space="preserve">
+    <value>Команда ({0}) буде видалена.
+Ви впевнені?</value>
+  </data>
+  <data name="Remove_Deleted" xml:space="preserve">
+    <value>Команда ({0}) була успішно видалена.</value>
+  </data>
+  <!--
+
+    Run tool strings
+
+  -->
+  <data name="Run_Help" xml:space="preserve">
+    <value>Run - виконує даний аргумент без валідації та зберігання. Корисно для тестування. Потребує шлях або посилання, а також конкретно вказаний тип команди через прапорці типу.
+Прапорці:
+    --script &lt;shell&gt; - виконує як скрипт.
+    --exe            - виконує як виконуваний файл.
+    --url            - виконує як посилання.
+    --dir            - відкрити як директорію.
+    --help           - виводить цю сторінку.
+Використання:
+    fcli run c:/awesome --script powershell
+    fcli run https://awesome.com --url</value>
+  </data>
+  <data name="Run_UnknownCommand" xml:space="preserve">
+    <value>Тип команди не був встановлений, будьласка, вкажіть його використовуючі прапорець типу.
+Щоб побачити використання Run вкажіть прапорець --help.</value>
+  </data>
+  <!--
+
+    Command Factory strings
+
+  -->
+  <data name="Command_CmdOnWindows" xml:space="preserve">
+    <value>Скрипти CMD не можуть бути запущені на системах Linux!</value>
+  </data>
+  <data name="Command_PowershellOnLinux" xml:space="preserve">
+    <value>Спроба запуску Powershell скрипту на Linux..</value>
+  </data>
+  <data name="Command_BashOnWindows" xml:space="preserve">
+    <value></value>
+  </data>
+  <!--
+    
+    Group tool strings
+    
+  -->
+  <data name="Group_Help" xml:space="preserve">
+    <value>Інструмент Group може збирати команди у виконувані послідовності. Таким чином, ви можете вказувати колекції команд, які потрібно виконати.
+Щоб створити групу потрібно вказати послідовність команд розділених пробілом та взяті в лапки. (--name) прапорець обов'язковий.
+Цей інструмент може змінювати групи, використовуючи прапорці.
+Прапорці:
+        --name &lt;name&gt;     - створює групу з цим ім'ям.
+        --remove           - видаляє існуючу групу (в цьому випадку аргумент - це ім'я групи, підтвердження).
+        --all              - разом з remove видаляє всі групу (підтвердження обов'язково).
+        --override &lt;name&gt; - змінює послідовність вказаної групи.
+        --yes              - пропускає підтвердження.
+        --help             - виводить цю сторінку.
+Використання:
+        fcli group "cmd1 cmd2" --name mygr
+        fcli gr "cmd1 cmd2 cmd3" --override mygr --yes
+        fcli group mygr --remove</value>
+  </data>
+  <data name="Group_Constructed" xml:space="preserve">
+    <value>Група сконструйована:
+name     - {0}
+sequence - {1}</value>
+  </data>
+  <data name="Group_OverrideWarning" xml:space="preserve">
+    <value>Ви намагаєтесь презаписати групу ({0}) Вказаній послідовністю.</value>
+  </data>
+  <data name="Group_RemoveAllWarning" xml:space="preserve">
+    <value>Прапорець All: ви намагаєтесь вилалити всі групу зі зберігання.</value>
+  </data>
+  <data name="Group_RemovedAll" xml:space="preserve">
+    <value>Всі групи команд були видалені.</value>
+  </data>
+  <data name="Group_NoGroups" xml:space="preserve">
+    <value>Групи не були знайдені!</value>
+  </data>
+  <data name="Group_Removed" xml:space="preserve">
+    <value>Група ({0}) була видалена.</value>
+  </data>
+  <data name="Group_NotAGroup" xml:space="preserve">
+    <value>({0}) не є групою!</value>
+  </data>
+  <data name="" xml:space="preserve">
+    <value></value>
+  </data>
+  <!--
+    
+    Change tool strings
+    
+  -->
+  <data name="Change_Help" xml:space="preserve">
+    <value>Change - дозволяє змінювати відомі команди.
+Аргумент - це завжди ім'я команди, яку потрібно змінювати, а нові значення задаються через прапорці. Щоб змінювати послідовності в групах використовуйте інструмент group.
+Увага!!! Цей інструмент дозволяє вам змінювати імена й типи - це може зламати як виконання команди, так і пов'язані групи. Також він дозволяє встановити шлях без валідації. Використовуйте цей інструмент обережно.
+Прапорці:
+      --name    - нове ім'я команди.
+      --path    - новий шлях.
+      --type    - новий тип команди.
+      --shell   - новий тип оточення.
+      --options - нові опції командної строки.
+      --help    - виводить цю сторінку.
+Використання:
+      fcli change awesome --name newName --type script --shell bash
+      fcli ch newName --type exe --path /new/path
+    </value>
+  </data>
+  <data name="Change_NameWarning" xml:space="preserve">
+    <value>Зафіксовано зміну ім'я для команди ({0}).
+Увага: Це може зламати групи!
+Нове ім'я: {1}</value>
+  </data>
+  <data name="Change_PathWarning" xml:space="preserve">
+    <value>Зафіксована зміна шлаху команди ({0}).
+Увага: Change не перевіряє шлях!
+Новий шлях: {1}</value>
+  </data>
+  <data name="Change_TypeWarning" xml:space="preserve">
+    <value>Зафіксована зміна типу команди ({0}).
+Увага: Це змінить яким чином команда буде виконуватись
+!
+Новий тип: {1}</value>
+  </data>
+  <data name="Change_ShellWarning" xml:space="preserve">
+    <value>Зафіксовано зміну оточення для команди ({0}).
+Увага: це може зламати виконування команди!
+Нове оточення: {1}</value>
+  </data>
+  <data name="Change_OptionsWarning" xml:space="preserve">
+    <value>Завіксовано зміну опцій командної строки для команди ({0}).
+Увага: Це може повпливати на виконання команди!
+Нові опції: {1}</value>
+  </data>
+  <data name="Change_NoChange" xml:space="preserve">
+    <value>Ви не вказали нічого, що треба змінити!
+Використовуйте прапорці для того щоб задати нові властивості.</value>
+  </data>
+  <data name="Change_NewCommandProfile" xml:space="preserve">
+    <value>Був сформован новий профіль команди:
+name:
+    old:{0}
+    new:{1}
+path:
+    old:{2}
+    new:{3}
+type:
+    old:{4}
+    new:{5}
+shell:
+    old:{6}
+    new:{7}
+options:
+    old:{8}
+    new:{9}</value>
+  </data>
+  <data name="Change_Same" xml:space="preserve">
+    <value>Те ж саме.</value>
+  </data>
+  <data name="Change_Warning" xml:space="preserve">
+    <value>Команда готова до реконструювання та перезапису.</value>
+  </data>
+
+</root>

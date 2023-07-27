@@ -1,5 +1,7 @@
 ﻿// Vendor namespaces.
 using System.Text.Json.Serialization;
+// FCli namespaces.
+using FCli.Models.Types;
 
 namespace FCli.Models;
 
@@ -9,7 +11,8 @@ namespace FCli.Models;
 /// <remarks>
 /// All properties are mandatory except for Action, which can be added afterwards.
 /// </remarks>
-[JsonSerializable(typeof(Command))]
+[JsonDerivedType(typeof(Group), typeDiscriminator: "group")]
+[JsonDerivedType(typeof(Command), typeDiscriminator: "command")]
 public class Command
 {
     /// <summary>
@@ -20,6 +23,10 @@ public class Command
     /// Describes the way of execution.
     /// </summary>
     public CommandType Type { get; init; } = CommandType.None;
+    /// <summary>
+    /// Specifies shell type if this is a shell command.
+    /// </summary>
+    public ShellType Shell { get; init; } = ShellType.None;
     /// <summary>
     /// Path or URL to the resource.
     /// </summary>

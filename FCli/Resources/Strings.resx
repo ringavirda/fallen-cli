@@ -1,0 +1,585 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing"
+  mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework
+  object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0,
+      Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0,
+      Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <!-- FCli strings -->
+  <!-- 
+    
+    Help messages 
+    
+    -->
+  <data name="Basic_Help" xml:space="preserve">
+    <value>This tool can memorize actions and execute them.
+Currently supports:
+    Url
+    Script
+    Executable
+    Dirctory
+
+Usage:
+    fcli &lt;tool?&gt; [params ...] [flags ...]
+
+    fcli add C:\Awesome --exe --name awe
+    fcli awe
+
+For more information about the tools use --help.
+To list all tools or commands use:
+    fcli list
+    fcli list --tool</value>
+  </data>
+  <data name="Full_Help" xml:space="preserve">
+    <value>This tool can be used to remember apps, sites and script files, and call them afterwards. This should help with using command line.
+
+Syntax:
+    fcli &lt;tool/command&gt; [flags...]
+
+Tools:
+    Tools manipulate command storage and do informational work.
+
+    add    - stores new command to storage.
+    remove - deletes a known command from storage.
+    list   - displays all known commands or tools.
+    run    - performs a command without saving it.
+    config - alters user configuration.
+    group  - creates command execution sequences.
+    change - alters existing command.
+
+    More detailed info about each command can be access by specifying special flag --help after that specific tool.
+
+Commands:
+    If given argument doesn't align with a known tool or it's alias it is considered a command. If this command is known, then it gets executed in the most appropriate vay.
+    All known commands can be listed using list tool.
+
+Usage:
+    fcli add c:\awesome --exe -name aw
+    fcli aw --options "-s 2"
+    fcli remove aw
+    fcli add https://google.com --name google
+    fcli google</value>
+  </data>
+  <!--
+
+    Global messages
+
+  -->
+  <data name="FCli_CriticalError" xml:space="preserve">
+    <value>Something went horribly wrong!
+[{0}]: {1}</value>
+  </data>
+  <data name="FCli_UnknownShell" xml:space="preserve">
+    <value>Script flag must also specify type of shell.
+Supported shells: {0}.</value>
+  </data>
+  <data name="FCli_UnknownCommandType" xml:space="preserve">
+    <value>({0}) - isn't a known command type selector.</value>
+  </data>
+  <data name="FCli_NameExists" xml:space="preserve">
+    <value>({0}) - is a known command name or tool selector.</value>
+  </data>
+  <data name="FCli_UnknownName" xml:space="preserve">
+    <value>({0}) - isn't a known command or group name.</value>
+  </data>
+  <data name="FCli_Confirm" xml:space="preserve">
+    <value>Are you sure about this?</value>
+  </data>
+  <data name="FCli_Averted" xml:space="preserve">
+    <value>Operation averted.</value>
+  </data>
+  <data name="FCli_Continued" xml:space="preserve">
+    <value>Operation continued...</value>
+  </data>
+  <data name="FCli_ArgMissing" xml:space="preserve">
+    <value>({0}) was called without an argument.</value>
+  </data>
+  <data name="FCli_UnexpectedArg" xml:space="preserve">
+    <value>({0}) doesn't accept argument, but was given one.</value>
+  </data>
+  <data name="FCli_MultipleTypeFlags" xml:space="preserve">
+    <value>({0}) can accept only one of the type flags.</value>
+  </data>
+  <data name="FCli_CommandNotDetermined" xml:space="preserve">
+    <value>The type of command wasn't determined. FCli recognizes only file path or url. You can force execution using type flags. Consult help page for more info.</value>
+  </data>
+  <data name="FCli_Saving" xml:space="preserve">
+    <value>Saving to storage...</value>
+  </data>
+  <data name="FCli_CommandSaved" xml:space="preserve">
+    <value>Saved.
+To use the command/group try:
+        fcli {0}</value>
+  </data>
+  <!--
+
+    Tool strings
+
+  -->
+  <data name="Tool_FlagShouldNotHaveValue" xml:space="preserve">
+    <value>Flag (--{0}) shouldn't have any value.
+To see list of all supported flags for {1} tool consult help page using --help flag.</value>
+  </data>
+  <data name="Tool_FlagShouldHaveValue" xml:space="preserve">
+    <value>Flag (--{0}) should have a value.
+To see list of all supported flags for {1} tool consult help page using --help flag.</value>
+  </data>
+  <data name="Tool_FlagIsUnknown" xml:space="preserve">
+    <value>Flag (--{0}) is not a known flag for the {1} tool.
+To see list of all supported flags for {2} tool consult help page using --help flag.</value>
+  </data>
+  <data name="Tool_UrlIsInvalid" xml:space="preserve">
+    <value>({0}) - is not a valid url.</value>
+  </data>
+  <data name="Tool_PathIsInvalid" xml:space="preserve">
+    <value>({0}) - is not a valid system path.</value>
+  </data>
+  <!--
+
+    Add tool strings
+
+  -->
+  <data name="Add_Help" xml:space="preserve">
+    <value>Add - validates a new command and adds it to the storage. Requires a valid path or url as an argument.
+Flags:
+    --script &lt;shell&gt; - the path points to the script file.
+    --exe            - the path points to the executable.
+    --url            - the argument is a url.
+    --dir            - the path points to a directory.
+    --name &lt;value&gt;   - explicitly specify the name for the command.
+    --options &lt;args&gt; - options to run exe or script with.
+    --help           - show description.
+Usage:
+    fcli add c:/awesome.exe
+    fcli add .\scripts\script --script bash --name sc</value>
+  </data>
+  <data name="Add_FileUnrecognized" xml:space="preserve">
+    <value>Couldn't recognize the type of file.
+Please, specify it using type flags. 
+To see the list of type flags use --help.</value>
+  </data>
+  <data name="Add_BashOnWindows" xml:space="preserve">
+    <value>Command ({0}) is interpreted as a bash script, but Windows operating system is currently running. Bash scripts can be executed on Windows, FCli uses WSL for that. You need to make sure that your system has WSL installed and default distro enabled.</value>
+  </data>
+  <data name="Add_FishOnWindows" xml:space="preserve">
+    <value>Command ({0}) is interpreted as a Fish script, but Windows operating system is currently running. Fish is only supported on Unix-like operating systems.</value>
+  </data>
+  <data name="Add_CmdOnLinux" xml:space="preserve">
+    <value>Command ({0}) is interpreted as a batch file, but Linux operating system is running. CMD is only supported on Windows.</value>
+  </data>
+  <data name="Add_PowershellOnLinux" xml:space="preserve">
+    <value>Command ({0}) is interpreted as a powershell script, but Linux operating system is running. PS scripts can be executed on Linux, but powershell needs to be installed from the packet manager.</value>
+  </data>
+  <data name="Add_OSScript_Question" xml:space="preserve">
+    <value>Can your machine run this type of script?</value>
+  </data>
+  <data name="Add_ParsedCommand" xml:space="preserve">
+    <value>Command was parsed:
+  name    - {0}
+  type    - {1}
+  shell   - {2}
+  path    - {3}
+  options - {4}</value>
+  </data>
+  <!--
+
+    Config tool strings
+
+  -->
+  <data name="Config_Help" xml:space="preserve">
+    <value>Config tool allows to manipulate current user config. Using this you can change some values store or purge config. List current config state if nothing is specified.
+Flags:
+    --locale &lt;loc&gt;     - sets culture locale for the tool.
+        Supported locales: en, ru, uk.
+    --formatter &lt;type&gt; - sets console formatter to use for messaging.
+        - inline       - displays most messages as a single line.
+        - pretty       - more verbose and uses multiline templates.
+    --purge            - deletes current config.
+    --help             - displays help page.
+Usage:
+    fcli config
+    fcli cnf --locale en --formatter pretty
+    fcli config --purge</value>
+  </data>
+  <data name="Config_ListConfig" xml:space="preserve">
+    <value>No flags given, listing current config:</value>
+  </data>
+  <data name="Config_Formatter" xml:space="preserve">
+    <value>Formatter: {0}</value>
+  </data>
+  <data name="Config_Locale" xml:space="preserve">
+    <value>Locale: {0}</value>
+  </data>
+  <data name="Config_UnknownLocale" xml:space="preserve">
+    <value>Unsupported locale was specified via --locale flag.
+To see supported locales consult help page.</value>
+  </data>
+  <data name="Config_LocaleChangeWarning" xml:space="preserve">
+    <value>Preparing to change locale from ({0}) to ({1})...</value>
+  </data>
+  <data name="Config_LocaleChanged" xml:space="preserve">
+    <value>Locale changed.</value>
+  </data>
+  <data name="Config_UnsupportedFormatter" xml:space="preserve">
+    <value>Unsupported formatter was specified via --formatter flag.
+To see supported console formatters consult help page.</value>
+  </data>
+  <data name="Config_FormatterChangeWarning" xml:space="preserve">
+    <value>Preparing to change command line formatter from ({0}) to ({1})...</value>
+  </data>
+  <data name="Config_FormatterChanged" xml:space="preserve">
+    <value>Formatter changed.</value>
+  </data>
+  <data name="Config_PurgeWarning" xml:space="preserve">
+    <value>You are about to purge your dynamic configuration, all your setups will be lost.</value>
+  </data>
+  <data name="Config_Purged" xml:space="preserve">
+    <value>Config purged.</value>
+  </data>
+  <!--
+
+    List tool strings
+
+  -->
+  <data name="List_Help" xml:space="preserve">
+    <value>List - echos existing commands to the console based on the selection given by flags. If no flags given - lists all existing commands.
+Arg is used as filter for this tool.
+Flags:
+  Commands:
+    --script - adds scripts to listing.
+    --exe    - adds executables to listing.
+    --url    - adds urls to listing.
+    --dir    - adds directories to listing.
+  Special:
+    --tools  - lists available tool selectors.
+    --shells - lists supported shell types.
+    --types  - lists known command types.
+    --groups - adds groups to listing.
+    --help   - show description.
+Usage:
+    fcli list
+    fcli list --tools
+    fcli ls --script --url</value>
+  </data>
+  <data name="List_NoCommands" xml:space="preserve">
+    <value>There are no known commands.</value>
+  </data>
+  <data name="List_ListAllCommands" xml:space="preserve">
+    <value>No flags given, listing all commands:</value>
+  </data>
+  <data name="List_ListCommands" xml:space="preserve">
+    <value>Listing all commands of type ({0}):</value>
+  </data>
+  <data name="List_NoCommandsSelected" xml:space="preserve">
+    <value>There are no known commands of type ({0}).</value>
+  </data>
+  <data name="List_Tools" xml:space="preserve">
+    <value>Known tool selectors:</value>
+  </data>
+  <data name="List_Shells" xml:space="preserve">
+    <value>All known tool selectors:</value>
+  </data>
+  <data name="List_Types" xml:space="preserve">
+    <value>All known tool selectors:</value>
+  </data>
+  <data name="List_NothingFiltered" xml:space="preserve">
+    <value>No commands were found with given filter: {0}</value>
+  </data>
+  <!--
+
+    Remove tool strings
+
+  -->
+  <data name="Remove_Help" xml:space="preserve">
+    <value>Remove - deletes command from storage.
+Flags:
+    --yes  - skip confirmation.
+    --all  - removes all known commands.
+    --help - show description.
+Usage:
+    fcli remove awesome --yes</value>
+  </data>
+  <data name="Remove_AllWarning" xml:space="preserve">
+    <value>All flag: preparing to delete all known commands.</value>
+  </data>
+  <data name="Remove_NoCommands" xml:space="preserve">
+    <value>There are no commands to delete!</value>
+  </data>
+  <data name="Remove_AllDeleted" xml:space="preserve">
+    <value>All existing commands have been deleted.</value>
+  </data>
+  <data name="Remove_Warning" xml:space="preserve">
+    <value>Preparing to delete {0} command.</value>
+  </data>
+  <data name="Remove_Deleted" xml:space="preserve">
+    <value>Command ({0}) was successfully deleted.</value>
+  </data>
+  <!--
+
+    Run tool strings
+
+  -->
+  <data name="Run_Help" xml:space="preserve">
+    <value>Run - executes given path or url without saving. Useful for testing. Requires path or url, as well as explicit specification of run type through a flag.
+Flags:
+    --script &lt;shell&gt; - run as script.
+    --exe            - run as executable.
+    --url            - run as url.
+    --dir            - run as dir.
+    --help           - show description.
+Usage:
+    fcli run c:/awesome --script powershell
+    fcli run https://awesome.com --url</value>
+  </data>
+  <data name="Run_UnknownCommand" xml:space="preserve">
+    <value>Command type wasn't recognized. Please specify it using a type flag.
+To see Run syntax and available type flags use --help.</value>
+  </data>
+  <!--
+
+    Command Factory strings
+
+  -->
+  <data name="Command_UnsupportedShell" xml:space="preserve">
+    <value>({0}) cannot be run on ({1}) systems!</value>
+  </data>
+  <data name="Command_UnsupportedShellWarning" xml:space="preserve">
+    <value>Attempting to execute ({0}) on ({1})...</value>
+  </data>
+  <!--
+    
+    Group tool strings
+    
+  -->
+  <data name="Group_Help" xml:space="preserve">
+    <value>Group tool can associate known commands into executable sequence. In this way, you can specify collections on commands that all will be executed.
+      To create a group, you need to list all commands you want executed separated by spaces and in quotes. (--name) flag is mandatory.
+      This tool also manipulates groups via flags.
+      Flags:
+      --name &lt;name&gt;     - creates a new group with this name.
+      --remove           - deletes specified command (arg is a group name).
+      --all              - in conjunction with remove deletes all groups.
+      --override &lt;name&gt; - changes group of the specified name.
+      --yes              - skips confirmations.
+      --help             - displays help page.
+Usage:
+      fcli group "cmd1 cmd2" --name mygr
+      fcli gr "cmd1 cmd2 cmd3" --override mygr --yes
+      fcli group mygr --remove</value>
+  </data>
+  <data name="Group_Constructed" xml:space="preserve">
+    <value>Group was parsed and constructed:
+name     - {0}
+sequence - {1}</value>
+  </data>
+  <data name="Group_OverrideWarning" xml:space="preserve">
+    <value>You are about to override group ({0}) with given sequence.</value>
+  </data>
+  <data name="Group_RemoveAllWarning" xml:space="preserve">
+    <value>All flag: you are about to delete all existing command groups.</value>
+  </data>
+  <data name="Group_RemovedAll" xml:space="preserve">
+    <value>All groups were removed from storage.</value>
+  </data>
+  <data name="Group_NoGroups" xml:space="preserve">
+    <value>There are no groups to remove!</value>
+  </data>
+  <data name="Group_Removed" xml:space="preserve">
+    <value>Group ({0}) was deleted.</value>
+  </data>
+  <data name="Group_NotAGroup" xml:space="preserve">
+    <value>({0}) is not a group!</value>
+  </data>
+  <!--
+    
+    Change tool strings
+    
+  -->
+  <data name="Change_Help" xml:space="preserve">
+    <value>Change - enables altering of existing commands.
+Argument is always a command name and new values are provided using flags. To change group sequence use group tool.
+Attention!!! This tool will allow you to change types and names - that may break command execution or associated groups. Also it doesn't perform validation on path. Use this options with care.
+Flags:
+      --name    - new command name.
+      --path    - new path.
+      --type    - new command type.
+      --shell   - new shell type.
+      --options - new command line options.
+      --help    - displays this page.
+Usage:
+      fcli change awesome --name newName --type script --shell bash
+      fcli ch newName --type exe --path /new/path
+    </value>
+  </data>
+  <data name="Change_NameWarning" xml:space="preserve">
+    <value>Preparing to change name on command ({0}).
+Attention: This might break groups!
+New name: {1}</value>
+  </data>
+  <data name="Change_PathWarning" xml:space="preserve">
+    <value>Preparing to change path on command ({0}).
+Attention: Change doesn't validate path!
+New Path: {1}</value>
+  </data>
+  <data name="Change_TypeWarning" xml:space="preserve">
+    <value>Preparing to change command type on command ({0}).
+Attention: This will change how command is executed!
+New type: {1}</value>
+  </data>
+  <data name="Change_ShellWarning" xml:space="preserve">
+    <value>Preparing to change shell type on command ({0}).
+Attention: This may break command execution!
+New shell: {1}</value>
+  </data>
+  <data name="Change_OptionsWarning" xml:space="preserve">
+    <value>Preparing to command line options on command ({0}).
+Attention: This may affect the command execution!
+New options: {1}</value>
+  </data>
+  <data name="Change_NoChange" xml:space="preserve">
+    <value>You haven't specified anything to change!
+Use flags to set new values for the command.</value>
+  </data>
+  <data name="Change_NewCommandProfile" xml:space="preserve">
+    <value>New command profile formed:
+name:
+    old:{0}
+    new:{1}
+path:
+    old:{2}
+    new:{3}
+type:
+    old:{4}
+    new:{5}
+shell:
+    old:{6}
+    new:{7}
+options:
+    old:{8}
+    new:{9}</value>
+</data>
+<data name="Change_Same" xml:space="preserve">
+  <value>The same.</value>
+</data>
+<data name="Change_Warning" xml:space="preserve">
+  <value>Command ready to be reconstructed and overrided.</value>
+</data>
+
+</root>

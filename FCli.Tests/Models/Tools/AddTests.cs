@@ -1,11 +1,14 @@
-using FCli.Models;
-using FCli.Common.Exceptions;
-using FCli.Models.Tools;
 using Moq;
+
+using FCli.Exceptions;
+using FCli.Models.Tools;
 using static FCli.Models.Args;
 using FCli.Services;
 using FCli.Services.Data;
-using System.Runtime.InteropServices;
+using FCli.Services.Format;
+using FCli.Models.Types;
+using FCli.Services.Config;
+using System.Resources;
 
 namespace FCli.Tests.Models.Tools;
 
@@ -16,17 +19,26 @@ public class AddTests
     private static readonly Mock<IToolExecutor> _fakeExecutor;
     private static readonly Mock<ICommandFactory> _fakeFactory;
     private static readonly Mock<ICommandLoader> _fakeLoader;
+    private static readonly Mock<ICommandLineFormatter> _fakeFormatter;
+    private static readonly Mock<IConfig> _fakeConfig;
+    private static readonly Mock<ResourceManager> _fakeResources;
 
     static AddTests()
     {
         _fakeExecutor = TestRepository.ToolExecutorFake;
         _fakeFactory = TestRepository.CommandFactoryFake;
         _fakeLoader = TestRepository.CommandLoaderFake;
+        _fakeFormatter = TestRepository.FormatterFake;
+        _fakeConfig = TestRepository.ConfigFake;
+        _fakeResources = TestRepository.ResourcesFake;
 
         _testTool = new AddTool(
+            _fakeFormatter.Object,
+            _fakeResources.Object,
             _fakeExecutor.Object,
             _fakeFactory.Object,
-            _fakeLoader.Object);
+            _fakeLoader.Object,
+            _fakeConfig.Object);
     }
 
     [Fact]
@@ -35,6 +47,8 @@ public class AddTests
         var act = () => _testTool.Action("", new() { new Flag("help", "") });
 
         act.Should().NotThrow();
+        _fakeFormatter.Verify(formatter =>
+            formatter.DisplayMessage(_testTool.Description), Times.Once);
     }
 
     [Fact]
@@ -57,14 +71,15 @@ public class AddTests
     public void Add_ParseFlags_Name()
     {
         var name = "testName";
-        var path = Path.Combine(TestRepository.TestFilesPath, TestRepository.TestBashScriptName);
+        var path = Path.Combine(TestRepository.TestFilesPath, TestRepository.BashScriptName);
 
         _testTool.Action(path, new List<Flag>() { new Flag("name", name) });
 
         _fakeFactory.Verify(factory => factory.Construct(
             name,
             path,
-            CommandType.Bash,
+            CommandType.Script,
+            ShellType.Bash,
             ""), Times.Once);
     }
 
@@ -72,16 +87,17 @@ public class AddTests
     public void Add_ParseFlags_Options()
     {
         var options = "testOptions";
-        var path = Path.Combine(TestRepository.TestFilesPath, TestRepository.TestBashScriptName);
+        var path = Path.Combine(TestRepository.TestFilesPath, TestRepository.BashScriptName);
 
         _testTool.Action(path,
         new List<Flag>() { new Flag("options", options) });
 
-        var commandName = TestRepository.TestBashScriptName.Split('.')[0];
+        var commandName = TestRepository.BashScriptName.Split('.')[0];
         _fakeFactory.Verify(factory => factory.Construct(
             commandName,
             path,
-            CommandType.Bash,
+            CommandType.Script,
+            ShellType.Bash,
             options), Times.Once);
     }
 
@@ -90,7 +106,7 @@ public class AddTests
     {
         var name = "testName";
         var options = "testOptions";
-        var path = Path.Combine(TestRepository.TestFilesPath, TestRepository.TestBashScriptName);
+        var path = Path.Combine(TestRepository.TestFilesPath, TestRepository.BashScriptName);
 
         _testTool.Action(path,
             new List<Flag>()
@@ -102,17 +118,18 @@ public class AddTests
         _fakeFactory.Verify(factory => factory.Construct(
             name,
             path,
-            CommandType.Bash,
+            CommandType.Script,
+            ShellType.Bash,
             options), Times.Once);
     }
 
     [Theory]
-    [InlineData("exe", "", CommandType.Executable)]
-    [InlineData("url", "", CommandType.Url)]
-    [InlineData("script", "bash", CommandType.Bash)]
-    [InlineData("script", "powershell", CommandType.Powershell)]
-    [InlineData("script", "cmd", CommandType.CMD)]
-    public void Add_ParseFlags_TypeFlags(string flag, string value, CommandType commandType)
+    [InlineData("exe", "", CommandType.Executable, ShellType.None)]
+    [InlineData("url", "", CommandType.Website, ShellType.None)]
+    [InlineData("script", "bash", CommandType.Script, ShellType.Bash)]
+    [InlineData("script", "powershell", CommandType.Script, ShellType.Powershell)]
+    [InlineData("script", "cmd", CommandType.Script, ShellType.Cmd)]
+    public void Add_ParseFlags_TypeFlags(string flag, string value, CommandType commandType, ShellType shellType)
     {
         var name = "testName1";
         var options = "testOptions1";
@@ -120,7 +137,7 @@ public class AddTests
         if (flag == "url")
             path = "https://somwhere.com";
         else
-            path = Path.Combine(TestRepository.TestFilesPath, TestRepository.TestPSScriptName);
+            path = Path.Combine(TestRepository.TestFilesPath, TestRepository.PSScriptName);
 
         var act = () => _testTool.Action(path,
             new List<Flag>()
@@ -130,15 +147,12 @@ public class AddTests
                 new Flag(flag, value)
             });
 
-        if (Environment.OSVersion.Platform == PlatformID.Unix)
+        if (Environment.OSVersion.Platform == PlatformID.Unix
+            && commandType == CommandType.Script
+            && shellType == ShellType.Cmd)
         {
-            if (commandType == CommandType.CMD)
-            {
-                act.Should().Throw<ArgumentException>();
-                return;
-            }
-            if (commandType == CommandType.Powershell)
-                Console.SetIn(new StringReader("yes"));
+            act.Should().Throw<ArgumentException>();
+            return;
         }
 
         act.Should().NotThrow();
@@ -146,11 +160,8 @@ public class AddTests
         name,
         path,
         commandType,
+        shellType,
         options), Times.Once);
-
-        if (Environment.OSVersion.Platform == PlatformID.Unix
-            && commandType == CommandType.Powershell)
-            Console.SetIn(Console.In);
     }
 
     [Fact]
@@ -176,7 +187,7 @@ public class AddTests
     {
         var name = "testName";
         var options = "testOptions";
-        var path = Path.Combine(TestRepository.TestFilesPath, TestRepository.TestBashScriptName);
+        var path = Path.Combine(TestRepository.TestFilesPath, TestRepository.BashScriptName);
 
         var act = () => _testTool.Action(path,
             new List<Flag>()
@@ -194,7 +205,7 @@ public class AddTests
     {
         var name = "testName";
         var options = "testOptions";
-        var path = Path.Combine(TestRepository.TestFilesPath, TestRepository.TestBashScriptName);
+        var path = Path.Combine(TestRepository.TestFilesPath, TestRepository.BashScriptName);
 
         var act = () => _testTool.Action(path,
             new List<Flag>()
@@ -211,8 +222,9 @@ public class AddTests
             act();
             _fakeFactory.Verify(factory => factory.Construct(
                 name,
-                Path.Combine(TestRepository.TestFilesPath, TestRepository.TestBashScriptName),
-                CommandType.CMD,
+                Path.Combine(TestRepository.TestFilesPath, TestRepository.BashScriptName),
+                CommandType.Script,
+                ShellType.Cmd,
                 options), Times.Once);
         }
     }
@@ -224,7 +236,7 @@ public class AddTests
     {
         var name = "testName";
         var options = "testOptions";
-        var path = Path.Combine(TestRepository.TestFilesPath, TestRepository.TestCmdScriptName);
+        var path = Path.Combine(TestRepository.TestFilesPath, TestRepository.CmdScriptName);
 
         var act = () => _testTool.Action(path,
             new List<Flag>()
@@ -250,19 +262,20 @@ public class AddTests
         _fakeFactory.Verify(factory => factory.Construct(
                 name,
                 url,
-                CommandType.Url,
+                CommandType.Website,
+                ShellType.None,
                 ""), Times.Once);
     }
 
     [Fact]
     public void Add_ParsePaths()
     {
-        var testFiles = new Dictionary<string, CommandType> {
-            {TestRepository.TestCmdScriptName, CommandType.CMD},
-            {TestRepository.TestPSScriptName, CommandType.Powershell},
-            {TestRepository.TestBashScriptName, CommandType.Bash},
-            {TestRepository.TestExecutableName, CommandType.Executable},
-            {TestRepository.TestTxtName, CommandType.None}
+        var testFiles = new Dictionary<string, (CommandType, ShellType)> {
+            {TestRepository.CmdScriptName, (CommandType.Script, ShellType.Cmd)},
+            {TestRepository.PSScriptName, (CommandType.Script, ShellType.Powershell)},
+            {TestRepository.BashScriptName, (CommandType.Script, ShellType.Bash)},
+            {TestRepository.ExecutableName, (CommandType.Executable, ShellType.None)},
+            {TestRepository.TxtName, (CommandType.None, ShellType.None)}
         };
 
         foreach (var file in testFiles.Keys)
@@ -271,17 +284,14 @@ public class AddTests
 
             var act = () => _testTool.Action(path, new());
 
-            if (file != TestRepository.TestTxtName)
+            if (file != TestRepository.TxtName)
             {
-                if (Environment.OSVersion.Platform == PlatformID.Unix)
+                if (Environment.OSVersion.Platform == PlatformID.Unix
+                    && testFiles[file].Item1 == CommandType.Script
+                    && testFiles[file].Item2 == ShellType.Cmd)
                 {
-                    if (testFiles[file] == CommandType.CMD)
-                    {
-                        act.Should().Throw<ArgumentException>();
-                        return;
-                    }
-                    if (testFiles[file] == CommandType.Powershell)
-                        Console.SetIn(new StringReader("yes"));
+                    act.Should().Throw<ArgumentException>();
+                    return;
                 }
                 else act.Should().NotThrow();
 
@@ -289,12 +299,9 @@ public class AddTests
                 _fakeFactory.Verify(factory => factory.Construct(
                         name,
                         path,
-                        testFiles[file],
+                        testFiles[file].Item1,
+                        testFiles[file].Item2,
                         ""), Times.Once);
-
-                if (Environment.OSVersion.Platform == PlatformID.Unix
-                    && testFiles[file] == CommandType.Powershell)
-                    Console.SetIn(Console.In);
             }
             else act.Should().Throw<ArgumentException>();
         }
@@ -312,10 +319,12 @@ public class AddTests
     [InlineData("add")]
     [InlineData("ls")]
     [InlineData("rm")]
-    [InlineData("test")]
+    [InlineData("test1")]
+    [InlineData("test2")]
+    [InlineData("test3")]
     public void Add_ShouldThrow_IfNameExists(string name)
     {
-        var path = Path.Combine(TestRepository.TestFilesPath, TestRepository.TestCmdScriptName);
+        var path = Path.Combine(TestRepository.TestFilesPath, TestRepository.CmdScriptName);
 
         var act = () => _testTool.Action(path,
             new List<Flag>()
@@ -331,7 +340,7 @@ public class AddTests
     {
         if (Environment.OSVersion.Platform == PlatformID.Unix)
         {
-            var path = Path.Combine(TestRepository.TestFilesPath, TestRepository.TestExecutableName);
+            var path = Path.Combine(TestRepository.TestFilesPath, TestRepository.ExecutableName);
 
             var act = () => _testTool.Action(path,
                 new List<Flag>()
@@ -346,20 +355,22 @@ public class AddTests
     [Fact]
     public void Add_ShouldSaveCommand()
     {
-        var path = Path.Combine(TestRepository.TestFilesPath, TestRepository.TestExecutableName);
-        _testTool.Action(path, new List<Flag>()
+        _fakeFactory.Invocations.Clear();
+
+        _testTool.Action(TestRepository.CommandSavable.Path, new List<Flag>()
         {
-            new Flag("name", "loadingTest"),
-            new Flag("options", TestRepository.TestCommand.Options),
+            new Flag("name", TestRepository.CommandSavable.Name),
+            new Flag("options", TestRepository.CommandSavable.Options),
             new Flag("script", "bash")
         });
 
         _fakeFactory.Verify(factory => factory.Construct(
-            "loadingTest",
-            path,
-            CommandType.Bash,
-            TestRepository.TestCommand.Options), Times.Once);
-        _fakeLoader.Verify(loader => 
-            loader.SaveCommand(TestRepository.TestCommand), Times.Once);
+            TestRepository.CommandSavable.Name,
+            TestRepository.CommandSavable.Path,
+            CommandType.Script,
+            ShellType.Bash,
+            TestRepository.CommandSavable.Options), Times.Once);
+        _fakeLoader.Verify(loader =>
+            loader.SaveCommand(TestRepository.CommandSavable), Times.Once);
     }
 }

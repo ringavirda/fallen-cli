@@ -1,4 +1,4 @@
-namespace FCli.Common.Exceptions;
+namespace FCli.Exceptions;
 
 /// <summary>
 /// Fallen-cli root exception that represents an unexpected behavior that cannot

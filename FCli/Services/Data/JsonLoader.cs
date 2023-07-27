@@ -1,8 +1,9 @@
 ﻿// Vendor namespaces.
 using System.Text.Json;
-using FCli.Common.Exceptions;
 // FCli namespaces.
+using FCli.Exceptions;
 using FCli.Models;
+using FCli.Services.Config;
 
 namespace FCli.Services.Data;
 
@@ -18,7 +19,7 @@ public class JsonLoader : ICommandLoader
     private readonly IConfig _config;
 
     // Loaded commands are buffered here to lover the amount of IO calls.
-    private List<Command>? _loadedCommands;
+    private List<Command>? _commandCashe;
 
     public JsonLoader(IConfig config)
     {
@@ -38,8 +39,8 @@ public class JsonLoader : ICommandLoader
     /// <param name="name">The name of the command.</param>
     /// <returns>Loaded command, or <c>null</c> if it wasn't found.</returns>
     public Command? LoadCommand(string name)
-        => _loadedCommands != null
-            ? _loadedCommands.FirstOrDefault(command => command.Name == name)
+        => _commandCashe != null
+            ? _commandCashe.FirstOrDefault(command => command.Name == name)
             : LoadCommands()?.FirstOrDefault(command => command.Name == name)
             ?? null;
 
@@ -52,8 +53,8 @@ public class JsonLoader : ICommandLoader
     /// <param name="name">The name of the command.</param>
     /// <returns><c>true</c> if command exists, <c>false</c> if not.</returns>
     public bool CommandExists(string name)
-        => _loadedCommands != null
-            ? _loadedCommands.Any(command => command.Name == name)
+        => _commandCashe != null
+            ? _commandCashe.Any(command => command.Name == name)
             : LoadCommands()?.Any(command => command.Name == name)
             ?? false;
 
@@ -84,7 +85,7 @@ public class JsonLoader : ICommandLoader
             {
                 var commands = JsonSerializer.Deserialize<List<Command>>(json);
                 // Guard against deserialization fail.
-                return _loadedCommands = commands;
+                return _commandCashe = commands;
 
             }
             catch (JsonException ex)
@@ -108,10 +109,10 @@ public class JsonLoader : ICommandLoader
     public void SaveCommand(Command command)
     {
         // Load command or use buffer if populated.
-        var commands = _loadedCommands ?? LoadCommands();
+        var commands = _commandCashe ?? LoadCommands();
         // Guard against empty storage.
         if (commands == null)
-            _loadedCommands = new List<Command> { command };
+            _commandCashe = new List<Command> { command };
         else commands.Add(command);
         // This method rewrites the whole command storage.
         RefreshStorage();
@@ -130,7 +131,7 @@ public class JsonLoader : ICommandLoader
         // Attempt load command.
         var command = LoadCommand(name);
         // Guard against unknown command.
-        if (command != null) _loadedCommands?.Remove(command);
+        if (command != null) _commandCashe?.Remove(command);
         else throw new ArgumentException(
             $"Attempt to delete an unknown command ({name}).");
         // Rewrite storage without the deleted command.
@@ -146,5 +147,5 @@ public class JsonLoader : ICommandLoader
     private void RefreshStorage()
         => File.WriteAllText(
             _config.StorageFilePath,
-            JsonSerializer.Serialize(_loadedCommands));
+            JsonSerializer.Serialize(_commandCashe));
 }

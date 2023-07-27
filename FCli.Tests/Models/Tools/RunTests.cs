@@ -1,9 +1,14 @@
+using Moq;
+
 using FCli.Models;
-using FCli.Common.Exceptions;
+using FCli.Exceptions;
 using FCli.Models.Tools;
 using static FCli.Models.Args;
-using Moq;
 using FCli.Services;
+using FCli.Services.Format;
+using System.Resources;
+using FCli.Services.Config;
+using FCli.Models.Types;
 
 namespace FCli.Tests.Models.Tools;
 
@@ -11,24 +16,34 @@ public class RunTests
 {
     private static readonly RunTool _testTool;
     
-    private static readonly Mock<IToolExecutor> _fakeExecutor;
     private static readonly Mock<ICommandFactory> _fakeFactory;
+    private static readonly Mock<ICommandLineFormatter> _fakeFormatter;
+    private static readonly Mock<ResourceManager> _fakeResources;
+    private static readonly Mock<IConfig> _fakeConfig;
 
     static RunTests()
     {
-        _fakeExecutor = TestRepository.ToolExecutorFake;
         _fakeFactory = TestRepository.CommandFactoryFake;
+        _fakeFormatter = TestRepository.FormatterFake;
+        _fakeResources = TestRepository.ResourcesFake;
+        _fakeConfig = TestRepository.ConfigFake;
 
         _testTool = new RunTool(
-            _fakeExecutor.Object,
-            _fakeFactory.Object);
+            _fakeFormatter.Object,
+            _fakeResources.Object,
+            _fakeFactory.Object,
+            _fakeConfig.Object);
     }
 
     [Fact]
     public void Run_ShouldHandleHelp()
     {
         var act = () => _testTool.Action("", new() { new Flag("help", "") });
+
         act.Should().NotThrow();
+        _fakeFormatter.Verify(
+            formatter => formatter.DisplayMessage(_testTool.Description),
+            Times.Once);
     }
 
     [Fact]
@@ -80,20 +95,21 @@ public class RunTests
     }
 
     [Theory]
-    [InlineData("exe", "", CommandType.Executable)]
-    [InlineData("url", "", CommandType.Url)]
-    [InlineData("script", "bash", CommandType.Bash)]
-    [InlineData("script", "cmd", CommandType.CMD)]
-    [InlineData("script", "powershell", CommandType.Powershell)]
-    [InlineData("script", "none", CommandType.None)]
+    [InlineData("exe", "", CommandType.Executable, ShellType.None)]
+    [InlineData("url", "", CommandType.Website, ShellType.None)]
+    [InlineData("script", "bash", CommandType.Script, ShellType.Bash)]
+    [InlineData("script", "cmd", CommandType.Script, ShellType.Cmd)]
+    [InlineData("script", "powershell", CommandType.Script, ShellType.Powershell)]
+    [InlineData("script", "none", CommandType.Script, ShellType.None)]
     public void Run_ParseTypeFlags(
         string flag,
         string value,
-        CommandType commandType)
+        CommandType commandType,
+        ShellType shellType)
     {
-        var path = commandType == CommandType.Url 
+        var path = commandType == CommandType.Website 
             ? "https://google.com/" 
-            : Path.Combine(TestRepository.TestFilesPath, TestRepository.TestExecutableName);
+            : Path.Combine(TestRepository.TestFilesPath, TestRepository.ExecutableName);
         var act = () => _testTool.Action(path, new()
         {
             new Flag(flag, value),
@@ -108,7 +124,8 @@ public class RunTests
                 "runner",
                 path,
                 commandType,
-                commandType == CommandType.Url ? "" : "option"), Times.Once);
+                shellType,
+                commandType == CommandType.Website ? "" : "option"), Times.Once);
         }
         else act.Should().Throw<FlagException>();
     }

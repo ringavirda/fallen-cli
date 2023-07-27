@@ -1,5 +1,6 @@
 // FCli namespaces.
 using FCli.Models;
+using FCli.Models.Types;
 
 namespace FCli.Services;
 
@@ -19,5 +20,11 @@ public interface ICommandFactory
         string name,
         string path,
         CommandType type,
+        ShellType shell,
         string options);
+
+    /// <summary>
+    /// Should generate a group of commands.
+    /// </summary>
+    public Group ConstructGroup(string name, List<string> commands);
 }
