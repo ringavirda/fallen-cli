@@ -116,6 +116,21 @@ public class ListTool : Tool
                         .Aggregate((s1, s2) => $"{s1}, {s2}");
                     DisplayString(arg, types);
                 }
+                else if (flag.Key == "groups")
+                {
+                    _formatter.DisplayInfo(Name, string.Format(
+                        _resources.GetString("List_ListCommands")
+                        ?? _formatter.StringNotLoaded(),
+                        CommandType.Group));
+                    var selected = commands
+                        .Where(command => command.Type == CommandType.Group);
+                    if (selected.Any())
+                        DisplayCommands(selected, arg);
+                    else _formatter.DisplayMessage(string.Format(
+                            _resources.GetString("List_NoCommandsSelected")
+                            ?? _formatter.StringNotLoaded(),
+                            CommandType.Group));
+                }
                 // Throw if flag is unrecognized.
                 else UnknownFlag(flag, Name);
             }

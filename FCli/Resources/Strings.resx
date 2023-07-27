@@ -360,13 +360,19 @@ To see supported console formatters consult help page.</value>
   -->
   <data name="List_Help" xml:space="preserve">
     <value>List - echos existing commands to the console based on the selection given by flags. If no flags given - lists all existing commands.
+Arg is used as filter for this tool.
 Flags:
+  Commands:
     --script - adds scripts to listing.
     --exe    - adds executables to listing.
     --url    - adds urls to listing.
-    --group  - adds groups to listing.
-    --dir  - adds directories to listing.
-    --tool   - lists all available tool selectors.
+    --dir    - adds directories to listing.
+    --shell  - adds command line commands.
+  Special:
+    --tools  - lists available tool selectors.
+    --shells - lists supported shell types.
+    --types  - lists known command types.
+    --groups - adds groups to listing.
     --help   - show description.
 Usage:
     fcli list
