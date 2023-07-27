@@ -367,7 +367,6 @@ Flags:
     --exe    - adds executables to listing.
     --url    - adds urls to listing.
     --dir    - adds directories to listing.
-    --shell  - adds command line commands.
   Special:
     --tools  - lists available tool selectors.
     --shells - lists supported shell types.
@@ -458,14 +457,11 @@ To see Run syntax and available type flags use --help.</value>
     Command Factory strings
 
   -->
-  <data name="Command_CmdOnWindows" xml:space="preserve">
-    <value>CMD scripts cannot be run on Linux systems!</value>
+  <data name="Command_UnsupportedShell" xml:space="preserve">
+    <value>({0}) cannot be run on ({1}) systems!</value>
   </data>
-  <data name="Command_PowershellOnLinux" xml:space="preserve">
-    <value>Attempting to execute on Linux..</value>
-  </data>
-  <data name="Command_BashOnWindows" xml:space="preserve">
-    <value></value>
+  <data name="Command_UnsupportedShellWarning" xml:space="preserve">
+    <value>Attempting to execute ({0}) on ({1})...</value>
   </data>
   <!--
     
@@ -524,7 +520,6 @@ Flags:
       --name    - new command name.
       --path    - new path.
       --type    - new command type.
-          Supported types: exe, url, script, dir, group, shell, none.
       --shell   - new shell type.
       --options - new command line options.
       --help    - displays this page.

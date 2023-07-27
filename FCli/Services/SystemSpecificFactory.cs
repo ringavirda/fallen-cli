@@ -7,6 +7,7 @@ using FCli.Models.Types;
 using FCli.Exceptions;
 using FCli.Services.Data;
 using FCli.Services.Format;
+using System.Runtime.CompilerServices;
 
 namespace FCli.Services;
 
@@ -110,79 +111,36 @@ public class SystemSpecificFactory : ICommandFactory
             CommandType.Script => () =>
             {
                 if (shell == ShellType.Cmd)
-                {
-                    // Obviously.
-                    if (Environment.OSVersion.Platform == PlatformID.Unix)
-                    {
-                        _formatter.DisplayError(name,
-                            _resources.GetString("Command_CmdOnWindows"));
-                        throw new InvalidOperationException(
-                            $"Attempt to run a CMD script ({path}) on Linux.");
-                    }
-                    // Windows starts cmd.exe process without shell.
-                    Process.Start(new ProcessStartInfo
-                    {
-                        FileName = "cmd.exe",
-                        Arguments = $"/c {path} {options}",
-                        UseShellExecute = false
-                    });
-                }
+                    ConfigureCmd(path, options, false);
                 else if (shell == ShellType.Powershell)
-                {
-                    // Try execute on linux.
-                    if (Environment.OSVersion.Platform == PlatformID.Unix)
-                    {
-                        _formatter.DisplayWarning(name,
-                            _resources.GetString("Command_PowershellOnLinux"));
-                        Process.Start("bash", $"powershell {path} {options}");
-                    }
-                    // Windows starts powershell.exe process with flags that bypass
-                    // execution policy and allow for script execution.
-                    else Process.Start(new ProcessStartInfo()
-                    {
-                        FileName = "powershell.exe",
-                        Arguments = $"-NoProfile -ExecutionPolicy ByPass -File \"{path}\" -- {options}",
-                        UseShellExecute = false
-                    })?.WaitForExit();
-                }
+                    ConfigurePowershell(path, options, false);
                 else if (shell == ShellType.Bash)
-                {
-                    // Linux executes script using bash shell.
-                    if (Environment.OSVersion.Platform == PlatformID.Unix)
-                        Process.Start("bash", path);
-                    // Windows uses WSL if it is available to run bash script.
-                    else
-                    {
-                        _formatter.DisplayWarning(name,
-                            _resources.GetString("Command_BashOnWindows"));
-                        // Convert Windows path to WSL path.
-                        path = path.Replace(@"\", @"/");
-                        var drive = path.First();
-                        path = path.Replace($"{drive}:/", $"/mnt/{char.ToLower(drive)}/");
-                        // Start bash process in WSL.
-                        Process.Start(new ProcessStartInfo()
-                        {
-                            FileName = "powershell.exe",
-                            Arguments = $"wsl -e bash {path} {options}",
-                            UseShellExecute = false
-                        })?.WaitForExit();
-                    }
-                }
+                    path = ConfigureBash(path, options, false);
                 else if (shell == ShellType.Fish)
+                    ConfigureFish(path, options, false);
+                else throw new CriticalException(
+                    "CommandFactory received unknown shell type.");
+            }
+            ,
+            CommandType.Directory => () =>
+            {
+                // If shell is specified.
+                if (shell == ShellType.Cmd)
+                    ConfigureCmd(path, "", true);
+                else if (shell == ShellType.Powershell)
+                    ConfigurePowershell(path, "", true);
+                else if (shell == ShellType.Bash)
+                    ConfigureBash(path, "", true);
+                else if (shell == ShellType.Fish)
+                    ConfigureFish(path, "", true);
+                // This should just work in both Linux and Windows.
+                else Process.Start(new ProcessStartInfo()
                 {
-                    // TODO: Implement Fish
-                    throw new NotImplementedException();
-                }
-                else throw new CriticalException("CommandFactory received unknown shell type.");
-            },
-            CommandType.Directory => () => {
-                // TODO: Implement directory
-                throw new NotImplementedException();
-            },
-            CommandType.Group => () => {
-                // TODO: Implement group
-                throw new NotImplementedException();
-            },
+                    FileName = path,
+                    UseShellExecute = true
+                });
+            }
+            ,
             // Throws if received unrecognized command type. 
             _ => throw new CriticalException("Unknown command type was parsed!")
         };
@@ -212,7 +170,7 @@ public class SystemSpecificFactory : ICommandFactory
             // Execute commands as given.
             foreach (var commandName in commands)
             {
-                var command = _loader.LoadCommand(commandName);
+                var command = Construct(commandName);
                 // Guard against bad commands.
                 if (command != null && command.Action != null)
                     command.Action();
@@ -230,4 +188,165 @@ public class SystemSpecificFactory : ICommandFactory
             Sequence = commands
         };
     }
+
+    /// <summary>
+    /// Setup Cmd script/command execution
+    /// </summary>
+    /// <remarks>
+    /// Throws on Linux-like systems.
+    /// </remarks>
+    /// <param name="path">Path to script/shell command.</param>
+    /// <param name="options">Additional args.</param>
+    /// <exception cref="InvalidOperationException">If on Linux.</exception>
+    private void ConfigureCmd(string path, string options, bool isDirectory)
+    {
+        // Obviously.
+        if (Environment.OSVersion.Platform == PlatformID.Unix)
+        {
+            _formatter.DisplayError("Command", string.Format(
+                _resources.GetString("Command_UnsupportedShell")
+                ?? _formatter.StringNotLoaded(),
+                ShellType.Cmd, PlatformID.Unix));
+            throw new InvalidOperationException(
+                $"Attempt to run a CMD script ({path}) on Linux.");
+        }
+        if (isDirectory)
+            RunAsDirectory("cmd", path, string.Empty);
+        else
+        {
+            // Windows starts cmd.exe process without shell.
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "cmd.exe",
+                Arguments = $"/c {path} {options}",
+                UseShellExecute = false
+            })?.WaitForExit();
+        }
+    }
+
+    /// <summary>
+    /// Setups powershell script/command execution.
+    /// </summary>
+    /// <param name="path">Path to script/shell command.</param>
+    /// <param name="options">Additional args.</param>
+    /// <param name="options">True if execute as file script.</param>
+    private void ConfigurePowershell(string path, string options, bool isDirectory)
+    {
+        // Try execute on linux.
+        if (Environment.OSVersion.Platform == PlatformID.Unix)
+        {
+            _formatter.DisplayWarning("Command", string.Format(
+                _resources.GetString("Command_UnsupportedShellWarning")
+                ?? _formatter.StringNotLoaded(),
+                ShellType.Powershell, PlatformID.Unix));
+            if (isDirectory)
+                RunAsDirectory("powershell", path, string.Empty);
+            else Process.Start("bash", $"powershell {path} {options}");
+        }
+        else
+        {
+            if (isDirectory)
+                // Start in same window.
+                RunAsDirectory("powershell", path, string.Empty);
+            else
+            {
+                // Windows starts powershell.exe process with flags that bypass
+                // execution policy and allow for script execution.
+                Process.Start(new ProcessStartInfo()
+                {
+                    FileName = "powershell.exe",
+                    Arguments = $"-NoProfile -ExecutionPolicy ByPass -File \"{path}\" -- {options}",
+                    UseShellExecute = false
+                })?.WaitForExit();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Setups bash script/command execution.
+    /// </summary>
+    /// <param name="path">Path to script/shell command.</param>
+    /// <param name="options">Additional args.</param>
+    /// <returns>Path converted to WSL if on Windows.</returns>
+    private string ConfigureBash(string path, string options, bool asDirectory)
+    {
+        // Linux executes script using bash shell.
+        if (Environment.OSVersion.Platform == PlatformID.Unix)
+        {
+            if (asDirectory)
+                RunAsDirectory("bash", path, string.Empty);
+            Process.Start("bash", path);
+        }
+        // Windows uses WSL if it is available to run bash script.
+        else
+        {
+            _formatter.DisplayWarning("Command", string.Format(
+                _resources.GetString("Command_UnsupportedShellWarning")
+                ?? _formatter.StringNotLoaded(),
+                ShellType.Bash, PlatformID.Win32NT));
+            // Convert Windows path to WSL path.
+            path = path.Replace(@"\", @"/");
+            var drive = path.First();
+            path = path.Replace($"{drive}:/", $"/mnt/{char.ToLower(drive)}/");
+            // Start bash process in WSL.
+            if (asDirectory)
+                RunAsDirectory("powershell", path, "wsl");
+            Process.Start(new ProcessStartInfo()
+            {
+                FileName = "powershell.exe",
+                Arguments = $"wsl -e bash {path} {options}",
+                UseShellExecute = false
+            })?.WaitForExit();
+        }
+
+        return path;
+    }
+
+    /// <summary>
+    /// Setups fish script/command execution.
+    /// </summary>
+    /// <remarks>
+    /// Throws on Windows systems.
+    /// </remarks>
+    /// <param name="path">Path to script/shell command.</param>
+    /// <param name="options">Additional args.</param>
+    /// <exception cref="InvalidOperationException">If Windows.</exception>
+    private void ConfigureFish(string path, string options, bool asDirectory)
+    {
+        if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+        {
+            _formatter.DisplayError("Command", string.Format(
+                _resources.GetString("Command_UnsupportedShell")
+                ?? _formatter.StringNotLoaded(),
+                ShellType.Fish, PlatformID.Win32NT));
+            throw new InvalidOperationException(
+                $"Attempt to run a Fish script ({path}) on Windows.");
+        }
+        // Linux starts Fish process if it exists.
+        if (asDirectory)
+            RunAsDirectory("fish", path, string.Empty);
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = "fish",
+            Arguments = $"{path} {options}",
+            UseShellExecute = false
+        })?.WaitForExit();
+    }
+
+    /// <summary>
+    /// Runs given path a shell.
+    /// </summary>
+    /// <param name="shell"></param>
+    /// <param name="path"></param>
+    /// <param name="options"></param>
+    private static void RunAsDirectory(string shell, string path, string options)
+    {
+        Process.Start(new ProcessStartInfo()
+        {
+            FileName = shell,
+            WorkingDirectory = path,
+            Arguments = options,
+        })?.WaitForExit();
+    }
+
 }

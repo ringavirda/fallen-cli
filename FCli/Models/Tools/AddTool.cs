@@ -163,6 +163,8 @@ public class AddTool : Tool
                     if (Directory.Exists(arg))
                     {
                         // Set directory command type.
+                        if (name == string.Empty)
+                            name = new DirectoryInfo(arg).Name;
                         type = CommandType.Directory;
                     }
                     else
@@ -172,7 +174,7 @@ public class AddTool : Tool
                         var possibleExtension = filename.Last();
                         // Set command name equal file name.
                         if (name == string.Empty)
-                            name = filename[0..^1].Aggregate((s1, s2) => $"{s1}{s2}");
+                            name = new FileInfo(arg).Name;
                         // Try parse command type from the file extension.
                         if (type == CommandType.None)
                         {
@@ -231,7 +233,7 @@ public class AddTool : Tool
             // Guard against Linux shells on windows.
             if (shell == ShellType.Bash
                 && Environment.OSVersion.Platform == PlatformID.Win32NT
-                && ScriptConfirm(name, "Add_BashOnWindows"))
+                && !ScriptConfirm(name, "Add_BashOnWindows"))
             {
                 // Exit fcli.
                 return;
@@ -249,7 +251,7 @@ public class AddTool : Tool
             }
             if (shell == ShellType.Powershell
                 && Environment.OSVersion.Platform == PlatformID.Unix
-                && ScriptConfirm(name, "Add_PowershellOnLinux"))
+                && !ScriptConfirm(name, "Add_PowershellOnLinux"))
             {
                 // Exit fcli.
                 return;

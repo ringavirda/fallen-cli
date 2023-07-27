@@ -32,7 +32,7 @@ public class ListTool : Tool
         _loader = commandLoader;
         _config = config;
 
-        Description = _resources.GetString("List_Help") 
+        Description = _resources.GetString("List_Help")
             ?? formatter.StringNotLoaded();
     }
 
@@ -55,7 +55,7 @@ public class ListTool : Tool
             // Guard against empty command list.
             if (commands == null || !commands.Any())
             {
-                _formatter.DisplayInfo(Name, 
+                _formatter.DisplayInfo(Name,
                     _resources.GetString("List_NoCommands"));
                 return;
             }
@@ -165,8 +165,8 @@ public class ListTool : Tool
             if (!commands.Any())
             {
                 _formatter.DisplayMessage(string.Format(
-                    _resources.GetString("List_NothingFiltered") 
-                    ?? _formatter.StringNotLoaded(), 
+                    _resources.GetString("List_NothingFiltered")
+                    ?? _formatter.StringNotLoaded(),
                     filter));
                 return;
             }
@@ -174,7 +174,10 @@ public class ListTool : Tool
         foreach (var command in commands)
         {
             _formatter.DisplayMessage($"[{command.Type}] - {command.Name}:");
-            _formatter.DisplayMessage($"\t{command.Path}");
+            if (command.Type == CommandType.Group)
+                _formatter.DisplayMessage(
+                    $"\t{string.Join(' ', ((Group)command).Sequence)}");
+            else _formatter.DisplayMessage($"\t{command.Path}");
         }
     }
 }
