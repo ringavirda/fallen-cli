@@ -22,4 +22,9 @@ public interface ICommandFactory
         CommandType type,
         ShellType shell,
         string options);
+
+    /// <summary>
+    /// Should generate a group of commands.
+    /// </summary>
+    public Group ConstructGroup(string name, List<string> commands);
 }

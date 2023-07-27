@@ -49,8 +49,10 @@ public class RunTool : Tool
             // Guard against no argument.
             if (arg == string.Empty)
             {
-                _formatter.DisplayError(Name, 
-                    _resources.GetString("Run_NoArg"));
+                _formatter.DisplayError(Name, string.Format(
+                    _resources.GetString("FCli_ArgMissing")
+                    ?? _formatter.StringNotLoaded(),
+                    Name));
                 throw new ArgumentException("Run no type flag was given.");
             }
             // Guard against multiple type flags.
@@ -58,9 +60,10 @@ public class RunTool : Tool
                 .Intersect(_config.KnownCommands.Select(c => c.Selector))
                 .Count() > 1)
             {
-                _formatter.DisplayError(
-                    Name,
-                    _resources.GetString("Run_MultipleTypeArgs"));
+                _formatter.DisplayError(Name, string.Format(
+                    _resources.GetString("FCli_MultipleTypeFlags")
+                    ?? _formatter.StringNotLoaded(),
+                    Name));
                 throw new FlagException(
                     "Attempted to pass multiple command types flags into the Run tool.");
             }

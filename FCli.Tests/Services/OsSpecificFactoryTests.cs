@@ -11,7 +11,7 @@ namespace FCli.Tests.Services;
 
 public class OSSpecificFactoryTests
 {
-    private static readonly OSSpecificFactory _testFactory;
+    private static readonly SystemSpecificFactory _testFactory;
 
     private static readonly Mock<ICommandLoader> _fakeLoader;
     private static readonly Mock<ICommandLineFormatter> _fakeFormatter;
@@ -23,7 +23,7 @@ public class OSSpecificFactoryTests
         _fakeFormatter = TestRepository.FormatterFake;
         _fakeResources = TestRepository.ResourcesFake;
 
-        _testFactory = new OSSpecificFactory(
+        _testFactory = new SystemSpecificFactory(
             _fakeLoader.Object,
             _fakeFormatter.Object,
             _fakeResources.Object);

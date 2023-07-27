@@ -65,7 +65,7 @@ var host = Host.CreateDefaultBuilder()
                 "FCli.Resources.Strings",
                 Assembly.GetExecutingAssembly()))
             .AddScoped<ICommandLoader, JsonLoader>()
-            .AddScoped<ICommandFactory, OSSpecificFactory>()
+            .AddScoped<ICommandFactory, SystemSpecificFactory>()
             .AddScoped<IToolExecutor, ToolExecutor>()
             // Main entry point.
             .AddSingleton<FallenCli>();

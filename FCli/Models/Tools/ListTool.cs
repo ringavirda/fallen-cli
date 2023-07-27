@@ -92,13 +92,8 @@ public class ListTool : Tool
                 // List all known tools.
                 else if (flag.Key == "tool")
                 {
-                    if (arg != "")
-                    {
-                        _formatter.DisplayWarning(Name,
-                            _resources.GetString("List_ToolArg"));
-                        throw new ArgumentException("--tool was called with an arg.");
-                    }
-                    var allTools = _executor.Tools
+                    var tools = _executor.Tools
+                        .Where(tool => tool.Name.Contains(arg))
                         .Select(tool =>
                             $"{tool.Name}: {tool.Selectors.Aggregate((s1, s2)
                                 => $"{s1}, {s2}")}")
@@ -106,7 +101,12 @@ public class ListTool : Tool
 
                     _formatter.DisplayInfo(Name,
                         _resources.GetString("List_Tools"));
-                    _formatter.DisplayMessage(allTools);
+                    if (tools == string.Empty)
+                        _formatter.DisplayMessage(string.Format(
+                            _resources.GetString("List_NoToolsFiltered")
+                            ?? _formatter.StringNotLoaded(),
+                            arg));
+                    else _formatter.DisplayMessage(tools);
                 }
                 // Throw if flag is unrecognized.
                 else UnknownFlag(flag, Name);

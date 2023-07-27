@@ -120,7 +120,7 @@
   <!-- FCli strings -->
   <!-- 
     
-    All help messages 
+    Help messages 
     
     -->
   <data name="Basic_Help" xml:space="preserve">
@@ -129,6 +129,7 @@
     Url
     Script
     Executable
+    Dirctory
 
 Використання:
     fcli &lt;tool?&gt; [params ...] [flags ...]
@@ -154,6 +155,9 @@
     remove - видаляє відомі команди.
     list   - показує стан сходвища.
     run    - виконує команду без валідації да не зберігає її.
+    config - змінює користувацьку конфігурацію.
+    group  - створює виконувані послідовності команд.
+    change - змінює існуючу команду.
 
     Більш детальну інформацію по кожному інструменту можна отримати вказавши флаг --help після нього. Він виведе більш детальний опис обраного інструменту.
 
@@ -168,70 +172,9 @@
     fcli add https://google.com --name google
     fcli google</value>
   </data>
-  <data name="Add_Help" xml:space="preserve">
-    <value>Add - валідує надані властивості команди та додає її до сховища. Потребує правильне посилання або інстуючій системний шлях як аргумент.
-Прапорці:
-    --script &lt;shell&gt; - шлях веде до файлу скрипту.
-    --exe            - шлях вказує на виконуваний файл.
-    --url            - аргументом є посилання на веб сайт.
-    --name &lt;value&gt;   - вказує конкретне ім'я для команди.
-    --options &lt;args&gt; - додаткові аргументи командної строки.
-    --help           - виводить цю сторінку.
-Використання:
-    fcli add c:/awesome.exe
-    fcli add .\scripts\script --script bash --name sc</value>
-  </data>
-  <data name="List_Help" xml:space="preserve">
-    <value>List - виводить в консоль сисок відомих команд або інструментів залежно від вказаних прапорців. Виводить всі команди, якщо вони не вказані. Використовує аргумент як фільтр.
-Прапорці:
-    --script - додає файли скриптів до списку.
-    --exe    - додає виконувані файли до списку.
-    --url    - додає вебсайти до списку.
-    --tools  - виводить всі відомі селектори інструментів.
-    --help   - виводить цю сторінку.
-Використання:
-    fcli list
-    fcli list --tools
-    fcli ls --script --url</value>
-  </data>
-  <data name="Remove_Help" xml:space="preserve">
-    <value>Remove - видаляє команди зі сховища.
-Прапорці:
-    --yes  - опускає підтвердження.
-    --all  - видаляє всі відомі команди (непропускне підтвердження).
-    --help - виводить цю сторінку.
-Використання:
-    fcli remove awesome --yes</value>
-  </data>
-  <data name="Run_Help" xml:space="preserve">
-    <value>Run - виконує даний аргумент без валідації та зберігання. Корисно для тестування. Потребує шлях або посилання, а також конкретно вказаний тип команди через прапорці типу.
-Прапорці:
-    --script &lt;shell&gt; - виконує як скрипт.
-    --exe            - виконує як виконуваний файл.
-    --url            - виконує як посилання.
-    --help           - виводить цю сторінку.
-Використання:
-    fcli run c:/awesome --script powershell
-    fcli run https://awesome.com --url</value>
-  </data>
-  <data name="Config_Help" xml:space="preserve">
-    <value>Config - дозволяє керувати файлом користувацьких налаштувань. Використовуя цей інструмент ви можете змінювати деякі значення, або цільком видалити конфігураційний файл.
-Флаги:
-    --locale &lt;loc&gt;     - вказує культуру, яку потрібно використовувати.
-        - підтримувані локалі: en, ru, uk.
-    --formatter &lt;type&gt; - встановлює форматувальник командної строки.
-        - inline       - має тенденцію показувати все однією строкою.
-        - pretty       - більш різнокольоровий, багатослівний та багатостроковий.
-    --purge            - видаляє існуючу конфігурацію.
-    --help             - виводить цю сторінку.</value>
-Використання:
-    fcli config
-    fcli cnf --locale en --formatter pretty
-    fcli config --purge</data>
-
   <!--
 
-    Error messages
+    Global messages
 
   -->
 
@@ -242,6 +185,41 @@
   <data name="FCli_UnknownShell" xml:space="preserve">
     <value>Прапорец --script повинен також вказувати оточення.
 Підтримувані оточення: {0}.</value>
+  </data>
+  <data name="FCli_NameExists" xml:space="preserve">
+    <value>({0}) - це ім'я відомої команди або селектора інструменту.</value>
+  </data>
+  <data name="FCli_UnknownName" xml:space="preserve">
+    <value>({0}) - не є відомим ім'ям команди або групи.</value>
+  </data>
+  <data name="FCli_Confirm" xml:space="preserve">
+    <value>Ви впевнені що бажаєте продовжити?</value>
+  </data>
+  <data name="FCli_Averted" xml:space="preserve">
+    <value>Операція зупинена.</value>
+  </data>
+  <data name="FCli_Continued" xml:space="preserve">
+    <value>Операція продовжується...</value>
+  </data>
+  <data name="FCli_ArgMissing" xml:space="preserve">
+    <value>({0}) був викликаний без аргументу.</value>
+  </data>
+  <data name="FCli_UnexpectedArg" xml:space="preserve">
+    <value>({0}) не підтримує аргумент, але отримав його.</value>
+  </data>
+  <data name="FCli_MultipleTypeFlags" xml:space="preserve">
+    <value>({0}) може приймати тільки один прапорець типу.</value>
+  </data>
+  <data name="FCli_CommandNotDetermined" xml:space="preserve">
+    <value>Тип команди неможливо визначити. FCli може розпізнати лише шлях або посилання. Ви можете вказати напряму тип через відповідний прапорець. Сторінка допомоги містить більше інформації.</value>
+  </data>
+  <data name="FCli_Saving" xml:space="preserve">
+    <value>Зберігання в сховище...</value>
+  </data>
+  <data name="FCli_CommandSaved" xml:space="preserve">
+    <value>Збережено.
+Щоб використати команду/групу спробуйте:
+        fcli {0}</value>
   </data>
 
   <!--
@@ -272,21 +250,22 @@
     Add tool strings
 
   -->
-  <data name="Add_NoArg" xml:space="preserve">
-    <value>Інструмент Add потребує аргумент - шлях або посилання.</value>
-  </data>
-  <data name="Add_MultipleTypeFlags" xml:space="preserve">
-    <value>Інструмент Add може мати лише один прапорець тупу.</value>
+  <data name="Add_Help" xml:space="preserve">
+    <value>Add - валідує надані властивості команди та додає її до сховища. Потребує правильне посилання або інстуючій системний шлях як аргумент.
+Прапорці:
+    --script &lt;shell&gt; - шлях веде до файлу скрипту.
+    --exe            - шлях вказує на виконуваний файл.
+    --url            - аргументом є посилання на веб сайт.
+    --dir            - шлях вказує на директорію.
+    --name &lt;value&gt;   - вказує конкретне ім'я для команди.
+    --options &lt;args&gt; - додаткові аргументи командної строки.
+    --help           - виводить цю сторінку.
+Використання:
+    fcli add c:/awesome.exe
+    fcli add .\scripts\script --script bash --name sc</value>
   </data>
   <data name="Add_FileUnrecognized" xml:space="preserve">
     <value>Неможливо визначити тип файлу. Будьласка, вкажіть його використовуючі прапорець типу. Щоб побачити всі прапорці типу, використайте --help.</value>
-  </data>
-  <data name="Add_CommandNotDetermined" xml:space="preserve">
-    <value>Тип команди неможливо визначити. FCli може розпізнати лише шлях або посилання. Ви можете вказати напряму тип через відповідний прапорець. Сторінка допомоги містить більше інформації.</value>
-  </data>
-  <data name="Add_NameAlreadyExists" xml:space="preserve">
-    <value>Ім'я ({0}) - це відома команда або інструмент.
-Ви можете використати прапорець --name щоб задати інше ім'я для команди.</value>
   </data>
   <data name="Add_BashOnWindows" xml:space="preserve">
     <value>Команда ({0}) була роспізнана як Bash скрипт, але оточенням зараз є Windows. Bash скрипти можуть бути виконані на Windows, FCli використовує WSL для цього. Вам потрібно впевнитись що ваша Windows має підсистему WSL встановлену та з включеним стандартним дистрибутивом щоб це спрацювало.</value>
@@ -303,12 +282,6 @@
   <data name="Add_OSScript_Question" xml:space="preserve">
     <value>Ви впевнені що ваша система може запустити цей тип скрипту?</value>
   </data>
-  <data name="Add_OSScript_Avert" xml:space="preserve">
-    <value>Зупинка процесу add...</value>
-  </data>
-  <data name="Add_OSScript_Continue" xml:space="preserve">
-    <value>Продовження процесу add...</value>
-  </data>
   <data name="Add_ParsedCommand" xml:space="preserve">
     <value>Команда була реконструйована:
   name    - {0}
@@ -317,23 +290,25 @@
   path    - {3}
   options - {4}</value>
   </data>
-  <data name="Add_Saving" xml:space="preserve">
-    <value>Зберігання до сховища...</value>
-  </data>
-  <data name="Add_Saved" xml:space="preserve">
-    <value>Збережено.
-Щоб викликати цю команду скористайтесь:
-  fcli {0}</value>
-  </data>
   <!--
 
     Config tool strings
 
   -->
-  <data name="Config_Arg" xml:space="preserve">
-    <value>Інструмент Config не може мати ніяких аргументів.
-Щоб побачити інформацію про інструмент Config передивісться сторінку допомоги, вказав прапорець --help.</value>
-  </data>
+  <data name="Config_Help" xml:space="preserve">
+    <value>Config - дозволяє керувати файлом користувацьких налаштувань. Використовуя цей інструмент ви можете змінювати деякі значення, або цільком видалити конфігураційний файл.
+Флаги:
+    --locale &lt;loc&gt;     - вказує культуру, яку потрібно використовувати.
+        - підтримувані локалі: en, ru, uk.
+    --formatter &lt;type&gt; - встановлює форматувальник командної строки.
+        - inline       - має тенденцію показувати все однією строкою.
+        - pretty       - більш різнокольоровий, багатослівний та багатостроковий.
+    --purge            - видаляє існуючу конфігурацію.
+    --help             - виводить цю сторінку.</value>
+Використання:
+    fcli config
+    fcli cnf --locale en --formatter pretty
+    fcli config --purge</data>
   <data name="Config_ListConfig" xml:space="preserve">
     <value>Не вказано ніяких прапорців, виводжу стан конфігурації:</value>
   </data>
@@ -366,20 +341,29 @@
   <data name="Config_PurgeWarning" xml:space="preserve">
     <value>Ви збираєтесь видалити файл конфігурації, всі ваші налаштування будуть втрачені. Ви впевнені, що ви бажаєте продовжити?</value>
   </data>
-  <data name="Config_PurgeAverted" xml:space="preserve">
-    <value>Видалення конфігуації відмінено.</value>
-  </data>
-  <data name="Config_Purging" xml:space="preserve">
-    <value>Видалення конфігурації...</value>
-  </data>
   <data name="Config_Purged" xml:space="preserve">
-    <value>Видалено.</value>
+    <value>Конфігурацію очищено.</value>
   </data>
   <!--
 
     List tool strings
 
   -->
+  <data name="List_Help" xml:space="preserve">
+    <value>List - виводить в консоль сисок відомих команд або інструментів залежно від вказаних прапорців. Виводить всі команди, якщо вони не вказані. Використовує аргумент як фільтр.
+Прапорці:
+    --script - додає файли скриптів до списку.
+    --exe    - додає виконувані файли до списку.
+    --url    - додає вебсайти до списку.
+    --group  - додає групи до списку.
+    --dir    - додає директорії до списку.
+    --tools  - виводить всі відомі селектори інструментів.
+    --help   - виводить цю сторінку.
+Використання:
+    fcli list
+    fcli list --tools
+    fcli ls --script --url</value>
+  </data>
   <data name="List_NoCommands" xml:space="preserve">
     <value>Зараз сховище не має відомих команд.</value>
   </data>
@@ -392,8 +376,8 @@
   <data name="List_NoCommandsSelected" xml:space="preserve">
     <value>В системі не записано команд типу ({0}).</value>
   </data>
-  <data name="List_ToolArg" xml:space="preserve">
-    <value>(--tool) не може мати фільтр.</value>
+  <data name="List_NoToolsFiltered" xml:space="preserve">
+    <value>Не знайдено інструментів за фільтром ({0}).</value>
   </data>
   <data name="List_Tools" xml:space="preserve">
     <value>Список всіх відомих селекторів інструментів:</value>
@@ -406,9 +390,14 @@
     Remove tool strings
 
   -->
-  <data name="Remove_InvalidArg" xml:space="preserve">
-    <value>({0}) - не є відомим ім'ям команди.
-Щоб побачити всі імена команд спробуйте: fcli list.</value>
+  <data name="Remove_Help" xml:space="preserve">
+    <value>Remove - видаляє команди зі сховища.
+Прапорці:
+    --yes  - опускає підтвердження.
+    --all  - видаляє всі відомі команди (непропускне підтвердження).
+    --help - виводить цю сторінку.
+Використання:
+    fcli remove awesome --yes</value>
   </data>
   <data name="Remove_AllWarning" xml:space="preserve">
     <value>Прапорець (--all): ви намагаєтесь видалити всі команди зі зберігання.
@@ -419,12 +408,6 @@
   </data>
   <data name="Remove_AllDeleted" xml:space="preserve">
     <value>Всі існуючі команди були видалені.</value>
-  </data>
-  <data name="Remove_Averted" xml:space="preserve">
-    <value>Видалення відмінено.</value>
-  </data>
-  <data name="Remove_Deleting" xml:space="preserve">
-    <value>Видалення...</value>
   </data>
   <data name="Remove_Warning" xml:space="preserve">
     <value>Команда ({0}) буде видалена.
@@ -438,13 +421,18 @@
     Run tool strings
 
   -->
-  <data name="Run_NoArg" xml:space="preserve">
-    <value>Вам потрібно вказати шлях або посилання які ви бажаєте протестувати.
-Щоб побачити використання Run вкажіть прапорець --help.</value>
+  <data name="Run_Help" xml:space="preserve">
+    <value>Run - виконує даний аргумент без валідації та зберігання. Корисно для тестування. Потребує шлях або посилання, а також конкретно вказаний тип команди через прапорці типу.
+Прапорці:
+    --script &lt;shell&gt; - виконує як скрипт.
+    --exe            - виконує як виконуваний файл.
+    --url            - виконує як посилання.
+    --dir            - відкрити як директорію.
+    --help           - виводить цю сторінку.
+Використання:
+    fcli run c:/awesome --script powershell
+    fcli run https://awesome.com --url</value>
   </data>
-  <data name="Run_MultipleTypeFlags" xml:space="preserve">
-    <value>Інструмент Run не може мати декілька прапорців типу.</value>
-  </data>  
   <data name="Run_UnknownCommand" xml:space="preserve">
     <value>Тип команди не був встановлений, будьласка, вкажіть його використовуючі прапорець типу.
 Щоб побачити використання Run вкажіть прапорець --help.</value>
@@ -462,6 +450,50 @@
   </data>
   <data name="Command_BashOnWindows" xml:space="preserve">
     <value></value>
+  </data>
+  <!--
+    
+    Group tool strings
+    
+  -->
+  <data name="Group_Help" xml:space="preserve">
+    <value>Інструмент Group може збирати команди у виконувані послідовності. Таким чином, ви можете вказувати колекції команд, які потрібно виконати.
+Щоб створити групу потрібно вказати послідовність команд розділених пробілом та взяті в лапки. (--name) прапорець обов'язковий.
+Цей інструмент може змінювати групи, використовуючи прапорці.
+Прапорці:
+        --name &lt;name&gt;     - створює групу з цим ім'ям.
+        --remove           - видаляє існуючу групу (в цьому випадку аргумент - це ім'я групи, підтвердження).
+        --all              - разом з remove видаляє всі групу (підтвердження обов'язково).
+        --override &lt;name&gt; - змінює послідовність вказаної групи.
+        --yes              - пропускає підтвердження.
+        --help             - виводить цю сторінку.
+Використання:
+        fcli group "cmd1 cmd2" --name mygr
+        fcli gr "cmd1 cmd2 cmd3" --override mygr --yes
+        fcli group mygr --remove</value>
+  </data>
+  <data name="Group_Constructed" xml:space="preserve">
+    <value>Група сконструйована:
+name     - {0}
+sequence - {1}</value>
+  </data>
+  <data name="Group_OverrideWarning" xml:space="preserve">
+    <value>Ви намагаєтесь презаписати групу ({0}) Вказаній послідовністю.</value>
+  </data>
+  <data name="Group_RemoveAllWarning" xml:space="preserve">
+    <value>Прапорець All: ви намагаєтесь вилалити всі групу зі зберігання.</value>
+  </data>
+  <data name="Group_RemovedAll" xml:space="preserve">
+    <value>Всі групи команд були видалені.</value>
+  </data>
+  <data name="Group_NoGroups" xml:space="preserve">
+    <value>Групи не були знайдені!</value>
+  </data>
+  <data name="Group_Removed" xml:space="preserve">
+    <value>Група ({0}) була видалена.</value>
+  </data>
+  <data name="Group_NotAGroup" xml:space="preserve">
+    <value>({0}) не є групою!</value>
   </data>
   <data name="" xml:space="preserve">
     <value></value>

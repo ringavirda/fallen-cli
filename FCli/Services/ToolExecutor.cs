@@ -35,7 +35,8 @@ public class ToolExecutor : IToolExecutor
             new RemoveTool(formatter, manager, commandLoader),
             new ListTool(formatter, manager, this, commandLoader, config),
             new RunTool(formatter, manager, commandFactory, config),
-            new ConfigTool(formatter, manager, config)
+            new ConfigTool(formatter, manager, config),
+            new GroupTool(formatter, manager, commandLoader, this, commandFactory)
         };
 
         _logger = logger;

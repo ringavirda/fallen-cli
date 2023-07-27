@@ -16,14 +16,14 @@ namespace FCli.Services;
 /// <remarks>
 /// Supports Windows and Linux operating systems.
 /// </remarks>
-public class OSSpecificFactory : ICommandFactory
+public class SystemSpecificFactory : ICommandFactory
 {
     // DI.
     private readonly ICommandLoader _loader;
     private readonly ICommandLineFormatter _formatter;
     private readonly ResourceManager _resources;
 
-    public OSSpecificFactory(
+    public SystemSpecificFactory(
         ICommandLoader commandLoader,
         ICommandLineFormatter formatter,
         ResourceManager resources)
@@ -51,6 +51,10 @@ public class OSSpecificFactory : ICommandFactory
                 """);
             throw new InvalidOperationException($"Command ({name}) is not a known name.");
         }
+        else if (command.Type == CommandType.Group)
+            return ConstructGroup(
+                command.Name,
+                ((Group)command).Sequence);
         // Return command constructed from the loaded template.
         else return Construct(
             command.Name,
@@ -191,6 +195,39 @@ public class OSSpecificFactory : ICommandFactory
             Shell = shell,
             Action = action,
             Options = options
+        };
+    }
+
+    /// <summary>
+    /// Generates a group of sequentially executed commands.
+    /// </summary>
+    /// <param name="name">Group name.</param>
+    /// <param name="commands">Sequence of commands.</param>
+    /// <returns>Constructed group object.</returns>
+    public Group ConstructGroup(string name, List<string> commands)
+    {
+        // Setup group logic.
+        void action()
+        {
+            // Execute commands as given.
+            foreach (var commandName in commands)
+            {
+                var command = _loader.LoadCommand(commandName);
+                // Guard against bad commands.
+                if (command != null && command.Action != null)
+                    command.Action();
+                else throw new CriticalException($"Command ({commandName}) didn't load.");
+            }
+        }
+        return new Group()
+        {
+            Name = name,
+            Path = string.Empty,
+            Type = CommandType.Group,
+            Shell = ShellType.None,
+            Options = string.Empty,
+            Action = action,
+            Sequence = commands
         };
     }
 }

@@ -46,8 +46,10 @@ public class ConfigTool : Tool
             // Guard against arg.
             if (arg != "")
             {
-                _formatter.DisplayWarning(Name, 
-                    _resources.GetString("Config_Arg"));
+                _formatter.DisplayError(Name, string.Format(
+                    _resources.GetString("FCli_UnexpectedArg")
+                    ?? _formatter.StringNotLoaded(), 
+                    Name));
                 throw new ArgumentException("Config attempt to call with arg");
             }
             // If no flags display config state.
@@ -121,17 +123,11 @@ public class ConfigTool : Tool
                     // Require confirmation from user.
                     _formatter.DisplayWarning(Name, 
                         _resources.GetString("Config_PurgeWarning"));
-                    var response = _formatter.ReadUserInput("(yes/any)");
-                    if (response != "yes")
-                    {
-                        _formatter.DisplayMessage(
-                            _resources.GetString("Config_PurgeAverted"));
-                        return;
-                    }
-                    _formatter.DisplayMessage(
-                        _resources.GetString("Config_Purging"));
+                    // Get user's confirmation.
+                    if (!UserConfirm()) return;
+                    // Purge.
                     _config.PurgeConfig();
-                    _formatter.DisplayMessage(
+                    _formatter.DisplayInfo(Name,
                         _resources.GetString("Config_Purged"));
                 }
                 else UnknownFlag(flag, Name);

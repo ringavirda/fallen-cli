@@ -1,5 +1,6 @@
 // Vendor namespaces.
 using System.Resources;
+using FCli.Exceptions;
 // FCli namespaces.
 using FCli.Models.Types;
 using FCli.Services.Data;
@@ -24,7 +25,7 @@ public class RemoveTool : Tool
     {
         _loader = commandLoader;
 
-        Description = _resources.GetString("Remove_Help") 
+        Description = _resources.GetString("Remove_Help")
             ?? formatter.StringNotLoaded();
     }
 
@@ -46,11 +47,11 @@ public class RemoveTool : Tool
                 && !flags.Any(f => f.Key == "all"))
             {
                 _formatter.DisplayError(Name, string.Format(
-                    _resources.GetString("Remove_InvalidArg")
+                    _resources.GetString("FCli_UnknownName")
                     ?? _formatter.StringNotLoaded(),
                     arg
                 ));
-                throw new ArgumentException($"({arg}) - is not a command name.");
+                throw new CommandNameException($"({arg}) - is not a command name.");
             }
             // Forward declare.
             bool skipDialog = false;
@@ -65,31 +66,24 @@ public class RemoveTool : Tool
                     // Confirm user's intentions.
                     _formatter.DisplayWarning(Name,
                         _resources.GetString("Remove_AllWarning"));
-                    var response = _formatter.ReadUserInput("(yes/any)");
-                    if (response?.ToLower() != "yes")
-                        _formatter.DisplayMessage(
-                            _resources.GetString("Remove_Averted"));
-                    else
+                    if (!UserConfirm()) return;
+                    // Delete all.
+                    var commands = _loader.LoadCommands();
+                    // Guard against empty storage.
+                    if (commands == null || !commands.Any())
                     {
                         _formatter.DisplayMessage(
-                            _resources.GetString("Remove_Deleting"));
-                        var commands = _loader.LoadCommands();
-                        // Guard against empty storage.
-                        if (commands == null || !commands.Any())
-                        {
-                            _formatter.DisplayMessage(
-                                _resources.GetString("Remove_NoCommands"));
-                            return;
-                        }
-                        else
-                        {
-                            // Delete all known commands.
-                            foreach (var command in commands
-                                .Select(c => c.Name).ToList())
-                                _loader.DeleteCommand(command);
-                            _formatter.DisplayInfo(Name,
-                                _resources.GetString("Remove_AllDeleted"));
-                        }
+                            _resources.GetString("Remove_NoCommands"));
+                        return;
+                    }
+                    else
+                    {
+                        // Delete all known commands.
+                        foreach (var command in commands
+                            .Select(c => c.Name).ToList())
+                            _loader.DeleteCommand(command);
+                        _formatter.DisplayInfo(Name,
+                            _resources.GetString("Remove_AllDeleted"));
                     }
                     return;
                 }
@@ -99,30 +93,17 @@ public class RemoveTool : Tool
                 else UnknownFlag(flag, Name);
             }
             // Prepare to delete the command.
-            if (!skipDialog)
-            {
-                // Confirm user's intentions.
-                _formatter.DisplayWarning(Name, string.Format(
-                    _resources.GetString("Remove_Warning")
-                    ?? _formatter.StringNotLoaded(),
-                    arg
-                ));
-                var response = _formatter.ReadUserInput("(yes/any)");
-                if (response != "yes")
-                {
-                    _formatter.DisplayMessage(
-                        _resources.GetString("Remove_Averted"));
-                    return;
-                }
-            }
+            // Confirm user's intentions.
+            _formatter.DisplayWarning(Name, string.Format(
+                _resources.GetString("Remove_Warning")
+                ?? _formatter.StringNotLoaded(),
+                arg));
+            if (!skipDialog && !UserConfirm()) return;
             // Delete command.
-            _formatter.DisplayMessage(
-                _resources.GetString("Remove_Deleting"));
             _loader.DeleteCommand(arg);
             _formatter.DisplayInfo(Name, string.Format(
                 _resources.GetString("Remove_Deleted")
                 ?? _formatter.StringNotLoaded(),
-                arg
-            ));
+                arg));
         };
 }

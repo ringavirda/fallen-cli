@@ -157,4 +157,25 @@ public abstract class Tool
         // Return path converting to full.
         return Path.GetFullPath(path);
     }
+
+    /// <summary>
+    /// Generic user confirmation for an action.
+    /// </summary>
+    /// <returns>True if confirmed.</returns>
+    protected bool UserConfirm()
+    {
+        _formatter.DisplayMessage(
+            _resources.GetString("FCli_Confirm"));
+        var confirm = _formatter.ReadUserInput("(yes/any)");
+        if (confirm != "yes")
+        {
+            _formatter.DisplayMessage(_resources.GetString("FCli_Averted"));
+            return false;
+        }
+        else
+        {
+            _formatter.DisplayMessage(_resources.GetString("FCli_Continued"));
+            return true;
+        }
+    }
 }

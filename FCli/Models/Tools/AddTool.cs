@@ -56,9 +56,10 @@ public class AddTool : Tool
             // Guard against empty path/url.
             if (arg == string.Empty)
             {
-                _formatter.DisplayError(
-                    Name,
-                    _resources.GetString("Add_NoArg"));
+                _formatter.DisplayError(Name,
+                    string.Format(_resources.GetString("FCli_ArgMissing")
+                    ?? _formatter.StringNotLoaded(),
+                    Name));
                 throw new ArgumentException(
                     "Add tool was called without an argument.");
             }
@@ -67,9 +68,11 @@ public class AddTool : Tool
                 .Intersect(_config.KnownCommands.Select(c => c.Selector))
                 .Count() > 1)
             {
-                _formatter.DisplayError(
-                    Name,
-                    _resources.GetString("Add_MultipleTypeFlags"));
+                _formatter.DisplayError(Name,
+                    string.Format(
+                        _resources.GetString("FCli_MultipleTypeFlags")
+                        ?? _formatter.StringNotLoaded(),
+                        Name));
                 throw new FlagException(
                     "Attempted to pass multiple command types flags into the Add tool.");
             }
@@ -208,7 +211,7 @@ public class AddTool : Tool
                 else
                 {
                     _formatter.DisplayError(Name,
-                        _resources.GetString("Add_CommandNotDetermined"));
+                        _resources.GetString("FCli_CommandNotDetermined"));
                     throw new ArgumentException(
                         $"Command wasn't determined from ({arg}).");
                 }
@@ -219,11 +222,11 @@ public class AddTool : Tool
             {
                 _formatter.DisplayError(Name, 
                     string.Format(
-                        _resources.GetString("Add_NameAlreadyExists")
+                        _resources.GetString("FCli_NameExists")
                         ?? _formatter.StringNotLoaded(),
                         name
                     ));
-                throw new ArgumentException($"Name {name} already exists.");
+                throw new CommandNameException($"Name {name} already exists.");
             }
             // Guard against Linux shells on windows.
             if (shell == ShellType.Bash
@@ -259,7 +262,7 @@ public class AddTool : Tool
                     name, type, shell, arg, options
                 ));
             _formatter.DisplayMessage(
-                _resources.GetString("Add_Saving"));
+                _resources.GetString("FCli_Saving"));
             // Construct the command using parsed values.
             var command = _commandFactory.Construct(
                 name,
@@ -270,8 +273,8 @@ public class AddTool : Tool
             // Save the command into storage.
             _commandLoader.SaveCommand(command);
             // Display confirmation.
-            _formatter.DisplayMessage(string.Format(
-                _resources.GetString("Add_Saved")
+            _formatter.DisplayInfo(Name, string.Format(
+                _resources.GetString("FCli_CommandSaved")
                 ?? _formatter.StringNotLoaded(),
                 name
             ));
@@ -312,18 +315,6 @@ public class AddTool : Tool
             ));
         _formatter.DisplayMessage(
             _resources.GetString("Add_OSScript_Question"));
-        var response = _formatter.ReadUserInput("(yes/any)");
-        if (response?.ToLower() != "yes")
-        {
-            _formatter.DisplayMessage(
-                _resources.GetString("Add_OSScript_Avert"));
-            return false;
-        }
-        else 
-        {
-            _formatter.DisplayMessage(
-                _resources.GetString("Add_OSScript_Continue"));
-            return true;
-        }
+        return UserConfirm();
     }
 }
