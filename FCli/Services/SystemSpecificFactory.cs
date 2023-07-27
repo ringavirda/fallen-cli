@@ -240,8 +240,9 @@ public class SystemSpecificFactory : ICommandFactory
                 ?? _formatter.StringNotLoaded(),
                 ShellType.Powershell, PlatformID.Unix));
             if (isDirectory)
-                RunAsDirectory("powershell", path, string.Empty);
-            else Process.Start("bash", $"powershell {path} {options}");
+                RunAsDirectory("pwsh", path, string.Empty);
+            else Process.Start("pwsh", $"{path} {options}")
+                .WaitForExit();
         }
         else
         {
@@ -275,7 +276,8 @@ public class SystemSpecificFactory : ICommandFactory
         {
             if (asDirectory)
                 RunAsDirectory("bash", path, string.Empty);
-            Process.Start("bash", path);
+            Process.Start("bash", path)
+                .WaitForExit();
         }
         // Windows uses WSL if it is available to run bash script.
         else
