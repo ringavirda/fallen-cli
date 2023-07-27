@@ -28,15 +28,19 @@ public class ToolExecutor : IToolExecutor
         IConfig config,
         ResourceManager manager)
     {
-        // Configure tool protos.
+        // Configure tools.
         Tools = new()
         {
-            new AddTool(formatter, manager, this, commandFactory, commandLoader, config),
+            new AddTool(formatter, manager, this, 
+                commandFactory, commandLoader, config),
             new RemoveTool(formatter, manager, commandLoader),
             new ListTool(formatter, manager, this, commandLoader, config),
             new RunTool(formatter, manager, commandFactory, config),
             new ConfigTool(formatter, manager, config),
-            new GroupTool(formatter, manager, commandLoader, this, commandFactory)
+            new GroupTool(formatter, manager, commandLoader, 
+                this, commandFactory),
+            new ChangeTool(formatter, manager, commandLoader, 
+                this, commandFactory, config)
         };
 
         _logger = logger;

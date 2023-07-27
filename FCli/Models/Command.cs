@@ -11,7 +11,8 @@ namespace FCli.Models;
 /// <remarks>
 /// All properties are mandatory except for Action, which can be added afterwards.
 /// </remarks>
-[JsonSerializable(typeof(Command))]
+[JsonDerivedType(typeof(Group), typeDiscriminator: "group")]
+[JsonDerivedType(typeof(Command), typeDiscriminator: "command")]
 public class Command
 {
     /// <summary>

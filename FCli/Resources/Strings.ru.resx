@@ -186,6 +186,9 @@
     <value>Флаг --script должен так же указывать окружение.
 Поддерживаемые окружения: {0}.</value>
   </data>
+  <data name="FCli_UnknownCommandType" xml:space="preserve">
+    <value>({0}) - не есть известным типом команды.</value>
+  </data>
   <data name="FCli_NameExists" xml:space="preserve">
     <value>({0}) - это имя известной команты или селектора инструмента.</value>
   </data>
@@ -193,7 +196,7 @@
     <value>({0}) - не есть известным именем команды или группы.</value>
   </data>
   <data name="FCli_Confirm" xml:space="preserve">
-    <value>Вы уверены что хотите продолжить?</value>
+    <value>Вы уверены, что хотите продолжить?</value>
   </data>
   <data name="FCli_Averted" xml:space="preserve">
     <value>Операция предотвращена.</value>
@@ -298,7 +301,7 @@
     <value>Config - позволяет управлять пользовательским конфигурационным файлом. Используя этот инструмент вы можете изменять некоторые значения, или же удалить конфигурационный файл целиком.
 Флаги:
     --locale &lt;loc&gt;     - указывает культуру которую использовать.
-        - поддерживаемые локали: en, ru, uk.
+        Поддерживаемые локали: en, ru, uk.
     --formatter &lt;type&gt; - устанавливает использоваемый форматировальщик.
         - inline       - склонен показывать сообщения одной строкой.
         - pretty       - более многословен, разноцвентный и многострочный.
@@ -496,6 +499,81 @@ sequence - {1}</value>
   </data>
   <data name="" xml:space="preserve">
     <value></value>
+  </data>
+<!--
+    
+    Change tool strings
+    
+  -->
+  <data name="Change_Help" xml:space="preserve">
+    <value>Change - разрешает изменять известные команды.
+Аргумент это всегда имя команды которую нужно изментить, а новые значения задаются через флаги. Чтобы изменять последовательности групп используйте инструмент group.
+Внимание!!! Этот инструмент позволит изменить вам типы и имена - это может сломать как выполнение так и связанные групы. Так же он позволяет установит путь без валидации. Используйте этот инструмент с осторожностью.
+Флаги:
+      --name    - новое имя команды.
+      --path    - новый путь.
+      --type    - новый тип команды.
+          Поддерживаемые типы: exe, url, script, dir, group, shell, none.
+      --shell   - новый тип окружения.
+      --options - новые опции командной строки.
+      --help    - выводит эту страницу.
+Использование:
+      fcli change awesome --name newName --type script --shell bash
+      fcli ch newName --type exe --path /new/path
+    </value>
+  </data>
+  <data name="Change_NameWarning" xml:space="preserve">
+    <value>Зафиксировано изменение имени для команды ({0}).
+Внимание: Это может сломать группы!
+Новое имя: {1}</value>
+  </data>
+  <data name="Change_PathWarning" xml:space="preserve">
+    <value>Зафиксировано изменение пути для команды ({0}).
+Внимание: Change не проверяет путь!
+Новый путь: {1}</value>
+  </data>
+  <data name="Change_TypeWarning" xml:space="preserve">
+    <value>Зафиксировано изменение типа для команды ({0}).
+Внимание: Это изменит каким образом команда выполняется!
+Новый тип: {1}</value>
+  </data>
+  <data name="Change_ShellWarning" xml:space="preserve">
+    <value>Зафиксировано изменение окружения для команды ({0}).
+Внимание: Это может сломать выполенение команды!
+Новое окружение: {1}</value>
+  </data>
+  <data name="Change_OptionsWarning" xml:space="preserve">
+    <value>Зафиксировано изменение опций для команды ({0}).
+Внимание: Это может повлиять на выполнение команды!
+Новые опиции: {1}</value>
+  </data>
+  <data name="Change_NoChange" xml:space="preserve">
+    <value>Вы не указали ничего что нужно изменить!
+Используйте флаги для того чтобы указать изменяемые свойства.</value>
+  </data>
+  <data name="Change_NewCommandProfile" xml:space="preserve">
+    <value>Был сформирован новый профиль команды:
+name:
+    old:{0}
+    new:{1}
+path:
+    old:{2}
+    new:{3}
+type:
+    old:{4}
+    new:{5}
+shell:
+    old:{6}
+    new:{7}
+options:
+    old:{8}
+    new:{9}</value>
+  </data>
+  <data name="Change_Same" xml:space="preserve">
+    <value>То же самое.</value>
+  </data>
+  <data name="Change_Warning" xml:space="preserve">
+    <value>Команда готова для реконструирования и перезаписи.</value>
   </data>
 
 </root>

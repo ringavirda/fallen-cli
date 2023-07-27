@@ -31,7 +31,7 @@ public class InlineFormatter : ICommandLineFormatter
             Console.ForegroundColor = ConsoleColor.Green;
             Console.Write($"[{callerName}] Info: ");
             Console.ResetColor();
-            Console.WriteLine(Inline(message));
+            Console.WriteLine(message);
         }
     }
 

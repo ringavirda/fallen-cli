@@ -190,6 +190,9 @@ Usage:
     <value>Script flag must also specify type of shell.
 Supported shells: {0}.</value>
   </data>
+  <data name="FCli_UnknownCommandType" xml:space="preserve">
+    <value>({0}) - isn't a known command type selector.</value>
+  </data>
   <data name="FCli_NameExists" xml:space="preserve">
     <value>({0}) - is a known command name or tool selector.</value>
   </data>
@@ -304,7 +307,7 @@ To see the list of type flags use --help.</value>
     <value>Config tool allows to manipulate current user config. Using this you can change some values store or purge config. List current config state if nothing is specified.
 Flags:
     --locale &lt;loc&gt;     - sets culture locale for the tool.
-        - supported locales: en, ru, uk.
+        Supported locales: en, ru, uk.
     --formatter &lt;type&gt; - sets console formatter to use for messaging.
         - inline       - displays most messages as a single line.
         - pretty       - more verbose and uses multiline templates.
@@ -499,8 +502,80 @@ sequence - {1}</value>
   <data name="Group_NotAGroup" xml:space="preserve">
     <value>({0}) is not a group!</value>
   </data>
-  <data name="" xml:space="preserve">
-    <value></value>
+  <!--
+    
+    Change tool strings
+    
+  -->
+  <data name="Change_Help" xml:space="preserve">
+    <value>Change - enables altering of existing commands.
+Argument is always a command name and new values are provided using flags. To change group sequence use group tool.
+Attention!!! This tool will allow you to change types and names - that may break command execution or associated groups. Also it doesn't perform validation on path. Use this options with care.
+Flags:
+      --name    - new command name.
+      --path    - new path.
+      --type    - new command type.
+          Supported types: exe, url, script, dir, group, shell, none.
+      --shell   - new shell type.
+      --options - new command line options.
+      --help    - displays this page.
+Usage:
+      fcli change awesome --name newName --type script --shell bash
+      fcli ch newName --type exe --path /new/path
+    </value>
   </data>
+  <data name="Change_NameWarning" xml:space="preserve">
+    <value>Preparing to change name on command ({0}).
+Attention: This might break groups!
+New name: {1}</value>
+  </data>
+  <data name="Change_PathWarning" xml:space="preserve">
+    <value>Preparing to change path on command ({0}).
+Attention: Change doesn't validate path!
+New Path: {1}</value>
+  </data>
+  <data name="Change_TypeWarning" xml:space="preserve">
+    <value>Preparing to change command type on command ({0}).
+Attention: This will change how command is executed!
+New type: {1}</value>
+  </data>
+  <data name="Change_ShellWarning" xml:space="preserve">
+    <value>Preparing to change shell type on command ({0}).
+Attention: This may break command execution!
+New shell: {1}</value>
+  </data>
+  <data name="Change_OptionsWarning" xml:space="preserve">
+    <value>Preparing to command line options on command ({0}).
+Attention: This may affect the command execution!
+New options: {1}</value>
+  </data>
+  <data name="Change_NoChange" xml:space="preserve">
+    <value>You haven't specified anything to change!
+Use flags to set new values for the command.</value>
+  </data>
+  <data name="Change_NewCommandProfile" xml:space="preserve">
+    <value>New command profile formed:
+name:
+    old:{0}
+    new:{1}
+path:
+    old:{2}
+    new:{3}
+type:
+    old:{4}
+    new:{5}
+shell:
+    old:{6}
+    new:{7}
+options:
+    old:{8}
+    new:{9}</value>
+</data>
+<data name="Change_Same" xml:space="preserve">
+  <value>The same.</value>
+</data>
+<data name="Change_Warning" xml:space="preserve">
+  <value>Command ready to be reconstructed and overrided.</value>
+</data>
 
 </root>

@@ -50,7 +50,7 @@ public class ConfigTool : Tool
                     _resources.GetString("FCli_UnexpectedArg")
                     ?? _formatter.StringNotLoaded(), 
                     Name));
-                throw new ArgumentException("Config attempt to call with arg");
+                throw new ArgumentException("Config attempt to call with arg.");
             }
             // If no flags display config state.
             if (!flags.Any())

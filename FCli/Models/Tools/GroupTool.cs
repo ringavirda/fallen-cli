@@ -72,7 +72,7 @@ public class GroupTool : Tool
                 {
                     FlagHasValue(flag, Name);
                     // Guard against existing name.
-                    GroupNameIsFree(flag.Value);
+                    NameIsFree(flag.Value);
                     // Make sure that all commands are present.
                     var commands = ValidateCommands(arg);
                     // Construct a command.
@@ -189,7 +189,7 @@ public class GroupTool : Tool
     /// </summary>
     /// <param name="name">Group to check.</param>
     /// <exception cref="CommandNameException">If name already exists.</exception>
-    private void GroupNameIsFree(string name)
+    private void NameIsFree(string name)
     {
         if (_loader.CommandExists(name)
             || _executor.Tools.Any(tool => tool.Selectors.Contains(name)))

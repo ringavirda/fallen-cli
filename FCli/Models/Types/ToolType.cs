@@ -5,11 +5,12 @@
 /// </summary>
 public enum ToolType
 {
+    None,
     Add,
     List,
     Remove,
     Run,
     Config,
     Group,
-    None
+    Change
 }

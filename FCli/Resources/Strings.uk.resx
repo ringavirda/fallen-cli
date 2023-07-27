@@ -186,6 +186,9 @@
     <value>Прапорец --script повинен також вказувати оточення.
 Підтримувані оточення: {0}.</value>
   </data>
+  <data name="FCli_UnknownCommandType" xml:space="preserve">
+    <value>({0}) - не є відомим типом команди.</value>
+  </data>
   <data name="FCli_NameExists" xml:space="preserve">
     <value>({0}) - це ім'я відомої команди або селектора інструменту.</value>
   </data>
@@ -193,7 +196,7 @@
     <value>({0}) - не є відомим ім'ям команди або групи.</value>
   </data>
   <data name="FCli_Confirm" xml:space="preserve">
-    <value>Ви впевнені що бажаєте продовжити?</value>
+    <value>Ви впевнені, що бажаєте продовжити?</value>
   </data>
   <data name="FCli_Averted" xml:space="preserve">
     <value>Операція зупинена.</value>
@@ -299,7 +302,7 @@
     <value>Config - дозволяє керувати файлом користувацьких налаштувань. Використовуя цей інструмент ви можете змінювати деякі значення, або цільком видалити конфігураційний файл.
 Флаги:
     --locale &lt;loc&gt;     - вказує культуру, яку потрібно використовувати.
-        - підтримувані локалі: en, ru, uk.
+        Підтримувані локалі: en, ru, uk.
     --formatter &lt;type&gt; - встановлює форматувальник командної строки.
         - inline       - має тенденцію показувати все однією строкою.
         - pretty       - більш різнокольоровий, багатослівний та багатостроковий.
@@ -498,5 +501,81 @@ sequence - {1}</value>
   <data name="" xml:space="preserve">
     <value></value>
   </data>
-  
+  <!--
+    
+    Change tool strings
+    
+  -->
+  <data name="Change_Help" xml:space="preserve">
+    <value>Change - дозволяє змінювати відомі команди.
+Аргумент - це завжди ім'я команди, яку потрібно змінювати, а нові значення задаються через прапорці. Щоб змінювати послідовності в групах використовуйте інструмент group.
+Увага!!! Цей інструмент дозволяє вам змінювати імена й типи - це може зламати як виконання команди, так і пов'язані групи. Також він дозволяє встановити шлях без валідації. Використовуйте цей інструмент обережно.
+Прапорці:
+      --name    - нове ім'я команди.
+      --path    - новий шлях.
+      --type    - новий тип команди.
+          Підтримувані типи: exe, url, script, dir, group, shell, none.
+      --shell   - новий тип оточення.
+      --options - нові опції командної строки.
+      --help    - виводить цю сторінку.
+Використання:
+      fcli change awesome --name newName --type script --shell bash
+      fcli ch newName --type exe --path /new/path
+    </value>
+  </data>
+  <data name="Change_NameWarning" xml:space="preserve">
+    <value>Зафіксовано зміну ім'я для команди ({0}).
+Увага: Це може зламати групи!
+Нове ім'я: {1}</value>
+  </data>
+  <data name="Change_PathWarning" xml:space="preserve">
+    <value>Зафіксована зміна шлаху команди ({0}).
+Увага: Change не перевіряє шлях!
+Новий шлях: {1}</value>
+  </data>
+  <data name="Change_TypeWarning" xml:space="preserve">
+    <value>Зафіксована зміна типу команди ({0}).
+Увага: Це змінить яким чином команда буде виконуватись
+!
+Новий тип: {1}</value>
+  </data>
+  <data name="Change_ShellWarning" xml:space="preserve">
+    <value>Зафіксовано зміну оточення для команди ({0}).
+Увага: це може зламати виконування команди!
+Нове оточення: {1}</value>
+  </data>
+  <data name="Change_OptionsWarning" xml:space="preserve">
+    <value>Завіксовано зміну опцій командної строки для команди ({0}).
+Увага: Це може повпливати на виконання команди!
+Нові опції: {1}</value>
+  </data>
+  <data name="Change_NoChange" xml:space="preserve">
+    <value>Ви не вказали нічого, що треба змінити!
+Використовуйте прапорці для того щоб задати нові властивості.</value>
+  </data>
+  <data name="Change_NewCommandProfile" xml:space="preserve">
+    <value>Був сформован новий профіль команди:
+name:
+    old:{0}
+    new:{1}
+path:
+    old:{2}
+    new:{3}
+type:
+    old:{4}
+    new:{5}
+shell:
+    old:{6}
+    new:{7}
+options:
+    old:{8}
+    new:{9}</value>
+  </data>
+  <data name="Change_Same" xml:space="preserve">
+    <value>Те ж саме.</value>
+  </data>
+  <data name="Change_Warning" xml:space="preserve">
+    <value>Команда готова до реконструювання та перезапису.</value>
+  </data>
+
 </root>
