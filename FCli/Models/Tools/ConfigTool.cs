@@ -1,10 +1,7 @@
-// Vendor namespaces.
-using System.Resources;
 // FCli namespaces.
 using FCli.Exceptions;
 using FCli.Models.Types;
-using FCli.Services.Config;
-using FCli.Services.Format;
+using FCli.Services.Abstractions;
 using static FCli.Models.Args;
 
 namespace FCli.Models.Tools;
@@ -16,14 +13,13 @@ public class ConfigTool : Tool
 
     public ConfigTool(
         ICommandLineFormatter formatter,
-        ResourceManager manager,
+        IResources resources,
         IConfig config)
-        : base(formatter, manager)
+        : base(formatter, resources)
     {
         _config = config;
 
-        Description = _resources.GetString("Config_Help") 
-            ?? formatter.StringNotLoaded();
+        Description = resources.GetLocalizedString("Config_Help");
     }
 
     public override string Name => "Config";
@@ -47,8 +43,7 @@ public class ConfigTool : Tool
             if (arg != "")
             {
                 _formatter.DisplayError(Name, string.Format(
-                    _resources.GetString("FCli_UnexpectedArg")
-                    ?? _formatter.StringNotLoaded(), 
+                    _resources.GetLocalizedString("FCli_UnexpectedArg"), 
                     Name));
                 throw new ArgumentException("Config attempt to call with arg.");
             }
@@ -56,16 +51,14 @@ public class ConfigTool : Tool
             if (!flags.Any())
             {
                 _formatter.DisplayInfo(Name, 
-                _resources.GetString("Config_ListConfig"));
+                _resources.GetLocalizedString("Config_ListConfig"));
                 // Temporary hardcode.
                 _formatter.DisplayMessage(string.Format(
-                    _resources.GetString("Config_Formatter")
-                    ?? _formatter.StringNotLoaded(),
+                    _resources.GetLocalizedString("Config_Formatter"),
                     _config.Formatter.Selector
                 ));
                 _formatter.DisplayMessage(string.Format(
-                    _resources.GetString("Config_Locale")
-                    ?? _formatter.StringNotLoaded(),
+                    _resources.GetLocalizedString("Config_Locale"),
                     _config.Locale
                 ));
             }
@@ -78,20 +71,20 @@ public class ConfigTool : Tool
                     if (!_config.KnownLocales.Contains(flag.Value))
                     {
                         _formatter.DisplayError(Name, 
-                            _resources.GetString("Config_UnknownLocale"));
+                            _resources.GetLocalizedString("Config_UnknownLocale"));
                         throw new FlagException(
                             $"Unsupported locale ({flag.Value}) was specified.");
                     }
                     _formatter.DisplayWarning(
                         Name,
                         string.Format(
-                            _resources.GetString("Config_LocaleChangeWarning")
-                            ?? _formatter.StringNotLoaded(),
-                            _config.Locale, flag.Value
+                            _resources.GetLocalizedString(
+                                "Config_LocaleChangeWarning"),
+                                _config.Locale, flag.Value
                         ));
                     _config.ChangeLocale(flag.Value);
                     _formatter.DisplayMessage(
-                        _resources.GetString("Config_LocaleChanged"));
+                        _resources.GetLocalizedString("Config_LocaleChanged"));
                 }
                 else if (flag.Key == "formatter")
                 {
@@ -102,33 +95,34 @@ public class ConfigTool : Tool
                     if (newFormatter == null)
                     {
                         _formatter.DisplayError(Name, 
-                            _resources.GetString("Config_UnsupportedFormatter"));
+                            _resources.GetLocalizedString(
+                                "Config_UnsupportedFormatter"));
                         throw new FlagException(
                             $"Unsupported formatter ({flag.Value}) was specified.");
                     }
                     _formatter.DisplayWarning(
                         Name,
                         string.Format(
-                            _resources.GetString("Config_FormatterChangeWarning")
-                            ?? _formatter.StringNotLoaded(),
-                            _config.Formatter.Selector, flag.Value
+                            _resources.GetLocalizedString(
+                                "Config_FormatterChangeWarning"),
+                                _config.Formatter.Selector, flag.Value
                         ));
                     _config.ChangeFormatter(newFormatter);
                     _formatter.DisplayMessage(
-                        _resources.GetString("Config_FormatterChanged"));
+                        _resources.GetLocalizedString("Config_FormatterChanged"));
                 }
                 else if (flag.Key == "purge")
                 {
                     FlagHasNoValue(flag, Name);
                     // Require confirmation from user.
                     _formatter.DisplayWarning(Name, 
-                        _resources.GetString("Config_PurgeWarning"));
+                        _resources.GetLocalizedString("Config_PurgeWarning"));
                     // Get user's confirmation.
                     if (!UserConfirm()) return;
                     // Purge.
                     _config.PurgeConfig();
                     _formatter.DisplayInfo(Name,
-                        _resources.GetString("Config_Purged"));
+                        _resources.GetLocalizedString("Config_Purged"));
                 }
                 else UnknownFlag(flag, Name);
             }

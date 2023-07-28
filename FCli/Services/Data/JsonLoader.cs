@@ -3,7 +3,7 @@ using System.Text.Json;
 // FCli namespaces.
 using FCli.Exceptions;
 using FCli.Models;
-using FCli.Services.Config;
+using FCli.Services.Abstractions;
 
 namespace FCli.Services.Data;
 

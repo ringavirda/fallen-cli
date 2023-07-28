@@ -1,9 +1,7 @@
-// Vendor namespaces.
-using System.Resources;
 // FCli namespaces.
 using FCli.Exceptions;
 using FCli.Models.Types;
-using FCli.Services.Format;
+using FCli.Services.Abstractions;
 using static FCli.Models.Args;
 
 namespace FCli.Models;
@@ -19,11 +17,11 @@ public abstract class Tool
     // DI.
     // Can be used by all tools.
     protected readonly ICommandLineFormatter _formatter;
-    protected readonly ResourceManager _resources;
+    protected readonly IResources _resources;
 
     protected Tool(
         ICommandLineFormatter formatter,
-        ResourceManager resources)
+        IResources resources)
     {
         _formatter = formatter;
         _resources = resources;
@@ -64,8 +62,8 @@ public abstract class Tool
         {
             _formatter.DisplayError(
                 toolName,
-                string.Format(_resources.GetString("Tool_FlagShouldNotHaveValue") 
-                    ?? _formatter.StringNotLoaded(), 
+                string.Format(_resources.GetLocalizedString(
+                    "Tool_FlagShouldNotHaveValue"), 
                     flag.Key, toolName));
             throw new FlagException($"--{flag.Key} - cannot have value.");
         }
@@ -82,8 +80,8 @@ public abstract class Tool
         {
             _formatter.DisplayError(
                 toolName,
-                string.Format(_resources.GetString("Tool_FlagShouldHaveValue") 
-                    ?? _formatter.StringNotLoaded(), 
+                string.Format(_resources.GetLocalizedString(
+                    "Tool_FlagShouldHaveValue"),
                     flag.Key, toolName));
             throw new FlagException($"--{flag.Key} - should have value.");
         }
@@ -99,8 +97,8 @@ public abstract class Tool
     {
         _formatter.DisplayError(
                 toolName,
-                string.Format(_resources.GetString("Tool_FlagIsUnknown") 
-                    ?? _formatter.StringNotLoaded(), 
+                string.Format(_resources.GetLocalizedString(
+                    "Tool_FlagIsUnknown"), 
                     flag.Key, toolName, toolName));
         throw new FlagException(
              $"--{flag.Key} - is not a valid flag for {toolName} tool.");
@@ -127,8 +125,8 @@ public abstract class Tool
         {
             _formatter.DisplayError(
                 toolName,
-                string.Format(_resources.GetString("Tool_UrlIsInvalid") 
-                    ?? _formatter.StringNotLoaded(), 
+                string.Format(_resources.GetLocalizedString(
+                    "Tool_UrlIsInvalid"),
                     url));
             throw new ArgumentException($"Given url ({url}) is invalid.");
         }
@@ -149,8 +147,8 @@ public abstract class Tool
         {
             _formatter.DisplayWarning(
                 toolName,
-                string.Format(_resources.GetString("Tool_UrlIsInvalid") 
-                    ?? _formatter.StringNotLoaded(), 
+                string.Format(_resources.GetLocalizedString(
+                    "Tool_UrlIsInvalid"), 
                     path));
             throw new ArgumentException($"Given path ({path}) is invalid.");
         }
@@ -165,16 +163,18 @@ public abstract class Tool
     protected bool UserConfirm()
     {
         _formatter.DisplayMessage(
-            _resources.GetString("FCli_Confirm"));
+            _resources.GetLocalizedString("FCli_Confirm"));
         var confirm = _formatter.ReadUserInput("(yes/any)");
         if (confirm != "yes")
         {
-            _formatter.DisplayMessage(_resources.GetString("FCli_Averted"));
+            _formatter.DisplayMessage(
+                _resources.GetLocalizedString("FCli_Averted"));
             return false;
         }
         else
         {
-            _formatter.DisplayMessage(_resources.GetString("FCli_Continued"));
+            _formatter.DisplayMessage(
+                _resources.GetLocalizedString("FCli_Continued"));
             return true;
         }
     }

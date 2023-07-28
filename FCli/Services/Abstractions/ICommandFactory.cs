@@ -2,7 +2,7 @@
 using FCli.Models;
 using FCli.Models.Types;
 
-namespace FCli.Services;
+namespace FCli.Services.Abstractions;
 
 /// <summary>
 /// Describes generic factory that constructs commands from templates.

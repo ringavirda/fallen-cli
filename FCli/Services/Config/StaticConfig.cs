@@ -1,5 +1,6 @@
 // FCli namespaces.
 using FCli.Models.Types;
+using FCli.Services.Abstractions;
 using FCli.Services.Format;
 
 namespace FCli.Services.Config;
@@ -20,7 +21,7 @@ public abstract class StaticConfig : IConfig
     public string LogsPath { get; private set; }
     public List<string> KnownLocales => new()
     {
-        "en", "ru", "uk"
+        "en", "en-US", "ru", "ru-RU", "uk", "uk-UA"
     };
     public List<IConfig.FormatterDescriptor> KnownFormatters => new() {
         new("inline", typeof(InlineFormatter)),
@@ -41,6 +42,7 @@ public abstract class StaticConfig : IConfig
         new("powershell", ShellType.Powershell, "ps1"),
         new("fish", ShellType.Fish, "fish")
     };
+    public string StringsResourceLocation => "FCli.Resources.Strings";
 
 #pragma warning disable 8618, 8604
     public StaticConfig()

@@ -1,12 +1,7 @@
-// Vendor namespaces.
-using System.Resources;
 // FCli namespaces.
 using FCli.Exceptions;
 using FCli.Models.Types;
-using FCli.Services;
-using FCli.Services.Config;
-using FCli.Services.Data;
-using FCli.Services.Format;
+using FCli.Services.Abstractions;
 using static FCli.Models.Args;
 
 namespace FCli.Models.Tools;
@@ -21,20 +16,19 @@ public class ChangeTool : Tool
 
     public ChangeTool(
         ICommandLineFormatter formatter,
-        ResourceManager manager,
-        ICommandLoader loader,
+        IResources resources,
+        IConfig config,
         IToolExecutor executor,
-        ICommandFactory factory,
-        IConfig config)
-        : base(formatter, manager)
+        ICommandLoader loader,
+        ICommandFactory factory)
+        : base(formatter, resources)
     {
         _loader = loader;
         _executor = executor;
         _factory = factory;
         _config = config;
 
-        Description = _resources.GetString("Change_Help")
-            ?? formatter.StringNotLoaded();
+        Description = resources.GetLocalizedString("Change_Help");
     }
 
     public override string Name => "Change";
@@ -58,8 +52,7 @@ public class ChangeTool : Tool
             if (arg == "")
             {
                 _formatter.DisplayError(Name, string.Format(
-                    _resources.GetString("FCli_ArgMissing")
-                    ?? _formatter.StringNotLoaded(),
+                    _resources.GetLocalizedString("FCli_ArgMissing"),
                     arg));
                 throw new ArgumentException("Tried to change nothing.");
             }
@@ -68,8 +61,7 @@ public class ChangeTool : Tool
             if (command == null)
             {
                 _formatter.DisplayError(Name, string.Format(
-                    _resources.GetString("FCli_UnknownName")
-                    ?? _formatter.StringNotLoaded(),
+                    _resources.GetLocalizedString("FCli_UnknownName"),
                     Name));
                 throw new CommandNameException(
                     "Name specified in Change tool was invalid.");
@@ -92,23 +84,20 @@ public class ChangeTool : Tool
                             .Any(tool => tool.Selectors.Contains(flag.Value)))
                     {
                         _formatter.DisplayError(Name, string.Format(
-                            _resources.GetString("FCli_NameExists")
-                            ?? _formatter.StringNotLoaded(),
+                            _resources.GetLocalizedString("FCli_NameExists"),
                             flag.Value));
                         throw new CommandNameException(
                             "Tried to create a command with existing name.");
                     }
                     _formatter.DisplayWarning(Name, string.Format(
-                        _resources.GetString("Change_NameWarning")
-                        ?? _formatter.StringNotLoaded(),
+                        _resources.GetLocalizedString("Change_NameWarning"),
                         command.Name, flag.Value));
                     name = flag.Value;
                 }
                 else if (flag.Key == "path")
                 {
                     _formatter.DisplayWarning(Name, string.Format(
-                        _resources.GetString("Change_PathWarning")
-                        ?? _formatter.StringNotLoaded(),
+                        _resources.GetLocalizedString("Change_PathWarning"),
                         command.Name, flag.Value));
                     path = flag.Value;
                 }
@@ -120,17 +109,16 @@ public class ChangeTool : Tool
                     if (commandDesc != null)
                     {
                         _formatter.DisplayWarning(Name, string.Format(
-                            _resources.GetString("Change_TypeWarning")
-                            ?? _formatter.StringNotLoaded(),
+                            _resources.GetLocalizedString("Change_TypeWarning"),
                             command.Name, commandDesc.Type));
                         type = commandDesc.Type;
                     }
                     else
                     {
                         _formatter.DisplayError(Name, string.Format(
-                            _resources.GetString("FCli_UnknownCommandType")
-                            ?? _formatter.StringNotLoaded(),
-                            flag.Value));
+                            _resources.GetLocalizedString(
+                                "FCli_UnknownCommandType"),
+                                flag.Value));
                         throw new FlagException(
                             "Unknown command type was specified in Change tool.");
                     }
@@ -143,16 +131,14 @@ public class ChangeTool : Tool
                     if (shellDesc != null)
                     {
                         _formatter.DisplayWarning(Name, string.Format(
-                            _resources.GetString("Change_ShellWarning")
-                            ?? _formatter.StringNotLoaded(),
+                            _resources.GetLocalizedString("Change_ShellWarning"),
                             command.Name, shellDesc.Type));
                         shell = shellDesc.Type;
                     }
                     else
                     {
                         _formatter.DisplayError(Name, string.Format(
-                            _resources.GetString("FCli_UnknownShell")
-                            ?? _formatter.StringNotLoaded(),
+                            _resources.GetLocalizedString("FCli_UnknownShell"),
                             flag.Value));
                         throw new FlagException(
                             "Unknown shell type was specified in Change tool.");
@@ -161,8 +147,7 @@ public class ChangeTool : Tool
                 else if (flag.Key == "options")
                 {
                     _formatter.DisplayWarning(Name, string.Format(
-                        _resources.GetString("Change_OptionsWarning")
-                        ?? _formatter.StringNotLoaded(),
+                        _resources.GetLocalizedString("Change_OptionsWarning"),
                         command.Name, flag.Value));
                     options = flag.Value;
                 }
@@ -173,29 +158,30 @@ public class ChangeTool : Tool
                 && shell == ShellType.None && options == "")
             {
                 _formatter.DisplayInfo(Name, 
-                    _resources.GetString("Change_NoChange"));
+                    _resources.GetLocalizedString("Change_NoChange"));
                 return;
             }
             // Display new command profile
             _formatter.DisplayInfo(Name, string.Format(
-                _resources.GetString("Change_NewCommandProfile")
-                ?? _formatter.StringNotLoaded(),
+                _resources.GetLocalizedString("Change_NewCommandProfile"),
                 command.Name, name == "" 
-                    ? _resources.GetString("Change_Same") : name,
+                    ? _resources.GetLocalizedString("Change_Same") : name,
                 command.Path, path == "" 
-                    ? _resources.GetString("Change_Same") : path,
+                    ? _resources.GetLocalizedString("Change_Same") : path,
                 command.Type, type == CommandType.None 
-                    ? _resources.GetString("Change_Same") : type,
+                    ? _resources.GetLocalizedString("Change_Same") : type,
                 command.Shell, shell == ShellType.None 
-                    ? _resources.GetString("Change_Same") : shell,
+                    ? _resources.GetLocalizedString("Change_Same") : shell,
                 command.Options, options == "" 
-                    ? _resources.GetString("Change_Same") : options
+                    ? _resources.GetLocalizedString("Change_Same") : options
             ));
             // Get user's confirmation.
-            _formatter.DisplayWarning(Name, _resources.GetString("Change_Warning"));
+            _formatter.DisplayWarning(Name, 
+                _resources.GetLocalizedString("Change_Warning"));
             if (!UserConfirm()) return;
             // Save new command.
-            _formatter.DisplayMessage(_resources.GetString("FCli_Saving"));
+            _formatter.DisplayMessage(
+                _resources.GetLocalizedString("FCli_Saving"));
             var newCommand = _factory.Construct(
                 name == "" ? command.Name : name,
                 path == "" ? command.Path : path,
@@ -206,8 +192,7 @@ public class ChangeTool : Tool
             _loader.DeleteCommand(command.Name);
             _loader.SaveCommand(newCommand);
             _formatter.DisplayInfo(Name, string.Format(
-                _resources.GetString("FCli_CommandSaved")
-                ?? _formatter.StringNotLoaded(),
+                _resources.GetLocalizedString("FCli_CommandSaved"),
                 newCommand.Name));
         };
 }

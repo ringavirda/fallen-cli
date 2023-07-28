@@ -1,12 +1,7 @@
-// Vendor namespaces.
-using System.Resources;
 // FCli namespaces.
 using FCli.Exceptions;
 using FCli.Models.Types;
-using FCli.Services;
-using FCli.Services.Config;
-using FCli.Services.Data;
-using FCli.Services.Format;
+using FCli.Services.Abstractions;
 using static FCli.Models.Args;
 
 namespace FCli.Models.Tools;
@@ -24,20 +19,19 @@ public class AddTool : Tool
 
     public AddTool(
         ICommandLineFormatter formatter,
-        ResourceManager manager,
+        IResources resources,
+        IConfig config,
         IToolExecutor toolExecutor,
-        ICommandFactory commandFactory,
         ICommandLoader commandLoader,
-        IConfig config)
-        : base(formatter, manager)
+        ICommandFactory commandFactory)
+        : base(formatter, resources)
     {
         _toolExecutor = toolExecutor;
         _commandFactory = commandFactory;
         _commandLoader = commandLoader;
         _config = config;
 
-        Description = _resources.GetString("Add_Help")
-            ?? formatter.StringNotLoaded();
+        Description = resources.GetLocalizedString("Add_Help");
     }
 
     public override string Name => "Add";
@@ -57,9 +51,9 @@ public class AddTool : Tool
             if (arg == string.Empty)
             {
                 _formatter.DisplayError(Name,
-                    string.Format(_resources.GetString("FCli_ArgMissing")
-                    ?? _formatter.StringNotLoaded(),
-                    Name));
+                    string.Format(_resources.GetLocalizedString(
+                        "FCli_ArgMissing"),
+                        Name));
                 throw new ArgumentException(
                     "Add tool was called without an argument.");
             }
@@ -70,9 +64,9 @@ public class AddTool : Tool
             {
                 _formatter.DisplayError(Name,
                     string.Format(
-                        _resources.GetString("FCli_MultipleTypeFlags")
-                        ?? _formatter.StringNotLoaded(),
-                        Name));
+                        _resources.GetLocalizedString(
+                            "FCli_MultipleTypeFlags"),
+                            Name));
                 throw new FlagException(
                     "Attempted to pass multiple command types flags into the Add tool.");
             }
@@ -114,11 +108,11 @@ public class AddTool : Tool
                         {
                             _formatter.DisplayWarning(Name,
                                 string.Format(
-                                    _resources.GetString("FCli_UnknownShell")
-                                    ?? _formatter.StringNotLoaded(),
-                                    string.Join(
-                                        ", ", 
-                                        _config.KnownShells.Select(sh => sh.Selector)))
+                                    _resources.GetLocalizedString(
+                                        "FCli_UnknownShell"),
+                                        string.Join(", ",
+                                            _config.KnownShells
+                                                .Select(sh => sh.Selector)))
                                 );
                             throw new ArgumentException(
                                 $"Wasn't able to determine shell type on ({arg}).");
@@ -201,7 +195,8 @@ public class AddTool : Tool
                                 else
                                 {
                                     _formatter.DisplayError(Name, 
-                                        _resources.GetString("Add_FileUnrecognized"));
+                                        _resources.GetLocalizedString(
+                                            "Add_FileUnrecognized"));
                                     throw new ArgumentException(
                                         $"Unknown file extension ({possibleExtension}).");
                                 }
@@ -213,7 +208,8 @@ public class AddTool : Tool
                 else
                 {
                     _formatter.DisplayError(Name,
-                        _resources.GetString("FCli_CommandNotDetermined"));
+                        _resources.GetLocalizedString(
+                            "FCli_CommandNotDetermined"));
                     throw new ArgumentException(
                         $"Command wasn't determined from ({arg}).");
                 }
@@ -224,8 +220,7 @@ public class AddTool : Tool
             {
                 _formatter.DisplayError(Name, 
                     string.Format(
-                        _resources.GetString("FCli_NameExists")
-                        ?? _formatter.StringNotLoaded(),
+                        _resources.GetLocalizedString("FCli_NameExists"),
                         name
                     ));
                 throw new CommandNameException($"Name {name} already exists.");
@@ -259,12 +254,11 @@ public class AddTool : Tool
             // Display parsed command.
             _formatter.DisplayInfo(Name, 
                 string.Format(
-                    _resources.GetString("Add_ParsedCommand")
-                    ?? _formatter.StringNotLoaded(),
+                    _resources.GetLocalizedString("Add_ParsedCommand"),
                     name, type, shell, arg, options
                 ));
             _formatter.DisplayMessage(
-                _resources.GetString("FCli_Saving"));
+                _resources.GetLocalizedString("FCli_Saving"));
             // Construct the command using parsed values.
             var command = _commandFactory.Construct(
                 name,
@@ -276,8 +270,7 @@ public class AddTool : Tool
             _commandLoader.SaveCommand(command);
             // Display confirmation.
             _formatter.DisplayInfo(Name, string.Format(
-                _resources.GetString("FCli_CommandSaved")
-                ?? _formatter.StringNotLoaded(),
+                _resources.GetLocalizedString("FCli_CommandSaved"),
                 name
             ));
         };
@@ -293,8 +286,7 @@ public class AddTool : Tool
     {
         _formatter.DisplayError(Name, 
             string.Format(
-                _resources.GetString(resourceString)
-                ?? _formatter.StringNotLoaded(),
+                _resources.GetLocalizedString(resourceString),
                 commandName
             ));
         throw new ArgumentException(
@@ -311,12 +303,11 @@ public class AddTool : Tool
     {
         _formatter.DisplayWarning(Name, 
             string.Format(
-                _resources.GetString(resourceString)
-                ?? _formatter.StringNotLoaded(),
+                _resources.GetLocalizedString(resourceString),
                 commandName
             ));
         _formatter.DisplayMessage(
-            _resources.GetString("Add_OSScript_Question"));
+            _resources.GetLocalizedString("Add_OSScript_Question"));
         return UserConfirm();
     }
 }

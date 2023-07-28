@@ -1,5 +1,7 @@
 // Vendor namespaces.
 using System.Text.Json;
+// FCli namespaces.
+using FCli.Services.Abstractions;
 
 namespace FCli.Services.Config;
 

@@ -134,7 +134,7 @@ Currently supports:
     Url
     Script
     Executable
-    Dirctory
+    Directory
 
 Usage:
     fcli &lt;tool?&gt; [params ...] [flags ...]
@@ -182,6 +182,9 @@ Usage:
     Global messages
 
   -->
+  <data name="FCli_MultipleArgs" xml:space="preserve">
+    <value>FCli accepts only [tool?] arg, but more then one arg was found.</value>
+  </data>
   <data name="FCli_CriticalError" xml:space="preserve">
     <value>Something went horribly wrong!
 [{0}]: {1}</value>
@@ -515,7 +518,7 @@ sequence - {1}</value>
   <data name="Change_Help" xml:space="preserve">
     <value>Change - enables altering of existing commands.
 Argument is always a command name and new values are provided using flags. To change group sequence use group tool.
-Attention!!! This tool will allow you to change types and names - that may break command execution or associated groups. Also it doesn't perform validation on path. Use this options with care.
+Attention!!! This tool will allow you to change types and names - that may break command execution or associated groups. Also it doesn't perform validation on path. Use these options with care.
 Flags:
       --name    - new command name.
       --path    - new path.
@@ -579,7 +582,7 @@ options:
   <value>The same.</value>
 </data>
 <data name="Change_Warning" xml:space="preserve">
-  <value>Command ready to be reconstructed and overrided.</value>
+  <value>Command ready to be reconstructed and overridden.</value>
 </data>
 
 </root>

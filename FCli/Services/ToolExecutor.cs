@@ -1,14 +1,11 @@
 ﻿// Vendor namespaces.
 using Microsoft.Extensions.Logging;
-using System.Resources;
 // FCli namespaces.
 using FCli.Models;
 using FCli.Models.Tools;
 using FCli.Models.Types;
 using FCli.Exceptions;
-using FCli.Services.Data;
-using FCli.Services.Format;
-using FCli.Services.Config;
+using FCli.Services.Abstractions;
 
 namespace FCli.Services;
 
@@ -21,26 +18,23 @@ public class ToolExecutor : IToolExecutor
     private readonly ILogger<ToolExecutor> _logger;
 
     public ToolExecutor(
-        ICommandLoader commandLoader,
+        ICommandLoader loader,
         ILogger<ToolExecutor> logger,
-        ICommandFactory commandFactory,
+        ICommandFactory factory,
         ICommandLineFormatter formatter,
         IConfig config,
-        ResourceManager manager)
+        IResources resources)
     {
         // Configure tools.
         Tools = new()
         {
-            new AddTool(formatter, manager, this, 
-                commandFactory, commandLoader, config),
-            new RemoveTool(formatter, manager, commandLoader),
-            new ListTool(formatter, manager, this, commandLoader, config),
-            new RunTool(formatter, manager, commandFactory, config),
-            new ConfigTool(formatter, manager, config),
-            new GroupTool(formatter, manager, commandLoader, 
-                this, commandFactory),
-            new ChangeTool(formatter, manager, commandLoader, 
-                this, commandFactory, config)
+            new AddTool(formatter, resources, config, this, loader, factory),
+            new RemoveTool(formatter, resources, loader),
+            new ListTool(formatter, resources, config, this, loader),
+            new RunTool(formatter, resources, config, factory),
+            new ConfigTool(formatter, resources, config),
+            new GroupTool(formatter, resources, this, loader, factory),
+            new ChangeTool(formatter, resources, config, this, loader, factory)
         };
 
         _logger = logger;

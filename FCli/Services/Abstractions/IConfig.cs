@@ -1,7 +1,7 @@
 // FCli namespaces.
 using FCli.Models.Types;
 
-namespace FCli.Services.Config;
+namespace FCli.Services.Abstractions;
 
 /// <summary>
 /// Abstraction for fcli configuration. Includes both static and dynamic configs.
@@ -68,7 +68,11 @@ public interface IConfig
     /// Value consists of Shell type and a specific shell file extension.
     /// </remarks>
     public List<ShellDescriptor> KnownShells { get; }
-
+    /// <summary>
+    /// Path to the Strings resource file.
+    /// </summary>
+    public string StringsResourceLocation { get; }
+    
     // Descriptors.
 
     public record FormatterDescriptor(

@@ -1,11 +1,7 @@
-// Vendor namespaces.
-using System.Resources;
 // FCli namespaces.
 using FCli.Exceptions;
 using FCli.Models.Types;
-using FCli.Services;
-using FCli.Services.Config;
-using FCli.Services.Format;
+using FCli.Services.Abstractions;
 using static FCli.Models.Args;
 
 namespace FCli.Models.Tools;
@@ -21,16 +17,15 @@ public class RunTool : Tool
 
     public RunTool(
         ICommandLineFormatter formatter,
-        ResourceManager manager,
-        ICommandFactory commandFactory,
-        IConfig config)
-        : base(formatter, manager)
+        IResources resources,
+        IConfig config,
+        ICommandFactory commandFactory)
+        : base(formatter, resources)
     {
         _factory = commandFactory;
         _config = config;
 
-        Description = _resources.GetString("Run_Help")
-            ?? formatter.StringNotLoaded();
+        Description = resources.GetLocalizedString("Run_Help");
     }
 
     public override string Name => "Run";
@@ -50,8 +45,7 @@ public class RunTool : Tool
             if (arg == string.Empty)
             {
                 _formatter.DisplayError(Name, string.Format(
-                    _resources.GetString("FCli_ArgMissing")
-                    ?? _formatter.StringNotLoaded(),
+                    _resources.GetLocalizedString("FCli_ArgMissing"),
                     Name));
                 throw new ArgumentException("Run no type flag was given.");
             }
@@ -61,8 +55,7 @@ public class RunTool : Tool
                 .Count() > 1)
             {
                 _formatter.DisplayError(Name, string.Format(
-                    _resources.GetString("FCli_MultipleTypeFlags")
-                    ?? _formatter.StringNotLoaded(),
+                    _resources.GetLocalizedString("FCli_MultipleTypeFlags"),
                     Name));
                 throw new FlagException(
                     "Attempted to pass multiple command types flags into the Run tool.");
@@ -99,11 +92,11 @@ public class RunTool : Tool
                         {
                             _formatter.DisplayError(Name,
                                 string.Format(
-                                    _resources.GetString("FCli_UnknownShell")
-                                    ?? _formatter.StringNotLoaded(),
-                                    string.Join(
-                                        ", ", 
-                                        _config.KnownShells.Select(sh => sh.Selector)))
+                                    _resources.GetLocalizedString(
+                                        "FCli_UnknownShell"),
+                                    string.Join(", ", 
+                                        _config.KnownShells
+                                            .Select(sh => sh.Selector)))
                                 );
                             throw new ArgumentException(
                                 $"Wasn't able to determine shell type on ({arg}).");
@@ -122,7 +115,7 @@ public class RunTool : Tool
             if (type == CommandType.None)
             {
                 _formatter.DisplayError(Name, 
-                    _resources.GetString("Run_UnknownCommand"));
+                    _resources.GetLocalizedString("Run_UnknownCommand"));
                 throw new ArgumentException("Run failed to parse given command");
             }
             var command = _factory.Construct(

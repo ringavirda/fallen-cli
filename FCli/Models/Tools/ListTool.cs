@@ -1,11 +1,6 @@
-// Vendor namespaces.
-using System.Resources;
 // FCli namespaces.
 using FCli.Models.Types;
-using FCli.Services;
-using FCli.Services.Config;
-using FCli.Services.Data;
-using FCli.Services.Format;
+using FCli.Services.Abstractions;
 using static FCli.Models.Args;
 
 namespace FCli.Models.Tools;
@@ -22,18 +17,17 @@ public class ListTool : Tool
 
     public ListTool(
         ICommandLineFormatter formatter,
-        ResourceManager manager,
+        IResources resources,
+        IConfig config,
         IToolExecutor toolExecutor,
-        ICommandLoader commandLoader,
-        IConfig config)
-        : base(formatter, manager)
+        ICommandLoader commandLoader)
+        : base(formatter, resources)
     {
         _executor = toolExecutor;
         _loader = commandLoader;
         _config = config;
 
-        Description = _resources.GetString("List_Help")
-            ?? formatter.StringNotLoaded();
+        Description = resources.GetLocalizedString("List_Help");
     }
 
     public override string Name => "List";
@@ -56,14 +50,14 @@ public class ListTool : Tool
             if (commands == null || !commands.Any())
             {
                 _formatter.DisplayInfo(Name,
-                    _resources.GetString("List_NoCommands"));
+                    _resources.GetLocalizedString("List_NoCommands"));
                 return;
             }
             // Display all commands if no flags are given.
             if (flags.Count == 0)
             {
                 _formatter.DisplayInfo(Name,
-                    _resources.GetString("List_ListAllCommands"));
+                    _resources.GetLocalizedString("List_ListAllCommands"));
                 DisplayCommands(commands, arg);
                 return;
             }
@@ -78,15 +72,14 @@ public class ListTool : Tool
                 if (commandDesc != null)
                 {
                     _formatter.DisplayInfo(Name, string.Format(
-                        _resources.GetString("List_ListCommands")
-                        ?? _formatter.StringNotLoaded(),
+                        _resources.GetLocalizedString("List_ListCommands"),
                         commandDesc.Selector));
                     var selected = commands.Where(c => c.Type == commandDesc.Type);
                     if (selected.Any())
                         DisplayCommands(selected, arg);
                     else _formatter.DisplayMessage(string.Format(
-                            _resources.GetString("List_NoCommandsSelected")
-                            ?? _formatter.StringNotLoaded(),
+                            _resources.GetLocalizedString(
+                                "List_NoCommandsSelected"),
                             commandDesc.Selector));
                 }
                 // List all known tools.
@@ -119,16 +112,15 @@ public class ListTool : Tool
                 else if (flag.Key == "groups")
                 {
                     _formatter.DisplayInfo(Name, string.Format(
-                        _resources.GetString("List_ListCommands")
-                        ?? _formatter.StringNotLoaded(),
+                        _resources.GetLocalizedString("List_ListCommands"),
                         CommandType.Group));
                     var selected = commands
                         .Where(command => command.Type == CommandType.Group);
                     if (selected.Any())
                         DisplayCommands(selected, arg);
                     else _formatter.DisplayMessage(string.Format(
-                            _resources.GetString("List_NoCommandsSelected")
-                            ?? _formatter.StringNotLoaded(),
+                            _resources.GetLocalizedString(
+                                "List_NoCommandsSelected"),
                             CommandType.Group));
                 }
                 // Throw if flag is unrecognized.
@@ -141,12 +133,11 @@ public class ListTool : Tool
     /// </summary>
     /// <param name="arg">Filter.</param>
     /// <param name="conf">String to print.</param>
-    private void DisplayString(string arg, string? conf)
+    private void DisplayString(string arg, string conf)
     {
         if (conf == string.Empty)
             _formatter.DisplayMessage(string.Format(
-                _resources.GetString("List_NothingFiltered")
-                ?? _formatter.StringNotLoaded(),
+                _resources.GetLocalizedString("List_NothingFiltered"),
                 arg));
         else _formatter.DisplayMessage(conf);
     }
@@ -165,8 +156,7 @@ public class ListTool : Tool
             if (!commands.Any())
             {
                 _formatter.DisplayMessage(string.Format(
-                    _resources.GetString("List_NothingFiltered")
-                    ?? _formatter.StringNotLoaded(),
+                    _resources.GetLocalizedString("List_NothingFiltered"),
                     filter));
                 return;
             }

@@ -1,12 +1,10 @@
 // Vendor namespaces.
 using Microsoft.Extensions.Logging;
-using System.Resources;
 // FCli namespaces.
 using FCli.Models;
 using FCli.Models.Types;
 using FCli.Exceptions;
-using FCli.Services;
-using FCli.Services.Format;
+using FCli.Services.Abstractions;
 
 namespace FCli;
 
@@ -19,24 +17,27 @@ namespace FCli;
 public class FallenCli
 {
     // DI.
+    private readonly ICommandLineFormatter _formatter;
+    private readonly IResources _resources;
+    private readonly ILogger<FallenCli> _logger;
+    private readonly IArgsParser _args;
     private readonly IToolExecutor _executor;
     private readonly ICommandFactory _factory;
-    private readonly ILogger<FallenCli> _logger;
-    private readonly ICommandLineFormatter _formatter;
-    private readonly ResourceManager _resources;
 
     public FallenCli(
-        IToolExecutor toolExecutor,
-        ICommandFactory commandFactory,
-        ILogger<FallenCli> logger,
         ICommandLineFormatter formatter,
-        ResourceManager resources)
+        IResources resources,
+        ILogger<FallenCli> logger,
+        IArgsParser args,
+        IToolExecutor toolExecutor,
+        ICommandFactory commandFactory)
     {
-        _executor = toolExecutor;
-        _factory = commandFactory;
-        _logger = logger;
         _formatter = formatter;
         _resources = resources;
+        _logger = logger;
+        _args = args;
+        _executor = toolExecutor;
+        _factory = commandFactory;
     }
 
     /// <summary>
@@ -47,7 +48,7 @@ public class FallenCli
         try
         {
             // Parse command line args into Args object.
-            var args = Args.Parse(cArgs);
+            var args = _args.ParseArgs(cArgs);
             // Handle no args.
             if (args == Args.None)
             {
@@ -83,8 +84,7 @@ public class FallenCli
                 }
                 catch (InvalidOperationException ex)
                 {
-                    _logger.LogWarning(
-                        ex,
+                    _logger.LogWarning(ex,
                         "User tried to invoke unsupported command.");
                     return;
                 }
@@ -100,11 +100,11 @@ public class FallenCli
             _formatter.DisplayError(
                 "FCli", 
                 string.Format(
-                    _resources.GetString("FCli_CriticalError")
-                    ?? _formatter.StringNotLoaded(),
+                    _resources.GetLocalizedString("FCli_CriticalError"),
                     ex.GetType().Name, ex.Message
                 ));
-            _logger.LogCritical(ex, "An unexpected or critical exception was thrown.");
+            _logger.LogCritical(ex, 
+                "An unexpected or critical exception was thrown.");
             return;
         }
     }

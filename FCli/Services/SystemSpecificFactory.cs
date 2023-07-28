@@ -1,13 +1,10 @@
 ﻿// Vendor namespaces.
 using System.Diagnostics;
-using System.Resources;
 // FCli namespaces.
 using FCli.Models;
 using FCli.Models.Types;
 using FCli.Exceptions;
-using FCli.Services.Data;
-using FCli.Services.Format;
-using System.Runtime.CompilerServices;
+using FCli.Services.Abstractions;
 
 namespace FCli.Services;
 
@@ -22,12 +19,12 @@ public class SystemSpecificFactory : ICommandFactory
     // DI.
     private readonly ICommandLoader _loader;
     private readonly ICommandLineFormatter _formatter;
-    private readonly ResourceManager _resources;
+    private readonly IResources _resources;
 
     public SystemSpecificFactory(
         ICommandLoader commandLoader,
         ICommandLineFormatter formatter,
-        ResourceManager resources)
+        IResources resources)
     {
         _loader = commandLoader;
         _formatter = formatter;
@@ -204,8 +201,7 @@ public class SystemSpecificFactory : ICommandFactory
         if (Environment.OSVersion.Platform == PlatformID.Unix)
         {
             _formatter.DisplayError("Command", string.Format(
-                _resources.GetString("Command_UnsupportedShell")
-                ?? _formatter.StringNotLoaded(),
+                _resources.GetLocalizedString("Command_UnsupportedShell"),
                 ShellType.Cmd, PlatformID.Unix));
             throw new InvalidOperationException(
                 $"Attempt to run a CMD script ({path}) on Linux.");
@@ -236,8 +232,7 @@ public class SystemSpecificFactory : ICommandFactory
         if (Environment.OSVersion.Platform == PlatformID.Unix)
         {
             _formatter.DisplayWarning("Command", string.Format(
-                _resources.GetString("Command_UnsupportedShellWarning")
-                ?? _formatter.StringNotLoaded(),
+                _resources.GetLocalizedString("Command_UnsupportedShellWarning"),
                 ShellType.Powershell, PlatformID.Unix));
             if (isDirectory)
                 RunAsDirectory("pwsh", path, string.Empty);
@@ -283,8 +278,7 @@ public class SystemSpecificFactory : ICommandFactory
         else
         {
             _formatter.DisplayWarning("Command", string.Format(
-                _resources.GetString("Command_UnsupportedShellWarning")
-                ?? _formatter.StringNotLoaded(),
+                _resources.GetLocalizedString("Command_UnsupportedShellWarning"),
                 ShellType.Bash, PlatformID.Win32NT));
             // Convert Windows path to WSL path.
             path = path.Replace(@"\", @"/");
@@ -318,8 +312,7 @@ public class SystemSpecificFactory : ICommandFactory
         if (Environment.OSVersion.Platform == PlatformID.Win32NT)
         {
             _formatter.DisplayError("Command", string.Format(
-                _resources.GetString("Command_UnsupportedShell")
-                ?? _formatter.StringNotLoaded(),
+                _resources.GetLocalizedString("Command_UnsupportedShell"),
                 ShellType.Fish, PlatformID.Win32NT));
             throw new InvalidOperationException(
                 $"Attempt to run a Fish script ({path}) on Windows.");
@@ -336,11 +329,11 @@ public class SystemSpecificFactory : ICommandFactory
     }
 
     /// <summary>
-    /// Runs given path a shell.
+    /// Runs given path as a shell directory.
     /// </summary>
-    /// <param name="shell"></param>
-    /// <param name="path"></param>
-    /// <param name="options"></param>
+    /// <param name="shell">Command line shell type.</param>
+    /// <param name="path">Path to the directory.</param>
+    /// <param name="options">Additional configs.</param>
     private static void RunAsDirectory(string shell, string path, string options)
     {
         Process.Start(new ProcessStartInfo()
@@ -350,5 +343,4 @@ public class SystemSpecificFactory : ICommandFactory
             Arguments = options,
         })?.WaitForExit();
     }
-
 }
