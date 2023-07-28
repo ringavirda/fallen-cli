@@ -53,7 +53,7 @@ public class PrettyFormatter : ICommandLineFormatter
     public void DisplayInfo(string? callerName, string? message)
     {
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.Write(
+        Console.WriteLine(
             $"[{callerName}] {_resources.GetLocalizedString("FCli_Info_Pretty")}: ");
         Console.ResetColor();
         Console.WriteLine(message);
@@ -67,7 +67,7 @@ public class PrettyFormatter : ICommandLineFormatter
     public void DisplayWarning(string? callerName, string? message)
     {
         Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.Write(
+        Console.WriteLine(
             $"[{callerName}] {_resources.GetLocalizedString("FCli_Warning_Pretty")}: ");
         Console.WriteLine(TabbedMessage(message));
         Console.ResetColor();
@@ -81,7 +81,7 @@ public class PrettyFormatter : ICommandLineFormatter
     public void DisplayError(string? callerName, string? message)
     {
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.Write(
+        Console.WriteLine(
             $"[{callerName}] {_resources.GetLocalizedString("FCli_Error_Pretty")}: ");
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine(TabbedMessage(message));

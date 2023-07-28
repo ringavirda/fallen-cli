@@ -101,7 +101,7 @@ public class GroupTool : Tool
                     group = _factory.ConstructGroup(group.Name, commands);
                     _loader.SaveCommand(group);
                     _formatter.DisplayInfo(Name, string.Format(
-                        _resources.GetLocalizedString("Group_Overridden"),
+                        _resources.GetLocalizedString("FCli_CommandSaved"),
                         group.Name));
 
                 }

@@ -49,7 +49,8 @@ public partial class ArgsParser : Args, IArgsParser
     public Args ParseArgs(string[] args)
     {
         // Logic of splitting the args is forwarded to separate method.
-        args = SplitArgs(args);
+        if (args.Length == 1)
+            args = SplitArgsOneLine(args);
         // Buffer is needed to control the parsing process.
         var buffer = args.ToList();
         // Guard against empty args.
@@ -105,7 +106,7 @@ public partial class ArgsParser : Args, IArgsParser
     /// </remarks>
     /// <param name="args">Command line args to split.</param>
     /// <returns>Command line args correctly split.</returns>
-    private static string[] SplitArgs(string[] args)
+    private static string[] SplitArgsOneLine(string[] args)
     {
         // Buffet for construction of the new args. 
         var newArgs = new List<string>();
