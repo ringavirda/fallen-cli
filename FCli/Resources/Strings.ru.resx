@@ -178,6 +178,24 @@
     Global messages
 
   -->
+  <data name="FCli_Info_Inline" xml:space="preserve">
+    <value>Инфо</value>
+  </data>
+  <data name="FCli_Info_Pretty" xml:space="preserve">
+    <value>Передаёт вам информацию</value>
+  </data>
+  <data name="FCli_Warning_Inline" xml:space="preserve">
+    <value>Внимание</value>
+  </data>
+  <data name="FCli_Warning_Pretty" xml:space="preserve">
+    <value>Предупреждает вас об этом</value>
+  </data>
+  <data name="FCli_Error_Inline" xml:space="preserve">
+    <value>Ошибка</value>
+  </data>
+  <data name="FCli_Error_Pretty" xml:space="preserve">
+    <value>Во время выполнения команды возникла ошибка</value>
+  </data>
   <data name="FCli_MultipleArgs" xml:space="preserve">
     <value>FCli принимает только [tool?] [arg], но было передано больше одного аргумента.</value>
   </data>
@@ -522,6 +540,9 @@ sequence - {1}</value>
       fcli change awesome --name newName --type script --shell bash
       fcli ch newName --type exe --path /new/path
     </value>
+  </data>
+  <data name="Change_ShowCommand" xml:space="preserve">
+    <value>Не обнаружено флагов, вывожу состояние ({0}):</value>
   </data>
   <data name="Change_NameWarning" xml:space="preserve">
     <value>Зафиксировано изменение имени для команды ({0}).

@@ -49,7 +49,8 @@ public class InlineFormatter : ICommandLineFormatter
     public void DisplayInfo(string? callerName, string? message)
     {
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.Write($"[{callerName}] Info: ");
+        Console.Write(
+            $"[{callerName}] {_resources.GetLocalizedString("FCli_Info_Inline")}: ");
         Console.ResetColor();
         Console.WriteLine(message);
     }
@@ -63,7 +64,8 @@ public class InlineFormatter : ICommandLineFormatter
     public void DisplayWarning(string? callerName, string? message)
     {
         Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.Write($"[{callerName}] Warn: ");
+        Console.Write(
+            $"[{callerName}] {_resources.GetLocalizedString("FCli_Warning_Inline")}: ");
         Console.ResetColor();
         Console.WriteLine(Inline(message));
     }
@@ -76,7 +78,8 @@ public class InlineFormatter : ICommandLineFormatter
     public void DisplayError(string? callerName, string? message)
     {
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.Write($"[{callerName}] Err: ");
+        Console.Write(
+            $"[{callerName}] {_resources.GetLocalizedString("FCli_Error_Inline")}: ");
         Console.ResetColor();
         Console.WriteLine(Inline(message));
     }

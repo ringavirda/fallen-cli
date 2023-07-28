@@ -66,6 +66,27 @@ public class ChangeTool : Tool
                 throw new CommandNameException(
                     "Name specified in Change tool was invalid.");
             }
+            // If no flags given display the state of the command.
+            if (!flags.Any())
+            {
+                _formatter.DisplayInfo(Name,
+                    _resources.GetLocalizedString("Change_ShowCommand"));
+                _formatter.DisplayMessage($"Name - {command.Name}");
+                _formatter.DisplayMessage($"Type - {command.Type}");
+                if (command.Type == CommandType.Group)
+                {
+                    _formatter.DisplayMessage("Sequence:");
+                    _formatter.DisplayMessage(
+                        $"\t{string.Join(' ', ((Group)command).Sequence)}");
+                }
+                else
+                {
+                    _formatter.DisplayMessage($"Path    - {command.Path}");
+                    _formatter.DisplayMessage($"Shell   - {command.Shell}");
+                    _formatter.DisplayMessage($"Options - {command.Options}");
+                }
+                return;
+            }
             // Forward declare.
             var name = string.Empty;
             var path = string.Empty;
@@ -153,30 +174,22 @@ public class ChangeTool : Tool
                 }
                 else UnknownFlag(flag, Name);
             }
-            // Guard against no change.
-            if (name == "" && path == "" && type == CommandType.None
-                && shell == ShellType.None && options == "")
-            {
-                _formatter.DisplayInfo(Name, 
-                    _resources.GetLocalizedString("Change_NoChange"));
-                return;
-            }
             // Display new command profile
             _formatter.DisplayInfo(Name, string.Format(
                 _resources.GetLocalizedString("Change_NewCommandProfile"),
-                command.Name, name == "" 
+                command.Name, name == ""
                     ? _resources.GetLocalizedString("Change_Same") : name,
-                command.Path, path == "" 
+                command.Path, path == ""
                     ? _resources.GetLocalizedString("Change_Same") : path,
-                command.Type, type == CommandType.None 
+                command.Type, type == CommandType.None
                     ? _resources.GetLocalizedString("Change_Same") : type,
-                command.Shell, shell == ShellType.None 
+                command.Shell, shell == ShellType.None
                     ? _resources.GetLocalizedString("Change_Same") : shell,
-                command.Options, options == "" 
+                command.Options, options == ""
                     ? _resources.GetLocalizedString("Change_Same") : options
             ));
             // Get user's confirmation.
-            _formatter.DisplayWarning(Name, 
+            _formatter.DisplayWarning(Name,
                 _resources.GetLocalizedString("Change_Warning"));
             if (!UserConfirm()) return;
             // Save new command.

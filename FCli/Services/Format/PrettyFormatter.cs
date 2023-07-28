@@ -53,7 +53,8 @@ public class PrettyFormatter : ICommandLineFormatter
     public void DisplayInfo(string? callerName, string? message)
     {
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine($"[{callerName}] Wants to inform you:");
+        Console.Write(
+            $"[{callerName}] {_resources.GetLocalizedString("FCli_Info_Pretty")}: ");
         Console.ResetColor();
         Console.WriteLine(message);
     }
@@ -66,7 +67,8 @@ public class PrettyFormatter : ICommandLineFormatter
     public void DisplayWarning(string? callerName, string? message)
     {
         Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine($"[{callerName}] Warns you about this:");
+        Console.Write(
+            $"[{callerName}] {_resources.GetLocalizedString("FCli_Warning_Pretty")}: ");
         Console.WriteLine(TabbedMessage(message));
         Console.ResetColor();
     }
@@ -79,7 +81,8 @@ public class PrettyFormatter : ICommandLineFormatter
     public void DisplayError(string? callerName, string? message)
     {
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine($"[{callerName}] An error occurred during execution:");
+        Console.Write(
+            $"[{callerName}] {_resources.GetLocalizedString("FCli_Error_Pretty")}: ");
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine(TabbedMessage(message));
         Console.ResetColor();
