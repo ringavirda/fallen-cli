@@ -271,7 +271,7 @@ public class SystemSpecificFactory : ICommandFactory
         {
             if (asDirectory)
                 RunAsDirectory("bash", path, string.Empty);
-            Process.Start("bash", path)
+            else Process.Start("bash", path)
                 .WaitForExit();
         }
         // Windows uses WSL if it is available to run bash script.
@@ -287,7 +287,7 @@ public class SystemSpecificFactory : ICommandFactory
             // Start bash process in WSL.
             if (asDirectory)
                 RunAsDirectory("powershell", path, "wsl");
-            Process.Start(new ProcessStartInfo()
+            else Process.Start(new ProcessStartInfo()
             {
                 FileName = "powershell.exe",
                 Arguments = $"wsl -e bash {path} {options}",
@@ -320,7 +320,7 @@ public class SystemSpecificFactory : ICommandFactory
         // Linux starts Fish process if it exists.
         if (asDirectory)
             RunAsDirectory("fish", path, string.Empty);
-        Process.Start(new ProcessStartInfo
+        else Process.Start(new ProcessStartInfo
         {
             FileName = "fish",
             Arguments = $"{path} {options}",
