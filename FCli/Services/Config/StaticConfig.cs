@@ -39,6 +39,7 @@ public abstract class StaticConfig : IConfig
         new ListTool( null, null, null, null),
         new RemoveTool(null, null, null),
         new RunTool(null, null, null, null),
+        new PrimesTool(null, null)
     };
 #pragma warning restore 8625
     public List<IConfig.CommandDescriptor> KnownCommands => new()

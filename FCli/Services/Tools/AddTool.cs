@@ -48,8 +48,8 @@ public class AddTool : ToolBase
         if (Arg == string.Empty)
         {
             _formatter.DisplayError(Name,
-                string.Format(_resources.GetLocalizedString(
-                    "FCli_ArgMissing"),
+                string.Format(
+                    _resources.GetLocalizedString("FCli_ArgMissing"),
                     Name));
             throw new ArgumentException(
                 "[Add] No argument was given.");
@@ -61,9 +61,8 @@ public class AddTool : ToolBase
         {
             _formatter.DisplayError(Name,
                 string.Format(
-                    _resources.GetLocalizedString(
-                        "FCli_MultipleTypeFlags"),
-                        Name));
+                    _resources.GetLocalizedString("FCli_MultipleTypeFlags"),
+                    Name));
             throw new FlagException(
                 "[Add] Attempted to pass multiple command types flags.");
         }
@@ -101,12 +100,9 @@ public class AddTool : ToolBase
                 {
                     _formatter.DisplayWarning(Name,
                         string.Format(
-                            _resources.GetLocalizedString(
-                                "FCli_UnknownShell"),
-                                string.Join(", ",
-                                    _config.KnownShells
-                                        .Select(sh => sh.Selector)))
-                        );
+                            _resources.GetLocalizedString("FCli_UnknownShell"),
+                            string.Join(", ", 
+                                _config.KnownShells.Select(sh => sh.Selector))));
                     throw new ArgumentException(
                         $"[Add] Wasn't able to determine shell type on ({Arg}).");
                 }
@@ -174,16 +170,16 @@ public class AddTool : ToolBase
                     {
                         // If top level command.
                         var commandDesc = _config.KnownCommands
-                            .Where(desc => desc.FileExtension == possibleExtension)
-                            .FirstOrDefault();
+                            .FirstOrDefault(
+                                desc => desc.FileExtension == possibleExtension);
                         if (commandDesc != null)
                             _creationRequest.Type = commandDesc.Type;
                         // If shell script.
                         else
                         {
                             var shellDesc = _config.KnownShells
-                                .Where(desc => desc.FileExtension == possibleExtension)
-                                .FirstOrDefault();
+                                .FirstOrDefault(
+                                    desc => desc.FileExtension == possibleExtension);
                             if (shellDesc != null)
                             {
                                 // Set script type.
@@ -195,8 +191,7 @@ public class AddTool : ToolBase
                             else
                             {
                                 _formatter.DisplayError(Name,
-                                    _resources.GetLocalizedString(
-                                        "Add_FileUnrecognized"));
+                                    _resources.GetLocalizedString("Add_FileUnrecognized"));
                                 throw new ArgumentException(
                                     $"[Add] Unknown file extension ({possibleExtension}).");
                             }
@@ -208,8 +203,7 @@ public class AddTool : ToolBase
             else
             {
                 _formatter.DisplayError(Name,
-                    _resources.GetLocalizedString(
-                        "FCli_CommandNotDetermined"));
+                    _resources.GetLocalizedString("FCli_CommandNotDetermined"));
                 throw new ArgumentException(
                     $"[Add] Command wasn't determined from ({Arg}).");
             }
@@ -279,8 +273,7 @@ public class AddTool : ToolBase
         // Display confirmation.
         _formatter.DisplayInfo(Name, string.Format(
             _resources.GetLocalizedString("FCli_CommandSaved"),
-            _creationRequest.Name
-        ));
+            _creationRequest.Name));
     }
 
     // Private methods.

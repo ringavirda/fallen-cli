@@ -12,5 +12,6 @@ public enum ToolType
     Run,
     Config,
     Group,
-    Change
+    Change,
+    Primes
 }

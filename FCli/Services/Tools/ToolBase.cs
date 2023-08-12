@@ -53,16 +53,17 @@ public abstract class ToolBase : ITool
         // Init props.
         Arg = arg;
         Flags = flags.ToList();
-
-        // Perform general validation and initialization.
-        GuardInit();
-
+        
         // Handle --help flag.
         if (flags.Any(flag => flag.Key == "help"))
         {
             _formatter.DisplayMessage(Description);
             return;
         }
+
+        // Perform general validation and initialization.
+        GuardInit();
+
         
         // Process flags.
         foreach (var flag in Flags)

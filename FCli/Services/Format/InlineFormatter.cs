@@ -30,7 +30,7 @@ public class InlineFormatter : ICommandLineFormatter
     /// <summary>
     /// Loads full help page for the entire fallen-cli from the resources.
     /// </summary>
-    public void EchoHelp() 
+    public void EchoHelp()
         => DisplayMessage(_resources.GetLocalizedString("Full_Help"));
 
     /// <summary>
@@ -95,6 +95,33 @@ public class InlineFormatter : ICommandLineFormatter
         return Console.ReadLine();
     }
 
+    public Task DrawProgressAsync(CancellationToken cancellationToken)
+        => new Task(async () =>
+        {
+            Console.CursorVisible = false;
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            while (true)
+            {
+                try
+                {
+                    for (int i = 1; i <= 3; i++)
+                    {
+                        Console.Write("\r"
+                            + _resources.GetLocalizedString("FCli_Progress_Inline"));
+                        Console.Write(string.Join("", Enumerable.Repeat('.', i)));
+                        await Task.Delay(400, cancellationToken);
+                    }
+                }
+                catch (TaskCanceledException)
+                {
+                    Console.WriteLine(
+                            "\r" + string.Join(" ", Enumerable.Repeat("    ", 10)));
+                    Console.ResetColor();
+                    Console.CursorVisible = true;
+                    return;
+                }
+            }
+        }, cancellationToken);
     /// <summary>
     /// Reformats message as a single line
     /// </summary>

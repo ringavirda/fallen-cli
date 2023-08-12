@@ -200,6 +200,12 @@ Usage:
   <data name="FCli_Error_Pretty" xml:space="preserve">
     <value>An error occurred during execution</value>
   </data>
+  <data name="FCli_Progress_Inline" xml:space="preserve">
+    <value>Executing</value>
+  </data>
+  <data name="FCli_Progress_Pretty" xml:space="preserve">
+    <value>Operation in progress: </value>
+  </data>
   <data name="FCli_MultipleArgs" xml:space="preserve">
     <value>FCli accepts only [tool?] arg, but more then one arg was found.</value>
   </data>
@@ -225,6 +231,9 @@ Supported shells: {0}.</value>
   </data>
   <data name="FCli_Averted" xml:space="preserve">
     <value>Operation averted.</value>
+  </data>
+  <data name="FCli_Cancelled" xml:space="preserve">
+    <value>Operation cancelled.</value>
   </data>
   <data name="FCli_Continued" xml:space="preserve">
     <value>Operation continued...</value>
@@ -598,12 +607,52 @@ shell:
 options:
     old:{8}
     new:{9}</value>
-</data>
-<data name="Change_Same" xml:space="preserve">
-  <value>The same.</value>
-</data>
-<data name="Change_Warning" xml:space="preserve">
-  <value>Command ready to be reconstructed and overridden.</value>
-</data>
+  </data>
+  <data name="Change_Same" xml:space="preserve">
+    <value>The same.</value>
+  </data>
+  <data name="Change_Warning" xml:space="preserve">
+    <value>Command ready to be reconstructed and overridden.</value>
+  </data>
+  <!--
 
+  Primes tool strings.
+
+  -->
+  <data name="Primes_Help" xml:space="preserve">
+    <value>This tool uses simple sieve algorithm to count all primes up to specified number. 
+Search limit is provided via argument.
+Can use parallelization.
+Flags:
+      --time              - prints elapsed time with the result.
+      --parallel [number] - sets limit for the amount of threads.
+      --no-parallel       - synchronous execution.
+Usage:
+      fcli prime 1000000 --time
+      fcli pr 1000000 --parallel 6
+</value>
+  </data>
+  <data name="Primes_NonNumberArg" xml:space="preserve">
+    <value>Primes tool accepts an integer value as an argument.
+This value sets the prime search limit.</value>
+  </data>
+  <data name="Primes_NoParallelValue" xml:space="preserve">
+    <value>Parallel flag should have numeric value stating the number of threads to use.</value>
+  </data>
+  <data name="Primes_InvalidSize" xml:space="preserve">
+    <value>Argument should be grater than 5.</value>
+  </data>
+  <data name="Primes_InvalidParallel" xml:space="preserve">
+    <value>Parallel flag value should be grater than 1.</value>
+  </data>
+  <data name="FCli_Starting" xml:space="preserve">
+    <value>Sieve is starting. Press [q] to cancel it.</value>
+  </data>
+  <data name="FCli_Results" xml:space="preserve">
+    <value>Found [{0}] primes under the limit: {1}</value>
+  </data>
+  <data name="Primes_TimeElapsed" xml:space="preserve">
+    <value>Elapsed time: {0}</value>
+  </data>
+  
 </root>

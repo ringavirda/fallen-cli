@@ -85,4 +85,6 @@ public interface ICommandLineFormatter
     /// <param name="preface">The string that is put before user input.</param>
     /// <returns>User input.</returns>
     public string? ReadUserInput(string? preface);
+    
+    public Task DrawProgressAsync(CancellationToken cancellationToken);
 }

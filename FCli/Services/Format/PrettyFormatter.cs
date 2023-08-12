@@ -100,6 +100,41 @@ public class PrettyFormatter : ICommandLineFormatter
         return Console.ReadLine();
     }
 
+    public Task DrawProgressAsync(CancellationToken cancellationToken) => 
+        new Task(async () =>
+        {
+            Console.CursorVisible = false;
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            while (true)
+            {
+                for (int i = 1; i <= 10; i++)
+                {
+                    try
+                    {
+                        Console.Write("\r"
+                            + _resources.GetLocalizedString("FCli_Progress_Pretty"));
+                        Console.Write(string.Join("", Enumerable.Repeat("#", i)));
+                        Console.Write(">");
+                        await Task.Delay(200, cancellationToken);
+                        if (i == 10)
+                        {
+                            Console.Write(
+                                "\r" 
+                                + string.Join(" ", Enumerable.Repeat("    ", 10)));
+                        }
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        Console.WriteLine(
+                            "\r" + string.Join(" ", Enumerable.Repeat("    ", 10)));
+                        Console.ResetColor();
+                        Console.CursorVisible = true;
+                        return;
+                    }
+                }
+            }
+        }, cancellationToken);
+
     /// <summary>
     /// Adds tabs before each line of the string.
     /// </summary>

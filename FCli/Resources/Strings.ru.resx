@@ -196,6 +196,12 @@
   <data name="FCli_Error_Pretty" xml:space="preserve">
     <value>Во время выполнения команды возникла ошибка</value>
   </data>
+  <data name="FCli_Progress_Inline" xml:space="preserve">
+    <value>Выполняется</value>
+  </data>
+  <data name="FCli_Progress_Pretty" xml:space="preserve">
+    <value>Операция в прогрессе: </value>
+  </data>
   <data name="FCli_MultipleArgs" xml:space="preserve">
     <value>FCli принимает только [tool?] [arg], но было передано больше одного аргумента.</value>
   </data>
@@ -221,6 +227,9 @@
   </data>
   <data name="FCli_Averted" xml:space="preserve">
     <value>Операция предотвращена.</value>
+  </data>
+  <data name="FCli_Cancelled" xml:space="preserve">
+    <value>Операция отменена.</value>
   </data>
   <data name="FCli_Continued" xml:space="preserve">
     <value>Операция продолжается...</value>
@@ -596,6 +605,46 @@ options:
   </data>
   <data name="Change_Warning" xml:space="preserve">
     <value>Команда готова для реконструирования и перезаписи.</value>
+  </data>
+  <!--
+
+  Primes tool strings.
+
+  -->
+  <data name="Primes_Help" xml:space="preserve">
+    <value>Этот инструмент использует простой алгоритм просеивания для того, чтобы выяснить количество простых чисел до заданного значения. 
+Передел поиска задаётся через аргумент.
+Поддерживает параллелизацию.
+Флаги:
+      --time              - выводит потраченное время вместе с результатом.
+      --parallel [number] - устанавливает ограничение использования потоков.
+      --no-parallel       - выполняет просеивание синхронно.
+Использование:
+      fcli prime 1000000 --time
+      fcli pr 1000000 --parallel 6
+</value>
+  </data>
+  <data name="Primes_NonNumberArg" xml:space="preserve">
+    <value>Инструмент Primes может принимать только целое число в качестве аргумента.
+Это число задаёт границу поиска простых чисел.</value>
+  </data>
+  <data name="Primes_NoParallelValue" xml:space="preserve">
+    <value>Флаг --parallel должен указывать числом количество потоков, которое необходимо использовать.</value>
+  </data>
+  <data name="Primes_InvalidSize" xml:space="preserve">
+    <value>Аргумент должен иметь значение большее 5.</value>
+  </data>
+  <data name="Primes_InvalidParallel" xml:space="preserve">
+    <value>Флаг --parallel должен иметь значение большее 1.</value>
+  </data>
+  <data name="FCli_Starting" xml:space="preserve">
+    <value>Просеивание начинается. Нажмите [q] чтобы отменить его.</value>
+  </data>
+  <data name="FCli_Results" xml:space="preserve">
+    <value>Найдено [{0}] простых чисел до границы: {1}</value>
+  </data>
+  <data name="Primes_TimeElapsed" xml:space="preserve">
+    <value>Затрачено времени: {0}</value>
   </data>
 
 </root>
