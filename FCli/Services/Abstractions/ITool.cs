@@ -3,6 +3,9 @@ using static FCli.Models.Args;
 
 namespace FCli.Services.Abstractions;
 
+/// <summary>
+/// Represents a command line tool.
+/// </summary>
 public interface ITool : IToolDescriptor
 {
     /// <summary>

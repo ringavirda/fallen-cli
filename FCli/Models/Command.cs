@@ -1,7 +1,7 @@
 ﻿// Vendor namespaces.
 using System.Text.Json.Serialization;
-using FCli.Models.Dtos;
 // FCli namespaces.
+using FCli.Models.Dtos;
 using FCli.Models.Types;
 
 namespace FCli.Models;

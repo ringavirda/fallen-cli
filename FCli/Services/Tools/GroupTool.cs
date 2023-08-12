@@ -49,7 +49,7 @@ public class GroupTool : ToolBase
             _formatter.DisplayError(Name, string.Format(
                 _resources.GetLocalizedString("FCli_ArgMissing"),
                 Name));
-            throw new ArgumentException("Config attempt to call with arg");
+            throw new ArgumentException("[Group] No arg was given.");
         }
         if (Flags.Any(flag => flag.Key == "yes"))
             _skipConfirm = true;
@@ -57,7 +57,7 @@ public class GroupTool : ToolBase
 
     protected override void ProcessNextFlag(Flag flag)
     {
-        // Main creation case.
+        // Create new group.
         if (flag.Key == "name")
         {
             FlagHasValue(flag, Name);
@@ -79,7 +79,7 @@ public class GroupTool : ToolBase
                 _resources.GetLocalizedString("FCli_CommandSaved"),
                 group.Name));
         }
-        // Changes a group.
+        // Change given group.
         else if (flag.Key == "override")
         {
             FlagHasValue(flag, Name);
@@ -103,7 +103,7 @@ public class GroupTool : ToolBase
                 group.Name));
 
         }
-        // Deletes existing group.
+        // Delete existing group.
         else if (flag.Key == "remove")
         {
             FlagHasNoValue(flag, Name);
@@ -139,7 +139,7 @@ public class GroupTool : ToolBase
                 {
                     _formatter.DisplayError(Name,
                         _resources.GetLocalizedString("Group_NotAGroup"));
-                    throw new ArgumentException($"({Arg}) wasn't a group.");
+                    throw new ArgumentException($"[Group] ({Arg}) wasn't a group.");
                 }
                 // Get user confirmation or skip.
                 if (!_skipConfirm && !UserConfirm())
@@ -151,6 +151,7 @@ public class GroupTool : ToolBase
                     group.Name));
             }
         }
+        // Throw if flag is unrecognized.
         else UnknownFlag(flag, Name);
     }
 
@@ -176,7 +177,7 @@ public class GroupTool : ToolBase
                 _resources.GetLocalizedString("FCli_UnknownName"),
                 name));
             throw new CommandNameException(
-                "Tried to override an unknown group.");
+                "[Group] Tried to override an unknown group.");
         }
         return group;
     }
@@ -195,7 +196,7 @@ public class GroupTool : ToolBase
                 _resources.GetLocalizedString("FCli_NameExists"),
                 name));
             throw new CommandNameException(
-                "Tried to create a group with existing name.");
+                "[Group] Tried to create a group with existing name.");
         }
     }
 
@@ -216,7 +217,7 @@ public class GroupTool : ToolBase
                     _resources.GetLocalizedString("FCli_UnknownName"),
                     name));
                 throw new CommandNameException(
-                    "Tried to create a group with an unknown command.");
+                    "[Group] Tried to create a group with an unknown command.");
             }
         }
         return commands.ToList();

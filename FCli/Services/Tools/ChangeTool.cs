@@ -11,9 +11,9 @@ namespace FCli.Services.Tools;
 public class ChangeTool : ToolBase
 {
     // DI.
-    private readonly ICommandLoader _loader;
-    private readonly ICommandFactory _factory;
     private readonly IConfig _config;
+    private readonly ICommandFactory _factory;
+    private readonly ICommandLoader _loader;
 
     public ChangeTool(
         ICommandLineFormatter formatter,
@@ -49,7 +49,7 @@ public class ChangeTool : ToolBase
             _formatter.DisplayError(Name, string.Format(
                 _resources.GetLocalizedString("FCli_ArgMissing"),
                 Arg));
-            throw new ArgumentException("Tried to change nothing.");
+            throw new ArgumentException("[Change] Tried to change nothing.");
         }
         // Guard against invalid command name.
         var command = _loader.LoadCommand(Arg);
@@ -59,7 +59,7 @@ public class ChangeTool : ToolBase
                 _resources.GetLocalizedString("FCli_UnknownName"),
                 Name));
             throw new CommandNameException(
-                "Name specified in Change tool was invalid.");
+                "[Change] Name was invalid.");
         }
         // Init command and request if valid.
         _command = command;
@@ -70,9 +70,11 @@ public class ChangeTool : ToolBase
     {
         // All change flags have values.
         FlagHasValue(flag, Name);
-
+        
+        // Change command name.
         if (flag.Key == "name")
         {
+            // Guard against known name.
             if (_loader.CommandExists(flag.Value)
                 || _config.KnownTools
                     .Any(tool => tool.Selectors.Contains(flag.Value)))
@@ -81,13 +83,14 @@ public class ChangeTool : ToolBase
                     _resources.GetLocalizedString("FCli_NameExists"),
                     flag.Value));
                 throw new CommandNameException(
-                    "Tried to create a command with existing name.");
+                    "[Change] Tried to create a command with existing name.");
             }
             _formatter.DisplayWarning(Name, string.Format(
                 _resources.GetLocalizedString("Change_NameWarning"),
                 _command.Name, flag.Value));
             _changeRequest.Name = flag.Value;
         }
+        // Change command arg.
         else if (flag.Key == "path")
         {
             _formatter.DisplayWarning(Name, string.Format(
@@ -95,6 +98,7 @@ public class ChangeTool : ToolBase
                 _command.Name, flag.Value));
             _changeRequest.Path = flag.Value;
         }
+        // Change command type.
         else if (flag.Key == "type")
         {
             var commandDesc = _config.KnownCommands
@@ -114,9 +118,10 @@ public class ChangeTool : ToolBase
                         "FCli_UnknownCommandType"),
                         flag.Value));
                 throw new FlagException(
-                    "Unknown command type was specified in Change tool.");
+                    "[Change] Unknown command type was specified.");
             }
         }
+        // Change command shell.
         else if (flag.Key == "shell")
         {
             var shellDesc = _config.KnownShells
@@ -135,9 +140,10 @@ public class ChangeTool : ToolBase
                     _resources.GetLocalizedString("FCli_UnknownShell"),
                     flag.Value));
                 throw new FlagException(
-                    "Unknown shell type was specified in Change tool.");
+                    "[Change] Unknown shell type was specified.");
             }
         }
+        // Change command options.
         else if (flag.Key == "options")
         {
             _formatter.DisplayWarning(Name, string.Format(
@@ -145,6 +151,7 @@ public class ChangeTool : ToolBase
                 _command.Name, flag.Value));
             _changeRequest.Options = flag.Value;
         }
+        // Throw if flag is unrecognized.
         else UnknownFlag(flag, Name);
     }
 

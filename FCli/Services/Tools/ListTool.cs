@@ -29,7 +29,7 @@ public class ListTool : ToolBase
     }
 
     //Private data.
-    private List<Command> _commands = null!;
+    private List<Command>? _commands = null!;
 
     // Overrides
 
@@ -47,7 +47,6 @@ public class ListTool : ToolBase
         {
             _formatter.DisplayInfo(Name,
                 _resources.GetLocalizedString("List_NoCommands"));
-            return;
         }
         // Init private field.
         _commands = commands;
@@ -55,6 +54,8 @@ public class ListTool : ToolBase
 
     protected override void ProcessNextFlag(Flag flag)
     {
+        // Skip if no commands loaded.
+        if (_commands == null) return;
         // No List flags have values.
         FlagHasNoValue(flag, Name);
 
@@ -125,6 +126,8 @@ public class ListTool : ToolBase
 
     protected override void Action()
     {
+        // Skip if no commands loaded.
+        if (_commands == null) return;
         // Display all commands if no flags were given.
         if (Flags.Count == 0)
         {

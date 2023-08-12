@@ -84,7 +84,7 @@ public partial class ArgsParser : Args, IArgsParser
                 _formatter.DisplayWarning(nameof(Args),
                     _resources.GetLocalizedString("FCli_MultipleArgs"));
                 throw new ArgumentException(
-                    $"Incorrect ({buffer.Count}) amount of args was given.");
+                    $"[Arg] Incorrect ({buffer.Count}) amount of args was given.");
             }
             // Construct and return Args from this object.
             Selector = buffer.Count >= 1 ? buffer[0] : string.Empty;

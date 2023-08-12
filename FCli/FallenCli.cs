@@ -79,13 +79,13 @@ public class FallenCli
                     // Guard against what should never happen.
                     if (command.Action == null)
                         throw new CriticalException(
-                            "Command wasn't constructed properly!");
+                            "[FCli] Command wasn't constructed properly!");
                     else command.Action();
                 }
                 catch (InvalidOperationException ex)
                 {
                     _logger.LogWarning(ex,
-                        "User tried to invoke unsupported command.");
+                        "[FCli] User tried to invoke unsupported command.");
                     return;
                 }
             }
@@ -104,7 +104,7 @@ public class FallenCli
                     ex.GetType().Name, ex.Message
                 ));
             _logger.LogCritical(ex, 
-                "An unexpected or critical exception was thrown.");
+                "[FCli] An unexpected or critical exception was thrown.");
             return;
         }
     }

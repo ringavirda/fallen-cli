@@ -44,6 +44,6 @@ public class StringResources : IResources
             Text wasn't loaded!
             This may be due to your locale ({CultureInfo.CurrentUICulture.Name}).
             """);
-        throw new ResourceNotLoadedException("Resources are missing.");
+        throw new ResourceNotLoadedException("[Resources] Wasn't able to load.");
     }
 }

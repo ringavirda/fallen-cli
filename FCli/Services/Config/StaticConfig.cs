@@ -129,6 +129,7 @@ public abstract class StaticConfig : IConfig
     }
 
     // Pass down the hierarchy.
+    
     public abstract string Locale { get; protected set; }
     public abstract IConfig.FormatterDescriptor Formatter { get; protected set; }
 

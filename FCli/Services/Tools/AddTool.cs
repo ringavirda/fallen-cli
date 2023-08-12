@@ -13,9 +13,9 @@ namespace FCli.Services.Tools;
 public class AddTool : ToolBase
 {
     // DI.
-    private readonly ICommandFactory _commandFactory;
-    private readonly ICommandLoader _commandLoader;
     private readonly IConfig _config;
+    private readonly ICommandLoader _commandLoader;
+    private readonly ICommandFactory _commandFactory;
 
     public AddTool(
         ICommandLineFormatter formatter,
@@ -52,7 +52,7 @@ public class AddTool : ToolBase
                     "FCli_ArgMissing"),
                     Name));
             throw new ArgumentException(
-                "Add tool was called without an argument.");
+                "[Add] No argument was given.");
         }
         // Guard against multiple type flags.
         if (Flags.Select(f => f.Key)
@@ -65,7 +65,7 @@ public class AddTool : ToolBase
                         "FCli_MultipleTypeFlags"),
                         Name));
             throw new FlagException(
-                "Attempted to pass multiple command types flags into the Add tool.");
+                "[Add] Attempted to pass multiple command types flags.");
         }
     }
 
@@ -108,7 +108,7 @@ public class AddTool : ToolBase
                                         .Select(sh => sh.Selector)))
                         );
                     throw new ArgumentException(
-                        $"Wasn't able to determine shell type on ({Arg}).");
+                        $"[Add] Wasn't able to determine shell type on ({Arg}).");
                 }
             }
             // Guard against shell execution.
@@ -129,7 +129,7 @@ public class AddTool : ToolBase
     protected override void Action()
     {
         // Attempt set name or type if those weren't specified.
-        if (_creationRequest.Name == string.Empty 
+        if (_creationRequest.Name == string.Empty
             || _creationRequest.Type == CommandType.None)
         {
             // If arg is a hyperlink.
@@ -140,8 +140,8 @@ public class AddTool : ToolBase
                 // Set command name equal website name.
                 var host = uri.Host.Split('.');
                 if (_creationRequest.Name == string.Empty)
-                    _creationRequest.Name = host.First() == "www" 
-                        ? host[1] 
+                    _creationRequest.Name = host.First() == "www"
+                        ? host[1]
                         : host[0];
                 // Set website type.
                 if (_creationRequest.Type == CommandType.None)
@@ -198,7 +198,7 @@ public class AddTool : ToolBase
                                     _resources.GetLocalizedString(
                                         "Add_FileUnrecognized"));
                                 throw new ArgumentException(
-                                    $"Unknown file extension ({possibleExtension}).");
+                                    $"[Add] Unknown file extension ({possibleExtension}).");
                             }
                         }
                     }
@@ -211,7 +211,7 @@ public class AddTool : ToolBase
                     _resources.GetLocalizedString(
                         "FCli_CommandNotDetermined"));
                 throw new ArgumentException(
-                    $"Command wasn't determined from ({Arg}).");
+                    $"[Add] Command wasn't determined from ({Arg}).");
             }
         }
         // Guard against name duplication.
@@ -225,7 +225,7 @@ public class AddTool : ToolBase
                     _creationRequest.Name
                 ));
             throw new CommandNameException(
-                $"Name {_creationRequest.Name} already exists.");
+                $"[Add] Name {_creationRequest.Name} already exists.");
         }
         // Guard against Linux shells on windows.
         if (_creationRequest.Shell == ShellType.Bash
@@ -300,7 +300,7 @@ public class AddTool : ToolBase
                 commandName
             ));
         throw new ArgumentException(
-            $"Attempted creation of a {scriptType} command on {osName}.");
+            $"[Add] Attempted the creation of a {scriptType} command on {osName}.");
     }
 
     /// <summary>

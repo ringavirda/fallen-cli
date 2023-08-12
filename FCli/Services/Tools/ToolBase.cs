@@ -28,7 +28,7 @@ public abstract class ToolBase : ITool
 
     // From ITool interface.
 
-    // Pass abstractions down.
+    // Pass abstractions down the hierarchy.
     public abstract string Name { get; }
     public abstract string Description { get; }
     public abstract List<string> Selectors { get; }
@@ -54,7 +54,7 @@ public abstract class ToolBase : ITool
         Arg = arg;
         Flags = flags.ToList();
 
-        // Perform general validation.
+        // Perform general validation and initialization.
         GuardInit();
 
         // Handle --help flag.
@@ -77,6 +77,9 @@ public abstract class ToolBase : ITool
     /// <summary>
     /// Performs necessary general validation over received arg and flags.
     /// </summary>
+    /// <remarks>
+    /// Can initialize some private values.
+    /// </remarks>
     protected abstract void GuardInit();
     
     /// <summary>
@@ -106,7 +109,8 @@ public abstract class ToolBase : ITool
                 string.Format(_resources.GetLocalizedString(
                     "Tool_FlagShouldNotHaveValue"), 
                     flag.Key, toolName));
-            throw new FlagException($"--{flag.Key} - cannot have value.");
+            throw new FlagException(
+                $"[{toolName}] --{flag.Key} - cannot have value.");
         }
     }
 
@@ -124,7 +128,8 @@ public abstract class ToolBase : ITool
                 string.Format(_resources.GetLocalizedString(
                     "Tool_FlagShouldHaveValue"),
                     flag.Key, toolName));
-            throw new FlagException($"--{flag.Key} - should have value.");
+            throw new FlagException(
+                $"[{toolName}] --{flag.Key} - should have value.");
         }
     }
 
@@ -142,7 +147,7 @@ public abstract class ToolBase : ITool
                     "Tool_FlagIsUnknown"), 
                     flag.Key, toolName, toolName));
         throw new FlagException(
-             $"--{flag.Key} - is not a valid flag for {toolName} tool.");
+             $"[{toolName}] --{flag.Key} - is not a valid flag.");
     }
 
     /// <summary>
@@ -169,7 +174,8 @@ public abstract class ToolBase : ITool
                 string.Format(_resources.GetLocalizedString(
                     "Tool_UrlIsInvalid"),
                     url));
-            throw new ArgumentException($"Given url ({url}) is invalid.");
+            throw new ArgumentException(
+                $"[{toolName}] Given url ({url}) is invalid.");
         }
         // Return constructed URI.
         return uri;
@@ -191,7 +197,8 @@ public abstract class ToolBase : ITool
                 string.Format(_resources.GetLocalizedString(
                     "Tool_UrlIsInvalid"), 
                     path));
-            throw new ArgumentException($"Given path ({path}) is invalid.");
+            throw new ArgumentException(
+                $"[{toolName}] Given path ({path}) is invalid.");
         }
         // Return path converting to full.
         return Path.GetFullPath(path);

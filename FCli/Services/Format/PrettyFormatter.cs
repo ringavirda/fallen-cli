@@ -1,5 +1,4 @@
 ﻿// Vendor namespaces.
-using System.Reflection.Metadata.Ecma335;
 using System.Text;
 // FCli namespaces.
 using FCli.Services.Abstractions;

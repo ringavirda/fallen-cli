@@ -32,17 +32,18 @@ public class ConfigTool : ToolBase
     protected override void GuardInit()
     {
         // Guard against arg.
-        if (Arg != "")
+        if (Arg != string.Empty)
         {
             _formatter.DisplayError(Name, string.Format(
                 _resources.GetLocalizedString("FCli_UnexpectedArg"),
                 Name));
-            throw new ArgumentException("Config attempt to call with arg.");
+            throw new ArgumentException("[Config] Unexpected arg.");
         }
     }
 
     protected override void ProcessNextFlag(Flag flag)
     {
+        // Change current locale.
         if (flag.Key == "locale")
         {
             FlagHasValue(flag, Name);
@@ -52,7 +53,7 @@ public class ConfigTool : ToolBase
                 _formatter.DisplayError(Name,
                     _resources.GetLocalizedString("Config_UnknownLocale"));
                 throw new FlagException(
-                    $"Unsupported locale ({flag.Value}) was specified.");
+                    $"[Config] Unsupported locale ({flag.Value}) was specified.");
             }
             _formatter.DisplayWarning(
                 Name,
@@ -65,6 +66,7 @@ public class ConfigTool : ToolBase
             _formatter.DisplayMessage(
                 _resources.GetLocalizedString("Config_LocaleChanged"));
         }
+        // Change current command line formatter.
         else if (flag.Key == "formatter")
         {
             FlagHasValue(flag, Name);
@@ -77,7 +79,7 @@ public class ConfigTool : ToolBase
                     _resources.GetLocalizedString(
                         "Config_UnsupportedFormatter"));
                 throw new FlagException(
-                    $"Unsupported formatter ({flag.Value}) was specified.");
+                    $"[Config] Unsupported formatter ({flag.Value}) was specified.");
             }
             _formatter.DisplayWarning(
                 Name,
@@ -90,6 +92,7 @@ public class ConfigTool : ToolBase
             _formatter.DisplayMessage(
                 _resources.GetLocalizedString("Config_FormatterChanged"));
         }
+        // Purge current config.
         else if (flag.Key == "purge")
         {
             FlagHasNoValue(flag, Name);
@@ -103,6 +106,7 @@ public class ConfigTool : ToolBase
             _formatter.DisplayInfo(Name,
                 _resources.GetLocalizedString("Config_Purged"));
         }
+        // Throw if flag is unrecognized.
         else UnknownFlag(flag, Name);
     }
 
@@ -113,7 +117,6 @@ public class ConfigTool : ToolBase
         {
             _formatter.DisplayInfo(Name,
             _resources.GetLocalizedString("Config_ListConfig"));
-            // Temporary hardcode.
             _formatter.DisplayMessage(string.Format(
                 _resources.GetLocalizedString("Config_Formatter"),
                 _config.Formatter.Selector

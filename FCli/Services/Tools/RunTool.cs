@@ -46,7 +46,7 @@ public class RunTool : ToolBase
             _formatter.DisplayError(Name, string.Format(
                 _resources.GetLocalizedString("FCli_ArgMissing"),
                 Name));
-            throw new ArgumentException("Run no type flag was given.");
+            throw new ArgumentException("[Run] No arg was given.");
         }
         // Guard against multiple type flags.
         if (Flags.Select(f => f.Key)
@@ -57,7 +57,7 @@ public class RunTool : ToolBase
                 _resources.GetLocalizedString("FCli_MultipleTypeFlags"),
                 Name));
             throw new FlagException(
-                "Attempted to pass multiple command types flags into the Run tool.");
+                "[Run] Attempted to pass multiple command type flags.");
         }
         // Set runner's name.
         _runRequest.Name = "runner";
@@ -97,7 +97,7 @@ public class RunTool : ToolBase
                                     .Select(sh => sh.Selector)))
                         );
                     throw new ArgumentException(
-                        $"Wasn't able to determine shell type on ({Arg}).");
+                        $"[Run] Wasn't able to determine shell type on ({Arg}).");
                 }
             }
             // Guard against shell execution.
@@ -117,12 +117,12 @@ public class RunTool : ToolBase
         {
             _formatter.DisplayError(Name,
                 _resources.GetLocalizedString("Run_UnknownCommand"));
-            throw new ArgumentException("Run failed to parse given command");
+            throw new ArgumentException("[Run] Failed to parse given command");
         }
         var command = _factory.Construct(_runRequest);
         // Guard against invalid initialization.
         if (command?.Action != null) command.Action();
         // It is impossible, so if it happens throw it into the root.
-        else throw new CriticalException("Command wasn't initialized.");
+        else throw new CriticalException("[Run] Command wasn't initialized.");
     }
 }

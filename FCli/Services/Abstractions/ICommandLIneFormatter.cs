@@ -82,7 +82,7 @@ public interface ICommandLineFormatter
     /// <summary>
     /// Prints out a formatted preface and then reads user's input.
     /// </summary>
-    /// <param name="preface">Usually (yes/any).</param>
+    /// <param name="preface">The string that is put before user input.</param>
     /// <returns>User input.</returns>
     public string? ReadUserInput(string? preface);
 }

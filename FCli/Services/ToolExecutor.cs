@@ -36,7 +36,7 @@ public class ToolExecutor : IToolExecutor
         // Extract tool from the list of known tools.
         var tool = _tools
             .FirstOrDefault(tool => tool.Type == type) 
-            ?? throw new CriticalException("Tool prototype wasn't extracted.");
+            ?? throw new CriticalException("[Tool] Tool wasn't extracted.");
         // Perform action.
         try
         {
@@ -46,7 +46,7 @@ public class ToolExecutor : IToolExecutor
         {
             // Flag and Arg exceptions are caused by user errors and so have
             // low priority for logging.
-            _logger.LogInformation(ex, "Tool argument or flags has failed.");
+            _logger.LogInformation(ex, "[Tool] Argument or flags has failed.");
         }
     }
 

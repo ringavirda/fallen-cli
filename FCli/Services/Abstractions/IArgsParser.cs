@@ -1,7 +1,11 @@
+// FCli namespaces.
 using FCli.Models;
 
 namespace FCli.Services.Abstractions;
 
+/// <summary>
+/// Tries to parse array of command line args in the most appropriate way.
+/// </summary>
 public interface IArgsParser
 {
     /// <summary>

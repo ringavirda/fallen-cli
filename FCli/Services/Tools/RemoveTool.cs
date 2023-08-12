@@ -46,7 +46,8 @@ public class RemoveTool : ToolBase
                 _resources.GetLocalizedString("FCli_UnknownName"),
                 Arg
             ));
-            throw new CommandNameException($"({Arg}) - is not a command name.");
+            throw new CommandNameException(
+                $"[Remove] ({Arg}) is not a known command name.");
         }
     }
 

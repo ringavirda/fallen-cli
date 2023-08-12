@@ -2,10 +2,10 @@
 using System.Diagnostics;
 // FCli namespaces.
 using FCli.Models;
+using FCli.Models.Dtos;
 using FCli.Models.Types;
 using FCli.Exceptions;
 using FCli.Services.Abstractions;
-using FCli.Models.Dtos;
 
 namespace FCli.Services;
 
@@ -44,11 +44,11 @@ public class SystemSpecificFactory : ICommandFactory
         // Guard against unknown command.
         if (command == null)
         {
-            _formatter.DisplayError("Command", $"""
-                Command ({name}) is not listed amongst stored commands.
-                To see all known commands try: fcli list.
-                """);
-            throw new InvalidOperationException($"Command ({name}) is not a known name.");
+            _formatter.DisplayError("Command", string.Format(
+                _resources.GetLocalizedString("FCli_UnknownName"),
+                name));
+            throw new InvalidOperationException(
+                $"[Command] {name} - is not a known name.");
         }
         else if (command.Type == CommandType.Group)
             return ConstructGroup(new GroupAlterRequest {
@@ -127,7 +127,7 @@ public class SystemSpecificFactory : ICommandFactory
                         request.Options,
                         false);
                 else throw new CriticalException(
-                    "CommandFactory received unknown shell type.");
+                    "[Command] Unknown shell type.");
             }
             ,
             CommandType.Directory => () =>
@@ -150,7 +150,8 @@ public class SystemSpecificFactory : ICommandFactory
             }
             ,
             // Throws if received unrecognized command type. 
-            _ => throw new CriticalException("Unknown command type was parsed!")
+            _ => throw new CriticalException(
+                "[Command] Unknown command type was parsed!")
         };
         // Return constructed command.
         return new Command()
@@ -181,7 +182,8 @@ public class SystemSpecificFactory : ICommandFactory
                 // Guard against bad commands.
                 if (command != null && command.Action != null)
                     command.Action();
-                else throw new CriticalException($"Command ({commandName}) didn't load.");
+                else throw new CriticalException(
+                    $"[Command] {commandName} - wasn't able to load.");
             }
         }
         return new Group()
@@ -214,7 +216,7 @@ public class SystemSpecificFactory : ICommandFactory
                 _resources.GetLocalizedString("Command_UnsupportedShell"),
                 ShellType.Cmd, PlatformID.Unix));
             throw new InvalidOperationException(
-                $"Attempt to run a CMD script ({path}) on Linux.");
+                $"[Command] Attempted to run a CMD script ({path}) on Linux.");
         }
         if (isDirectory)
             RunAsDirectory("cmd", path, string.Empty);
@@ -325,7 +327,7 @@ public class SystemSpecificFactory : ICommandFactory
                 _resources.GetLocalizedString("Command_UnsupportedShell"),
                 ShellType.Fish, PlatformID.Win32NT));
             throw new InvalidOperationException(
-                $"Attempt to run a Fish script ({path}) on Windows.");
+                $"[Command] Attempted to run a Fish script ({path}) on Windows.");
         }
         // Linux starts Fish process if it exists.
         if (asDirectory)

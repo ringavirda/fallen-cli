@@ -7,8 +7,8 @@ public class CommandNameException : ArgumentException
 {
     public CommandNameException()
         : base() { }
-    public CommandNameException(string message)
+    public CommandNameException(string? message)
         : base(message) { }
-    public CommandNameException(string message, Exception innerException)
+    public CommandNameException(string? message, Exception? innerException)
         : base(message, innerException) { }
 }
