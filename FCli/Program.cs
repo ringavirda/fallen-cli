@@ -1,16 +1,16 @@
 ﻿// Vendor namespaces.
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Globalization;
+using System.Reflection;
 using Serilog;
 // FCli namespaces.
 using FCli;
 using FCli.Services;
-using FCli.Services.Data;
-using System.Globalization;
-using FCli.Services.Format;
-using System.Resources;
-using System.Reflection;
+using FCli.Services.Abstractions;
 using FCli.Services.Config;
+using FCli.Services.Data;
+using FCli.Services.Tools;
 
 // Configure application host.
 var host = Host.CreateDefaultBuilder()
@@ -43,7 +43,7 @@ var host = Host.CreateDefaultBuilder()
                 "Warn! Config contains unknown formatter - using default instead.");
             services.AddSingleton(
                 typeof(ICommandLineFormatter), config.KnownFormatters
-                    .First(format => format.Selector == "inline"));
+                    .First(format => format.Selector == "inline").Type);
         }
         // Set user's preferred locale.
         if (config.KnownLocales.Contains(config.Locale))
@@ -58,17 +58,23 @@ var host = Host.CreateDefaultBuilder()
             CultureInfo.CurrentUICulture = 
                 CultureInfo.CreateSpecificCulture("en");
         }
-        // Configure main app service.
+        // Configure app services.
         services
             .AddSingleton<IConfig>(config)
-            .AddSingleton(new ResourceManager(
-                "FCli.Resources.Strings",
-                Assembly.GetExecutingAssembly()))
+            .AddSingleton<IResources, StringResources>()
+            .AddSingleton<IArgsParser, ArgsParser>()
             .AddScoped<ICommandLoader, JsonLoader>()
             .AddScoped<ICommandFactory, SystemSpecificFactory>()
             .AddScoped<IToolExecutor, ToolExecutor>()
             // Main entry point.
             .AddSingleton<FallenCli>();
+        // Add all the tools.
+        var toolTypes = Assembly.GetExecutingAssembly().GetTypes()
+            .Where(t => t.IsClass
+                        && t.IsPublic
+                        && t.IsSubclassOf(typeof(ToolBase)));
+        foreach (var toolType in toolTypes)
+            services.AddScoped(typeof(ITool), toolType);
     })
     // Build fcli host.
     .Build();

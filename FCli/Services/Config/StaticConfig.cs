@@ -1,6 +1,8 @@
 // FCli namespaces.
 using FCli.Models.Types;
+using FCli.Services.Abstractions;
 using FCli.Services.Format;
+using FCli.Services.Tools;
 
 namespace FCli.Services.Config;
 
@@ -20,12 +22,25 @@ public abstract class StaticConfig : IConfig
     public string LogsPath { get; private set; }
     public List<string> KnownLocales => new()
     {
-        "en", "ru", "uk"
+        "en", "en-US", "ru", "ru-RU", "uk", "uk-UA"
     };
-    public List<IConfig.FormatterDescriptor> KnownFormatters => new() {
+    public List<IConfig.FormatterDescriptor> KnownFormatters => new()
+    {
         new("inline", typeof(InlineFormatter)),
         new("pretty", typeof(PrettyFormatter)),
     };
+#pragma warning disable 8625
+    public List<IToolDescriptor> KnownTools => new()
+    {
+        new AddTool(null, null, null, null, null),
+        new ChangeTool(null, null, null, null, null),
+        new ConfigTool(null, null, null),
+        new GroupTool(null, null, null, null, null),
+        new ListTool( null, null, null, null),
+        new RemoveTool(null, null, null),
+        new RunTool(null, null, null, null),
+    };
+#pragma warning restore 8625
     public List<IConfig.CommandDescriptor> KnownCommands => new()
     {
         new("exe", CommandType.Executable, false, "exe"),
@@ -41,6 +56,7 @@ public abstract class StaticConfig : IConfig
         new("powershell", ShellType.Powershell, "ps1"),
         new("fish", ShellType.Fish, "fish")
     };
+    public string StringsResourceLocation => "FCli.Resources.Strings";
 
 #pragma warning disable 8618, 8604
     public StaticConfig()
@@ -113,6 +129,7 @@ public abstract class StaticConfig : IConfig
     }
 
     // Pass down the hierarchy.
+    
     public abstract string Locale { get; protected set; }
     public abstract IConfig.FormatterDescriptor Formatter { get; protected set; }
 

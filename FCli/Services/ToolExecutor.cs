@@ -1,14 +1,10 @@
 ﻿// Vendor namespaces.
 using Microsoft.Extensions.Logging;
-using System.Resources;
 // FCli namespaces.
 using FCli.Models;
-using FCli.Models.Tools;
 using FCli.Models.Types;
 using FCli.Exceptions;
-using FCli.Services.Data;
-using FCli.Services.Format;
-using FCli.Services.Config;
+using FCli.Services.Abstractions;
 
 namespace FCli.Services;
 
@@ -19,34 +15,15 @@ public class ToolExecutor : IToolExecutor
 {
     // DI.
     private readonly ILogger<ToolExecutor> _logger;
+    private readonly IEnumerable<ITool> _tools;
 
     public ToolExecutor(
-        ICommandLoader commandLoader,
         ILogger<ToolExecutor> logger,
-        ICommandFactory commandFactory,
-        ICommandLineFormatter formatter,
-        IConfig config,
-        ResourceManager manager)
+        IEnumerable<ITool> tools)
     {
-        // Configure tools.
-        Tools = new()
-        {
-            new AddTool(formatter, manager, this, 
-                commandFactory, commandLoader, config),
-            new RemoveTool(formatter, manager, commandLoader),
-            new ListTool(formatter, manager, this, commandLoader, config),
-            new RunTool(formatter, manager, commandFactory, config),
-            new ConfigTool(formatter, manager, config),
-            new GroupTool(formatter, manager, commandLoader, 
-                this, commandFactory),
-            new ChangeTool(formatter, manager, commandLoader, 
-                this, commandFactory, config)
-        };
-
         _logger = logger;
+        _tools = tools;
     }
-    
-    public List<Tool> Tools { get; }
     
     /// <summary>
     /// Execute tool from given type and arg.
@@ -57,19 +34,19 @@ public class ToolExecutor : IToolExecutor
     public void Execute(Args args, ToolType type)
     {
         // Extract tool from the list of known tools.
-        var tool = Tools
+        var tool = _tools
             .FirstOrDefault(tool => tool.Type == type) 
-            ?? throw new CriticalException("Tool prototype wasn't extracted.");
+            ?? throw new CriticalException("[Tool] Tool wasn't extracted.");
         // Perform action.
         try
         {
-            tool.Action(args.Arg, args.Flags);
+            tool.Execute(args.Arg, args.Flags);
         }
         catch (ArgumentException ex)
         {
             // Flag and Arg exceptions are caused by user errors and so have
             // low priority for logging.
-            _logger.LogInformation(ex, "Tool argument or flags has failed.");
+            _logger.LogInformation(ex, "[Tool] Argument or flags has failed.");
         }
     }
 
@@ -84,7 +61,7 @@ public class ToolExecutor : IToolExecutor
         if (args.Selector == "") return ToolType.None;
         // Parse selector.
         var selector = args.Selector;
-        foreach (var tool in Tools)
+        foreach (var tool in _tools)
         {
             if (tool.Selectors.Contains(selector))
                 return tool.Type;

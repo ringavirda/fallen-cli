@@ -134,7 +134,7 @@ Currently supports:
     Url
     Script
     Executable
-    Dirctory
+    Directory
 
 Usage:
     fcli &lt;tool?&gt; [params ...] [flags ...]
@@ -182,6 +182,27 @@ Usage:
     Global messages
 
   -->
+  <data name="FCli_Info_Inline" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="FCli_Info_Pretty" xml:space="preserve">
+    <value>Wants to inform you</value>
+  </data>
+  <data name="FCli_Warning_Inline" xml:space="preserve">
+    <value>Warn</value>
+  </data>
+  <data name="FCli_Warning_Pretty" xml:space="preserve">
+    <value>Warns you about this</value>
+  </data>
+  <data name="FCli_Error_Inline" xml:space="preserve">
+    <value>Err</value>
+  </data>
+  <data name="FCli_Error_Pretty" xml:space="preserve">
+    <value>An error occurred during execution</value>
+  </data>
+  <data name="FCli_MultipleArgs" xml:space="preserve">
+    <value>FCli accepts only [tool?] arg, but more then one arg was found.</value>
+  </data>
   <data name="FCli_CriticalError" xml:space="preserve">
     <value>Something went horribly wrong!
 [{0}]: {1}</value>
@@ -515,7 +536,7 @@ sequence - {1}</value>
   <data name="Change_Help" xml:space="preserve">
     <value>Change - enables altering of existing commands.
 Argument is always a command name and new values are provided using flags. To change group sequence use group tool.
-Attention!!! This tool will allow you to change types and names - that may break command execution or associated groups. Also it doesn't perform validation on path. Use this options with care.
+Attention!!! This tool will allow you to change types and names - that may break command execution or associated groups. Also it doesn't perform validation on path. Use these options with care.
 Flags:
       --name    - new command name.
       --path    - new path.
@@ -527,6 +548,9 @@ Usage:
       fcli change awesome --name newName --type script --shell bash
       fcli ch newName --type exe --path /new/path
     </value>
+  </data>
+  <data name="Change_ShowCommand" xml:space="preserve">
+    <value>No flags given, listing the state of ({0}):</value>
   </data>
   <data name="Change_NameWarning" xml:space="preserve">
     <value>Preparing to change name on command ({0}).
@@ -579,7 +603,7 @@ options:
   <value>The same.</value>
 </data>
 <data name="Change_Warning" xml:space="preserve">
-  <value>Command ready to be reconstructed and overrided.</value>
+  <value>Command ready to be reconstructed and overridden.</value>
 </data>
 
 </root>

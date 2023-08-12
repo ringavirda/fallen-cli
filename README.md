@@ -51,7 +51,7 @@ change - manipulates a known command (displays command info if no flag is given)
 Fish.
 
 ### Supported command types:
-Dir, Shell.
+Dir, Group.
 
 # Supported command types:
 - exe - Windows executable (Linux treats as script).

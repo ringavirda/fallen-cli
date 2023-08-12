@@ -3,7 +3,7 @@ using System.Text.Json;
 // FCli namespaces.
 using FCli.Exceptions;
 using FCli.Models;
-using FCli.Services.Config;
+using FCli.Services.Abstractions;
 
 namespace FCli.Services.Data;
 
@@ -71,7 +71,7 @@ public class JsonLoader : ICommandLoader
     /// </para>
     /// </remarks>
     /// <returns>Loaded command buffer, or <c>null</c> if load fails.</returns>
-    /// <exception cref="JsonException">If command deserialization fails.</exception>
+    /// <exception cref="CriticalException">If command deserialization fails.</exception>
     public List<Command>? LoadCommands()
     {
         // Guard against empty storage.
@@ -90,10 +90,10 @@ public class JsonLoader : ICommandLoader
             }
             catch (JsonException ex)
             {
-                // Since this is a critical failure, throw exception to the root
-                // selector.
+                // Since this is a critical failure, throw exception straight 
+                // to the root selector.
                 throw new CriticalException(
-                    "Commands wasn't able to deserialize.", ex);
+                    "[Loader] Commands weren't able to deserialize.", ex);
             }
         }
         else return null;
@@ -133,7 +133,7 @@ public class JsonLoader : ICommandLoader
         // Guard against unknown command.
         if (command != null) _commandCashe?.Remove(command);
         else throw new ArgumentException(
-            $"Attempt to delete an unknown command ({name}).");
+            $"[Loader] Attempt to delete an unknown command ({name}).");
         // Rewrite storage without the deleted command.
         RefreshStorage();
     }

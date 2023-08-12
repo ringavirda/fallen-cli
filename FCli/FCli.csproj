@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
-    <AssemblyVersion>1.1.4.2</AssemblyVersion>
+    <AssemblyVersion>1.1.4.5</AssemblyVersion>
     <Product>FCli - Little Helper</Product>
     <Description>Allows to store and invoke actions.</Description>
 

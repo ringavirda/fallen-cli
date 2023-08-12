@@ -1,7 +1,7 @@
-﻿// Fcli namespaces.
+﻿// FCli namespaces.
 using FCli.Models;
 
-namespace FCli.Services.Data;
+namespace FCli.Services.Abstractions;
 
 /// <summary>
 /// Describes generic class that performs CRUD operations on <c>Command</c>.

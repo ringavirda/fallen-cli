@@ -1,12 +1,10 @@
-// Vendor namespaces.
-using System.Resources;
 // FCli namespaces.
 using FCli.Exceptions;
 using FCli.Models.Types;
-using FCli.Services.Format;
+using FCli.Services.Abstractions;
 using static FCli.Models.Args;
 
-namespace FCli.Models;
+namespace FCli.Services.Tools;
 
 /// <summary>
 /// Base class for all known tools.
@@ -14,44 +12,88 @@ namespace FCli.Models;
 /// <remarks>
 /// Contains common properties and some guarding methods.
 /// <remarks>
-public abstract class Tool
+public abstract class ToolBase : ITool
 {
-    // DI.
-    // Can be used by all tools.
+    // DI needed by all tools.
     protected readonly ICommandLineFormatter _formatter;
-    protected readonly ResourceManager _resources;
+    protected readonly IResources _resources;
 
-    protected Tool(
+    protected ToolBase(
         ICommandLineFormatter formatter,
-        ResourceManager resources)
+        IResources resources)
     {
         _formatter = formatter;
         _resources = resources;
     }
 
-    /// <summary>
-    /// Toll's command line selector.
-    /// </summary>
+    // From ITool interface.
+
+    // Pass abstractions down the hierarchy.
     public abstract string Name { get; }
-    /// <summary>
-    /// Information that should be displayed with <c>--help</c> flag.
-    /// </summary>
     public abstract string Description { get; }
-    /// <summary>
-    /// Known aliases for the selector of the tool.
-    /// </summary>
     public abstract List<string> Selectors { get; }
-    /// <summary>
-    /// Unique descriptor for the tool.
-    /// </summary>
     public abstract ToolType Type { get; }
+    
     /// <summary>
-    /// Action that contains actual logic of the tool.
+    /// List of parsed flags.
+    /// </summary>
+    public List<Flag> Flags { get; private set; } = null!;
+    /// <summary>
+    /// Initialized by the Execute method.
+    /// </summary>
+    public string Arg { get; protected set; } = null!;
+
+    /// <summary>
+    /// Performs tool's general logic of processing flags and acting.
+    /// </summary>
+    /// <param name="arg">Tool's arg.</param>
+    /// <param name="flags">Tool's flags.</param>
+    public void Execute(string arg, IEnumerable<Flag> flags)
+    {
+        // Init props.
+        Arg = arg;
+        Flags = flags.ToList();
+
+        // Perform general validation and initialization.
+        GuardInit();
+
+        // Handle --help flag.
+        if (flags.Any(flag => flag.Key == "help"))
+        {
+            _formatter.DisplayMessage(Description);
+            return;
+        }
+        
+        // Process flags.
+        foreach (var flag in Flags)
+            ProcessNextFlag(flag);
+
+        // Perform action.
+        Action();
+    }
+
+    // Abstract methods.
+    
+    /// <summary>
+    /// Performs necessary general validation over received arg and flags.
     /// </summary>
     /// <remarks>
-    /// Accepts an arg and list of Flags.
+    /// Can initialize some private values.
     /// </remarks>
-    public abstract Action<string, List<Flag>> Action { get; }
+    protected abstract void GuardInit();
+    
+    /// <summary>
+    /// Receives each flag sequentially and need to process them accordingly.
+    /// </summary>
+    /// <param name="flag">Next flag to be processed.</param>
+    protected abstract void ProcessNextFlag(Flag flag);
+    
+    /// <summary>
+    /// Main tool logic, performed after all flags were processed.
+    /// </summary>
+    protected abstract void Action();
+    
+    // Protected validators.
 
     /// <summary>
     /// Asserts that given flag has no value.
@@ -64,10 +106,11 @@ public abstract class Tool
         {
             _formatter.DisplayError(
                 toolName,
-                string.Format(_resources.GetString("Tool_FlagShouldNotHaveValue") 
-                    ?? _formatter.StringNotLoaded(), 
+                string.Format(_resources.GetLocalizedString(
+                    "Tool_FlagShouldNotHaveValue"), 
                     flag.Key, toolName));
-            throw new FlagException($"--{flag.Key} - cannot have value.");
+            throw new FlagException(
+                $"[{toolName}] --{flag.Key} - cannot have value.");
         }
     }
 
@@ -82,10 +125,11 @@ public abstract class Tool
         {
             _formatter.DisplayError(
                 toolName,
-                string.Format(_resources.GetString("Tool_FlagShouldHaveValue") 
-                    ?? _formatter.StringNotLoaded(), 
+                string.Format(_resources.GetLocalizedString(
+                    "Tool_FlagShouldHaveValue"),
                     flag.Key, toolName));
-            throw new FlagException($"--{flag.Key} - should have value.");
+            throw new FlagException(
+                $"[{toolName}] --{flag.Key} - should have value.");
         }
     }
 
@@ -99,11 +143,11 @@ public abstract class Tool
     {
         _formatter.DisplayError(
                 toolName,
-                string.Format(_resources.GetString("Tool_FlagIsUnknown") 
-                    ?? _formatter.StringNotLoaded(), 
+                string.Format(_resources.GetLocalizedString(
+                    "Tool_FlagIsUnknown"), 
                     flag.Key, toolName, toolName));
         throw new FlagException(
-             $"--{flag.Key} - is not a valid flag for {toolName} tool.");
+             $"[{toolName}] --{flag.Key} - is not a valid flag.");
     }
 
     /// <summary>
@@ -127,10 +171,11 @@ public abstract class Tool
         {
             _formatter.DisplayError(
                 toolName,
-                string.Format(_resources.GetString("Tool_UrlIsInvalid") 
-                    ?? _formatter.StringNotLoaded(), 
+                string.Format(_resources.GetLocalizedString(
+                    "Tool_UrlIsInvalid"),
                     url));
-            throw new ArgumentException($"Given url ({url}) is invalid.");
+            throw new ArgumentException(
+                $"[{toolName}] Given url ({url}) is invalid.");
         }
         // Return constructed URI.
         return uri;
@@ -149,10 +194,11 @@ public abstract class Tool
         {
             _formatter.DisplayWarning(
                 toolName,
-                string.Format(_resources.GetString("Tool_UrlIsInvalid") 
-                    ?? _formatter.StringNotLoaded(), 
+                string.Format(_resources.GetLocalizedString(
+                    "Tool_UrlIsInvalid"), 
                     path));
-            throw new ArgumentException($"Given path ({path}) is invalid.");
+            throw new ArgumentException(
+                $"[{toolName}] Given path ({path}) is invalid.");
         }
         // Return path converting to full.
         return Path.GetFullPath(path);
@@ -165,16 +211,18 @@ public abstract class Tool
     protected bool UserConfirm()
     {
         _formatter.DisplayMessage(
-            _resources.GetString("FCli_Confirm"));
+            _resources.GetLocalizedString("FCli_Confirm"));
         var confirm = _formatter.ReadUserInput("(yes/any)");
         if (confirm != "yes")
         {
-            _formatter.DisplayMessage(_resources.GetString("FCli_Averted"));
+            _formatter.DisplayMessage(
+                _resources.GetLocalizedString("FCli_Averted"));
             return false;
         }
         else
         {
-            _formatter.DisplayMessage(_resources.GetString("FCli_Continued"));
+            _formatter.DisplayMessage(
+                _resources.GetLocalizedString("FCli_Continued"));
             return true;
         }
     }

@@ -1,8 +1,8 @@
 // FCli namespaces.
 using FCli.Models;
-using FCli.Models.Types;
+using FCli.Models.Dtos;
 
-namespace FCli.Services;
+namespace FCli.Services.Abstractions;
 
 /// <summary>
 /// Describes generic factory that constructs commands from templates.
@@ -16,15 +16,10 @@ public interface ICommandFactory
     /// <summary>
     /// Should construct new command from the given template.
     /// </summary>
-    public Command Construct(
-        string name,
-        string path,
-        CommandType type,
-        ShellType shell,
-        string options);
+    public Command Construct(CommandAlterRequest request);
 
     /// <summary>
     /// Should generate a group of commands.
     /// </summary>
-    public Group ConstructGroup(string name, List<string> commands);
+    public Group ConstructGroup(GroupAlterRequest request);
 }

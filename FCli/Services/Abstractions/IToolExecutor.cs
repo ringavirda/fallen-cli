@@ -2,17 +2,13 @@
 using FCli.Models;
 using FCli.Models.Types;
 
-namespace FCli.Services;
+namespace FCli.Services.Abstractions;
 
 /// <summary>
 /// Describes class that parses command args and executes tools.
 /// </summary>
 public interface IToolExecutor
 {
-    /// <summary>
-    /// List of all tool prototypes.
-    /// </summary>
-    public List<Tool> Tools { get; }
     /// <summary>
     /// Should execute tool of given type with given args.
     /// </summary>

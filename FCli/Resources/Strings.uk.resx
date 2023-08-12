@@ -125,11 +125,11 @@
     -->
   <data name="Basic_Help" xml:space="preserve">
     <value>Цей інструмент може запам'ятовувати дії, а потім повторювати їх.
-Зараз підтримує наступні типи комнад:
+Зараз підтримує наступні типи команд:
     Url
     Script
     Executable
-    Dirctory
+    Directory
 
 Використання:
     fcli &lt;tool?&gt; [params ...] [flags ...]
@@ -153,7 +153,7 @@
 
     add    - додає нові команди до зберігання.
     remove - видаляє відомі команди.
-    list   - показує стан сходвища.
+    list   - показує стан сховища.
     run    - виконує команду без валідації да не зберігає її.
     config - змінює користувацьку конфігурацію.
     group  - створює виконувані послідовності команд.
@@ -162,7 +162,7 @@
     Більш детальну інформацію по кожному інструменту можна отримати вказавши флаг --help після нього. Він виведе більш детальний опис обраного інструменту.
 
 Команди:
-    Якщо аргумент не є однім із відомих селекторів команд, то він розглядається як команда. Якщо ця команда знаходится в сховище, то FCli реконструює її та намагається виконати в найбільш коректний спосіб.
+    Якщо аргумент не є однім із відомих селекторів команд, то він розглядається як команда. Якщо ця команда знаходитися в сховище, то FCli реконструює її та намагається виконати в найбільш коректний спосіб.
     Всі збережені команди можна вивести за допомогою інструменту list.
 
 Використання:
@@ -177,13 +177,33 @@
     Global messages
 
   -->
-
+  <data name="FCli_Info_Inline" xml:space="preserve">
+    <value>Інфо</value>
+  </data>
+  <data name="FCli_Info_Pretty" xml:space="preserve">
+    <value>Передає вам інформацію</value>
+  </data>
+  <data name="FCli_Warning_Inline" xml:space="preserve">
+    <value>Увага</value>
+  </data>
+  <data name="FCli_Warning_Pretty" xml:space="preserve">
+    <value>Попереджає вас про це</value>
+  </data>
+  <data name="FCli_Error_Inline" xml:space="preserve">
+    <value>Помилка</value>
+  </data>
+  <data name="FCli_Error_Pretty" xml:space="preserve">
+    <value>Під час виконання команди трапилася помилка</value>
+  </data>
+  <data name="FCli_MultipleArgs" xml:space="preserve">
+    <value>FCli приймає тільки [tool?] [arg], але було передано більше одного аргументу.</value>
+  </data>
   <data name="FCli_CriticalError" xml:space="preserve">
     <value>Трапилось щось дуже погане!
 [{0}]: {1}</value>
   </data>
   <data name="FCli_UnknownShell" xml:space="preserve">
-    <value>Прапорец --script повинен також вказувати оточення.
+    <value>Прапорець --script повинен також вказувати оточення.
 Підтримувані оточення: {0}.</value>
   </data>
   <data name="FCli_UnknownCommandType" xml:space="preserve">
@@ -231,16 +251,16 @@
 
   -->
   <data name="Tool_FlagShouldNotHaveValue" xml:space="preserve">
-    <value>Прапорець (--{0}) не повинен мати ниякого значення.
-Щоб побачити список всіх відомих флагів для {1} використайте сторінку допомоги вказавши прапорець --help.</value>
+    <value>Прапорець (--{0}) не повинен мати ніякого значення.
+Щоб побачити список всіх відомих прапорців для {1} використайте сторінку допомоги вказавши прапорець --help.</value>
   </data>
   <data name="Tool_FlagShouldHaveValue" xml:space="preserve">
     <value>Прапорець (--{0}) повинен мати значення.
-Щоб побачити список всіх відомих флагів для {1} використайте сторінку допомоги вказавши прапорець --help.</value>
+Щоб побачити список всіх відомих прапорців для {1} використайте сторінку допомоги вказавши прапорець --help.</value>
   </data>
   <data name="Tool_FlagIsUnknown" xml:space="preserve">
     <value>Прапорець (--{0}) не є відомим для інструменту {1}.
-Щоб побачити список всіх відомих флагів для {1} використайте сторінку допомоги вказавши прапорець --help.</value>
+Щоб побачити список всіх відомих прапорців для {1} використайте сторінку допомоги вказавши прапорець --help.</value>
   </data>
   <data name="Tool_UrlIsInvalid" xml:space="preserve">
     <value>({0}) - посилання некоректне.</value>
@@ -254,7 +274,7 @@
 
   -->
   <data name="Add_Help" xml:space="preserve">
-    <value>Add - валідує надані властивості команди та додає її до сховища. Потребує правильне посилання або інстуючій системний шлях як аргумент.
+    <value>Add - валідує надані властивості команди та додає її до сховища. Потребує правильне посилання або інснуючий системний шлях як аргумент.
 Прапорці:
     --script &lt;shell&gt; - шлях веде до файлу скрипту.
     --exe            - шлях вказує на виконуваний файл.
@@ -268,10 +288,10 @@
     fcli add .\scripts\script --script bash --name sc</value>
   </data>
   <data name="Add_FileUnrecognized" xml:space="preserve">
-    <value>Неможливо визначити тип файлу. Будьласка, вкажіть його використовуючі прапорець типу. Щоб побачити всі прапорці типу, використайте --help.</value>
+    <value>Неможливо визначити тип файлу. Будь ласка, вкажіть його використовуючи прапорець типу. Щоб побачити всі прапорці типу, використайте --help.</value>
   </data>
   <data name="Add_BashOnWindows" xml:space="preserve">
-    <value>Команда ({0}) була роспізнана як Bash скрипт, але оточенням зараз є Windows. Bash скрипти можуть бути виконані на Windows, FCli використовує WSL для цього. Вам потрібно впевнитись що ваша Windows має підсистему WSL встановлену та з включеним стандартним дистрибутивом щоб це спрацювало.</value>
+    <value>Команда ({0}) була розпізнана як Bash скрипт, але оточенням зараз є Windows. Bash скрипти можуть бути виконані на Windows, FCli використовує WSL для цього. Вам потрібно впевнитись що ваша Windows має підсистему WSL встановлену та з включеним стандартним дистрибутивом щоб це спрацювало.</value>
   </data>
   <data name="Add_FishOnWindows" xml:space="preserve">
     <value>Команда ({0}) була розпізнана Fish скрипт, але оточенням є операційна система Windows. Fish тільки підтримується на Unix-подібних системах.</value>
@@ -280,7 +300,7 @@
     <value>Команда ({0}) була розпізнана як Батч файл, але оточенням зараз є операційна система Linux. CMD підтримується лише на Windows.</value>
   </data>
   <data name="Add_PowershellOnLinux" xml:space="preserve">
-    <value>Команда ({0}) розпізнана як Powershell скрипт, але оточенням зараз є операційна система Linux. PS скрипти можуть бути запущені на Linux, але powershell має бути встановленим за допомогою вашого мереджеру пакетів.</value>
+    <value>Команда ({0}) розпізнана як Powershell скрипт, але оточенням зараз є операційна система Linux. PS скрипти можуть бути запущені на Linux, але powershell має бути встановленим за допомогою вашого менеджеру пакетів.</value>
   </data>
   <data name="Add_OSScript_Question" xml:space="preserve">
     <value>Ви впевнені що ваша система може запустити цей тип скрипту?</value>
@@ -299,7 +319,7 @@
 
   -->
   <data name="Config_Help" xml:space="preserve">
-    <value>Config - дозволяє керувати файлом користувацьких налаштувань. Використовуя цей інструмент ви можете змінювати деякі значення, або цільком видалити конфігураційний файл.
+    <value>Config - дозволяє керувати файлом користувацьких налаштувань. Використовуючи цей інструмент ви можете змінювати деякі значення, або цілком видалити конфігураційний файл.
 Флаги:
     --locale &lt;loc&gt;     - вказує культуру, яку потрібно використовувати.
         Підтримувані локалі: en, ru, uk.
@@ -336,7 +356,7 @@
 Щоб побачити підтримувані форматувальники скористайтеся сторінкою допомоги.</value>
   </data>
   <data name="Config_FormatterChangeWarning" xml:space="preserve">
-    <value>Зміна форматувльника командної строки з ({0}) на ({1})...</value>
+    <value>Зміна форматувальника командної строки з ({0}) на ({1})...</value>
   </data>
   <data name="Config_FormatterChanged" xml:space="preserve">
     <value>Форматувальник змінено.</value>
@@ -353,8 +373,8 @@
 
   -->
   <data name="List_Help" xml:space="preserve">
-    <value>List - виводить в консоль сисок відомих команд або інструментів залежно від вказаних прапорців. Виводить всі команди, якщо вони не вказані. Використовує аргумент як фільтр.
-Аргумент використовується як фільр для цього інструменту.
+    <value>List - виводить в консоль список відомих команд або інструментів залежно від вказаних прапорців. Виводить всі команди, якщо вони не вказані. Використовує аргумент як фільтр.
+Аргумент використовується як фільтр для цього інструменту.
 Прапорці:
   Команди
     --script - додає файли скриптів до списку.
@@ -388,7 +408,7 @@
     <value>Список всіх відомих селекторів інструментів:</value>
   </data>
   <data name="List_NothingFiltered" xml:space="preserve">
-    <value>Не було знайдено підходящих команд для фільтру: {0}</value>
+    <value>Не було знайдено команд які підходять для фільтру: {0}</value>
   </data>
   <!--
 
@@ -412,7 +432,7 @@
     <value>Сховище не має команд!</value>
   </data>
   <data name="Remove_AllDeleted" xml:space="preserve">
-    <value>Всі існуючі команди були видалені.</value>
+    <value>Всі існуючи команди були видалені.</value>
   </data>
   <data name="Remove_Warning" xml:space="preserve">
     <value>Команда ({0}) буде видалена.
@@ -439,7 +459,7 @@
     fcli run https://awesome.com --url</value>
   </data>
   <data name="Run_UnknownCommand" xml:space="preserve">
-    <value>Тип команди не був встановлений, будьласка, вкажіть його використовуючі прапорець типу.
+    <value>Тип команди не був встановлений, будь ласка, вкажіть його використовуючи прапорець типу.
 Щоб побачити використання Run вкажіть прапорець --help.</value>
   </data>
   <!--
@@ -447,14 +467,11 @@
     Command Factory strings
 
   -->
-  <data name="Command_CmdOnWindows" xml:space="preserve">
-    <value>Скрипти CMD не можуть бути запущені на системах Linux!</value>
+  <data name="Command_UnsupportedShell" xml:space="preserve">
+    <value>({0}) не можуть бути запущені на системах ({1})!</value>
   </data>
-  <data name="Command_PowershellOnLinux" xml:space="preserve">
-    <value>Спроба запуску Powershell скрипту на Linux..</value>
-  </data>
-  <data name="Command_BashOnWindows" xml:space="preserve">
-    <value></value>
+  <data name="Command_UnsupportedShellWarning" xml:space="preserve">
+    <value>Спроба запуску ({0}) на ({1})...</value>
   </data>
   <!--
     
@@ -483,10 +500,10 @@ name     - {0}
 sequence - {1}</value>
   </data>
   <data name="Group_OverrideWarning" xml:space="preserve">
-    <value>Ви намагаєтесь презаписати групу ({0}) Вказаній послідовністю.</value>
+    <value>Ви намагаєтесь перезаписати групу ({0}) Вказаній послідовністю.</value>
   </data>
   <data name="Group_RemoveAllWarning" xml:space="preserve">
-    <value>Прапорець All: ви намагаєтесь вилалити всі групу зі зберігання.</value>
+    <value>Прапорець All: ви намагаєтесь видалити всі групу зі зберігання.</value>
   </data>
   <data name="Group_RemovedAll" xml:space="preserve">
     <value>Всі групи команд були видалені.</value>
@@ -524,13 +541,16 @@ sequence - {1}</value>
       fcli ch newName --type exe --path /new/path
     </value>
   </data>
+  <data name="Change_ShowCommand" xml:space="preserve">
+    <value>Не було надано прапорців, виводжу стан ({0}):</value>
+  </data>
   <data name="Change_NameWarning" xml:space="preserve">
     <value>Зафіксовано зміну ім'я для команди ({0}).
 Увага: Це може зламати групи!
 Нове ім'я: {1}</value>
   </data>
   <data name="Change_PathWarning" xml:space="preserve">
-    <value>Зафіксована зміна шлаху команди ({0}).
+    <value>Зафіксована зміна шляху команди ({0}).
 Увага: Change не перевіряє шлях!
 Новий шлях: {1}</value>
   </data>
@@ -546,7 +566,7 @@ sequence - {1}</value>
 Нове оточення: {1}</value>
   </data>
   <data name="Change_OptionsWarning" xml:space="preserve">
-    <value>Завіксовано зміну опцій командної строки для команди ({0}).
+    <value>Зафіксовано зміну опцій командної строки для команди ({0}).
 Увага: Це може повпливати на виконання команди!
 Нові опції: {1}</value>
   </data>

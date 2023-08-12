@@ -1,13 +1,11 @@
 ﻿// Vendor namespaces.
 using System.Diagnostics;
-using System.Resources;
 // FCli namespaces.
 using FCli.Models;
+using FCli.Models.Dtos;
 using FCli.Models.Types;
 using FCli.Exceptions;
-using FCli.Services.Data;
-using FCli.Services.Format;
-using System.Runtime.CompilerServices;
+using FCli.Services.Abstractions;
 
 namespace FCli.Services;
 
@@ -22,12 +20,12 @@ public class SystemSpecificFactory : ICommandFactory
     // DI.
     private readonly ICommandLoader _loader;
     private readonly ICommandLineFormatter _formatter;
-    private readonly ResourceManager _resources;
+    private readonly IResources _resources;
 
     public SystemSpecificFactory(
         ICommandLoader commandLoader,
         ICommandLineFormatter formatter,
-        ResourceManager resources)
+        IResources resources)
     {
         _loader = commandLoader;
         _formatter = formatter;
@@ -46,33 +44,31 @@ public class SystemSpecificFactory : ICommandFactory
         // Guard against unknown command.
         if (command == null)
         {
-            _formatter.DisplayError("Command", $"""
-                Command ({name}) is not listed amongst stored commands.
-                To see all known commands try: fcli list.
-                """);
-            throw new InvalidOperationException($"Command ({name}) is not a known name.");
+            _formatter.DisplayError("Command", string.Format(
+                _resources.GetLocalizedString("FCli_UnknownName"),
+                name));
+            throw new InvalidOperationException(
+                $"[Command] {name} - is not a known name.");
         }
         else if (command.Type == CommandType.Group)
-            return ConstructGroup(
-                command.Name,
-                ((Group)command).Sequence);
+            return ConstructGroup(new GroupAlterRequest {
+                Name = command.Name,
+                Sequence = ((Group)command).Sequence
+            });
         // Return command constructed from the loaded template.
-        else return Construct(
-            command.Name,
-            command.Path,
-            command.Type,
-            command.Shell,
-            command.Options);
+        else return Construct(new CommandAlterRequest
+        {
+            Name = command.Name,
+            Type = command.Type,
+            Shell = command.Shell,
+            Path = command.Path,
+            Options = command.Options
+        });
     }
 
-    public Command Construct(
-        string name,
-        string path,
-        CommandType type,
-        ShellType shell,
-        string options)
+    public Command Construct(CommandAlterRequest request)
     {
-        Action action = type switch
+        Action action = request.Type switch
         {
             // Parse Executable option.
             CommandType.Executable => () =>
@@ -80,14 +76,14 @@ public class SystemSpecificFactory : ICommandFactory
                 // Linux considers everything as scripts.
                 // This option for it is just cosmetic.
                 if (Environment.OSVersion.Platform == PlatformID.Unix)
-                    Process.Start("bash", path);
+                    Process.Start("bash", request.Path);
                 // Windows starts new process for the app and it should be fire
                 // from there. No shell execute.
                 else Process.Start(new ProcessStartInfo
                 {
-                    FileName = path,
+                    FileName = request.Path,
                     UseShellExecute = false,
-                    Arguments = options,
+                    Arguments = request.Path,
                     WindowStyle = ProcessWindowStyle.Maximized
                 });
             }
@@ -97,12 +93,12 @@ public class SystemSpecificFactory : ICommandFactory
             {
                 // Linux uses xdg to open default browser.
                 if (Environment.OSVersion.Platform == PlatformID.Unix)
-                    Process.Start("xdg-open", path);
+                    Process.Start("xdg-open", request.Path);
                 // Windows is smart enough to recognize that it is a link and 
                 // by itself open is in a browser. Use shell execute.
                 else Process.Start(new ProcessStartInfo
                 {
-                    FileName = path,
+                    FileName = request.Path,
                     UseShellExecute = true
                 });
             }
@@ -110,82 +106,95 @@ public class SystemSpecificFactory : ICommandFactory
             // Parse Script option.
             CommandType.Script => () =>
             {
-                if (shell == ShellType.Cmd)
-                    ConfigureCmd(path, options, false);
-                else if (shell == ShellType.Powershell)
-                    ConfigurePowershell(path, options, false);
-                else if (shell == ShellType.Bash)
-                    path = ConfigureBash(path, options, false);
-                else if (shell == ShellType.Fish)
-                    ConfigureFish(path, options, false);
+                if (request.Shell == ShellType.Cmd)
+                    ConfigureCmd(
+                        request.Path,
+                        request.Options,
+                        false);
+                else if (request.Shell == ShellType.Powershell)
+                    ConfigurePowershell(
+                        request.Path,
+                        request.Options,
+                        false);
+                else if (request.Shell == ShellType.Bash)
+                    request.Path = ConfigureBash(
+                        request.Path,
+                        request.Options,
+                        false);
+                else if (request.Shell == ShellType.Fish)
+                    ConfigureFish(
+                        request.Path,
+                        request.Options,
+                        false);
                 else throw new CriticalException(
-                    "CommandFactory received unknown shell type.");
+                    "[Command] Unknown shell type.");
             }
             ,
             CommandType.Directory => () =>
             {
                 // If shell is specified.
-                if (shell == ShellType.Cmd)
-                    ConfigureCmd(path, "", true);
-                else if (shell == ShellType.Powershell)
-                    ConfigurePowershell(path, "", true);
-                else if (shell == ShellType.Bash)
-                    ConfigureBash(path, "", true);
-                else if (shell == ShellType.Fish)
-                    ConfigureFish(path, "", true);
+                if (request.Shell == ShellType.Cmd)
+                    ConfigureCmd(request.Path, "", true);
+                else if (request.Shell == ShellType.Powershell)
+                    ConfigurePowershell(request.Path, "", true);
+                else if (request.Shell == ShellType.Bash)
+                    ConfigureBash(request.Path, "", true);
+                else if (request.Shell == ShellType.Fish)
+                    ConfigureFish(request.Path, "", true);
                 // This should just work in both Linux and Windows.
                 else Process.Start(new ProcessStartInfo()
                 {
-                    FileName = path,
+                    FileName = request.Path,
                     UseShellExecute = true
                 });
             }
             ,
             // Throws if received unrecognized command type. 
-            _ => throw new CriticalException("Unknown command type was parsed!")
+            _ => throw new CriticalException(
+                "[Command] Unknown command type was parsed!")
         };
         // Return constructed command.
         return new Command()
         {
-            Name = name,
-            Path = path,
-            Type = type,
-            Shell = shell,
+            Name = request.Name,
+            Path = request.Path,
+            Type = request.Type,
+            Shell = request.Shell,
             Action = action,
-            Options = options
+            Options = request.Options
         };
     }
 
     /// <summary>
     /// Generates a group of sequentially executed commands.
     /// </summary>
-    /// <param name="name">Group name.</param>
-    /// <param name="commands">Sequence of commands.</param>
+    /// <param name="request">Request model for the desired group.</param>
     /// <returns>Constructed group object.</returns>
-    public Group ConstructGroup(string name, List<string> commands)
+    public Group ConstructGroup(GroupAlterRequest request)
     {
         // Setup group logic.
         void action()
         {
             // Execute commands as given.
-            foreach (var commandName in commands)
+            foreach (var commandName in request.Sequence)
             {
                 var command = Construct(commandName);
                 // Guard against bad commands.
                 if (command != null && command.Action != null)
                     command.Action();
-                else throw new CriticalException($"Command ({commandName}) didn't load.");
+                else throw new CriticalException(
+                    $"[Command] {commandName} - wasn't able to load.");
             }
         }
         return new Group()
         {
-            Name = name,
+            Name = request.Name,
             Path = string.Empty,
             Type = CommandType.Group,
             Shell = ShellType.None,
             Options = string.Empty,
             Action = action,
-            Sequence = commands
+            Sequence = request.Sequence
         };
     }
 
@@ -204,11 +213,10 @@ public class SystemSpecificFactory : ICommandFactory
         if (Environment.OSVersion.Platform == PlatformID.Unix)
         {
             _formatter.DisplayError("Command", string.Format(
-                _resources.GetString("Command_UnsupportedShell")
-                ?? _formatter.StringNotLoaded(),
+                _resources.GetLocalizedString("Command_UnsupportedShell"),
                 ShellType.Cmd, PlatformID.Unix));
             throw new InvalidOperationException(
-                $"Attempt to run a CMD script ({path}) on Linux.");
+                $"[Command] Attempted to run a CMD script ({path}) on Linux.");
         }
         if (isDirectory)
             RunAsDirectory("cmd", path, string.Empty);
@@ -236,8 +244,7 @@ public class SystemSpecificFactory : ICommandFactory
         if (Environment.OSVersion.Platform == PlatformID.Unix)
         {
             _formatter.DisplayWarning("Command", string.Format(
-                _resources.GetString("Command_UnsupportedShellWarning")
-                ?? _formatter.StringNotLoaded(),
+                _resources.GetLocalizedString("Command_UnsupportedShellWarning"),
                 ShellType.Powershell, PlatformID.Unix));
             if (isDirectory)
                 RunAsDirectory("pwsh", path, string.Empty);
@@ -276,15 +283,14 @@ public class SystemSpecificFactory : ICommandFactory
         {
             if (asDirectory)
                 RunAsDirectory("bash", path, string.Empty);
-            Process.Start("bash", path)
+            else Process.Start("bash", path)
                 .WaitForExit();
         }
         // Windows uses WSL if it is available to run bash script.
         else
         {
             _formatter.DisplayWarning("Command", string.Format(
-                _resources.GetString("Command_UnsupportedShellWarning")
-                ?? _formatter.StringNotLoaded(),
+                _resources.GetLocalizedString("Command_UnsupportedShellWarning"),
                 ShellType.Bash, PlatformID.Win32NT));
             // Convert Windows path to WSL path.
             path = path.Replace(@"\", @"/");
@@ -293,7 +299,7 @@ public class SystemSpecificFactory : ICommandFactory
             // Start bash process in WSL.
             if (asDirectory)
                 RunAsDirectory("powershell", path, "wsl");
-            Process.Start(new ProcessStartInfo()
+            else Process.Start(new ProcessStartInfo()
             {
                 FileName = "powershell.exe",
                 Arguments = $"wsl -e bash {path} {options}",
@@ -318,16 +324,15 @@ public class SystemSpecificFactory : ICommandFactory
         if (Environment.OSVersion.Platform == PlatformID.Win32NT)
         {
             _formatter.DisplayError("Command", string.Format(
-                _resources.GetString("Command_UnsupportedShell")
-                ?? _formatter.StringNotLoaded(),
+                _resources.GetLocalizedString("Command_UnsupportedShell"),
                 ShellType.Fish, PlatformID.Win32NT));
             throw new InvalidOperationException(
-                $"Attempt to run a Fish script ({path}) on Windows.");
+                $"[Command] Attempted to run a Fish script ({path}) on Windows.");
         }
         // Linux starts Fish process if it exists.
         if (asDirectory)
             RunAsDirectory("fish", path, string.Empty);
-        Process.Start(new ProcessStartInfo
+        else Process.Start(new ProcessStartInfo
         {
             FileName = "fish",
             Arguments = $"{path} {options}",
@@ -336,11 +341,11 @@ public class SystemSpecificFactory : ICommandFactory
     }
 
     /// <summary>
-    /// Runs given path a shell.
+    /// Runs given path as a shell directory.
     /// </summary>
-    /// <param name="shell"></param>
-    /// <param name="path"></param>
-    /// <param name="options"></param>
+    /// <param name="shell">Command line shell type.</param>
+    /// <param name="path">Path to the directory.</param>
+    /// <param name="options">Additional configs.</param>
     private static void RunAsDirectory(string shell, string path, string options)
     {
         Process.Start(new ProcessStartInfo()
@@ -350,5 +355,4 @@ public class SystemSpecificFactory : ICommandFactory
             Arguments = options,
         })?.WaitForExit();
     }
-
 }
