@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 // FCli namespaces.
 using FCli.Models;
-using FCli.Models.Tools;
 using FCli.Models.Types;
 using FCli.Exceptions;
 using FCli.Services.Abstractions;
@@ -16,31 +15,15 @@ public class ToolExecutor : IToolExecutor
 {
     // DI.
     private readonly ILogger<ToolExecutor> _logger;
+    private readonly IEnumerable<ITool> _tools;
 
     public ToolExecutor(
-        ICommandLoader loader,
         ILogger<ToolExecutor> logger,
-        ICommandFactory factory,
-        ICommandLineFormatter formatter,
-        IConfig config,
-        IResources resources)
+        IEnumerable<ITool> tools)
     {
-        // Configure tools.
-        Tools = new()
-        {
-            new AddTool(formatter, resources, config, this, loader, factory),
-            new RemoveTool(formatter, resources, loader),
-            new ListTool(formatter, resources, config, this, loader),
-            new RunTool(formatter, resources, config, factory),
-            new ConfigTool(formatter, resources, config),
-            new GroupTool(formatter, resources, this, loader, factory),
-            new ChangeTool(formatter, resources, config, this, loader, factory)
-        };
-
         _logger = logger;
+        _tools = tools;
     }
-    
-    public List<Tool> Tools { get; }
     
     /// <summary>
     /// Execute tool from given type and arg.
@@ -51,13 +34,13 @@ public class ToolExecutor : IToolExecutor
     public void Execute(Args args, ToolType type)
     {
         // Extract tool from the list of known tools.
-        var tool = Tools
+        var tool = _tools
             .FirstOrDefault(tool => tool.Type == type) 
             ?? throw new CriticalException("Tool prototype wasn't extracted.");
         // Perform action.
         try
         {
-            tool.Action(args.Arg, args.Flags);
+            tool.Execute(args.Arg, args.Flags);
         }
         catch (ArgumentException ex)
         {
@@ -78,7 +61,7 @@ public class ToolExecutor : IToolExecutor
         if (args.Selector == "") return ToolType.None;
         // Parse selector.
         var selector = args.Selector;
-        foreach (var tool in Tools)
+        foreach (var tool in _tools)
         {
             if (tool.Selectors.Contains(selector))
                 return tool.Type;

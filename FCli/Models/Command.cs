@@ -1,5 +1,6 @@
 ﻿// Vendor namespaces.
 using System.Text.Json.Serialization;
+using FCli.Models.Dtos;
 // FCli namespaces.
 using FCli.Models.Types;
 
@@ -44,4 +45,18 @@ public class Command
     /// </remarks>
     [JsonIgnore]
     public Action? Action { get; set; }
+
+    /// <summary>
+    /// Transforms this command into an alteration request.
+    /// </summary>
+    /// <returns>AlterRequest for this command.</returns>
+    public CommandAlterRequest ToAlterRequest()
+        => new()
+        {
+            Name = Name,
+            Path = Path,
+            Type = Type,
+            Shell = Shell,
+            Options = Options,
+        };
 }

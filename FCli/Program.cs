@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Globalization;
+using System.Reflection;
 using Serilog;
 // FCli namespaces.
 using FCli;
@@ -9,6 +10,7 @@ using FCli.Services;
 using FCli.Services.Abstractions;
 using FCli.Services.Config;
 using FCli.Services.Data;
+using FCli.Services.Tools;
 
 // Configure application host.
 var host = Host.CreateDefaultBuilder()
@@ -66,6 +68,13 @@ var host = Host.CreateDefaultBuilder()
             .AddScoped<IToolExecutor, ToolExecutor>()
             // Main entry point.
             .AddSingleton<FallenCli>();
+        // Add all the tools.
+        var toolTypes = Assembly.GetExecutingAssembly().GetTypes()
+            .Where(t => t.IsClass
+                        && t.IsPublic
+                        && t.IsSubclassOf(typeof(ToolBase)));
+        foreach (var toolType in toolTypes)
+            services.AddScoped(typeof(ITool), toolType);
     })
     // Build fcli host.
     .Build();

@@ -55,6 +55,10 @@ public interface IConfig
     /// </summary>
     public List<FormatterDescriptor> KnownFormatters { get; }
     /// <summary>
+    /// List all known fcli tools.
+    /// </summary>
+    public List<IToolDescriptor> KnownTools { get; } 
+    /// <summary>
     /// List of all known flags that describe command flavors.
     /// </summary>
     /// <remarks>
@@ -72,7 +76,7 @@ public interface IConfig
     /// Path to the Strings resource file.
     /// </summary>
     public string StringsResourceLocation { get; }
-    
+
     // Descriptors.
 
     public record FormatterDescriptor(

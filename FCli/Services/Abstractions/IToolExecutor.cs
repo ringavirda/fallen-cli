@@ -10,10 +10,6 @@ namespace FCli.Services.Abstractions;
 public interface IToolExecutor
 {
     /// <summary>
-    /// List of all tool prototypes.
-    /// </summary>
-    public List<Tool> Tools { get; }
-    /// <summary>
     /// Should execute tool of given type with given args.
     /// </summary>
     public void Execute(Args args, ToolType type);

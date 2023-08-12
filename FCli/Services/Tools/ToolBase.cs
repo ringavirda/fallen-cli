@@ -4,7 +4,7 @@ using FCli.Models.Types;
 using FCli.Services.Abstractions;
 using static FCli.Models.Args;
 
-namespace FCli.Models;
+namespace FCli.Services.Tools;
 
 /// <summary>
 /// Base class for all known tools.
@@ -12,14 +12,13 @@ namespace FCli.Models;
 /// <remarks>
 /// Contains common properties and some guarding methods.
 /// <remarks>
-public abstract class Tool
+public abstract class ToolBase : ITool
 {
-    // DI.
-    // Can be used by all tools.
+    // DI needed by all tools.
     protected readonly ICommandLineFormatter _formatter;
     protected readonly IResources _resources;
 
-    protected Tool(
+    protected ToolBase(
         ICommandLineFormatter formatter,
         IResources resources)
     {
@@ -27,29 +26,71 @@ public abstract class Tool
         _resources = resources;
     }
 
-    /// <summary>
-    /// Toll's command line selector.
-    /// </summary>
+    // From ITool interface.
+
+    // Pass abstractions down.
     public abstract string Name { get; }
-    /// <summary>
-    /// Information that should be displayed with <c>--help</c> flag.
-    /// </summary>
     public abstract string Description { get; }
-    /// <summary>
-    /// Known aliases for the selector of the tool.
-    /// </summary>
     public abstract List<string> Selectors { get; }
-    /// <summary>
-    /// Unique descriptor for the tool.
-    /// </summary>
     public abstract ToolType Type { get; }
+    
     /// <summary>
-    /// Action that contains actual logic of the tool.
+    /// List of parsed flags.
     /// </summary>
-    /// <remarks>
-    /// Accepts an arg and list of Flags.
-    /// </remarks>
-    public abstract Action<string, List<Flag>> Action { get; }
+    public List<Flag> Flags { get; private set; } = null!;
+    /// <summary>
+    /// Initialized by the Execute method.
+    /// </summary>
+    public string Arg { get; protected set; } = null!;
+
+    /// <summary>
+    /// Performs tool's general logic of processing flags and acting.
+    /// </summary>
+    /// <param name="arg">Tool's arg.</param>
+    /// <param name="flags">Tool's flags.</param>
+    public void Execute(string arg, IEnumerable<Flag> flags)
+    {
+        // Init props.
+        Arg = arg;
+        Flags = flags.ToList();
+
+        // Perform general validation.
+        GuardInit();
+
+        // Handle --help flag.
+        if (flags.Any(flag => flag.Key == "help"))
+        {
+            _formatter.DisplayMessage(Description);
+            return;
+        }
+        
+        // Process flags.
+        foreach (var flag in Flags)
+            ProcessNextFlag(flag);
+
+        // Perform action.
+        Action();
+    }
+
+    // Abstract methods.
+    
+    /// <summary>
+    /// Performs necessary general validation over received arg and flags.
+    /// </summary>
+    protected abstract void GuardInit();
+    
+    /// <summary>
+    /// Receives each flag sequentially and need to process them accordingly.
+    /// </summary>
+    /// <param name="flag">Next flag to be processed.</param>
+    protected abstract void ProcessNextFlag(Flag flag);
+    
+    /// <summary>
+    /// Main tool logic, performed after all flags were processed.
+    /// </summary>
+    protected abstract void Action();
+    
+    // Protected validators.
 
     /// <summary>
     /// Asserts that given flag has no value.

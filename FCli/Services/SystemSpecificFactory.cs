@@ -5,6 +5,7 @@ using FCli.Models;
 using FCli.Models.Types;
 using FCli.Exceptions;
 using FCli.Services.Abstractions;
+using FCli.Models.Dtos;
 
 namespace FCli.Services;
 
@@ -50,26 +51,24 @@ public class SystemSpecificFactory : ICommandFactory
             throw new InvalidOperationException($"Command ({name}) is not a known name.");
         }
         else if (command.Type == CommandType.Group)
-            return ConstructGroup(
-                command.Name,
-                ((Group)command).Sequence);
+            return ConstructGroup(new GroupAlterRequest {
+                Name = command.Name,
+                Sequence = ((Group)command).Sequence
+            });
         // Return command constructed from the loaded template.
-        else return Construct(
-            command.Name,
-            command.Path,
-            command.Type,
-            command.Shell,
-            command.Options);
+        else return Construct(new CommandAlterRequest
+        {
+            Name = command.Name,
+            Type = command.Type,
+            Shell = command.Shell,
+            Path = command.Path,
+            Options = command.Options
+        });
     }
 
-    public Command Construct(
-        string name,
-        string path,
-        CommandType type,
-        ShellType shell,
-        string options)
+    public Command Construct(CommandAlterRequest request)
     {
-        Action action = type switch
+        Action action = request.Type switch
         {
             // Parse Executable option.
             CommandType.Executable => () =>
@@ -77,14 +76,14 @@ public class SystemSpecificFactory : ICommandFactory
                 // Linux considers everything as scripts.
                 // This option for it is just cosmetic.
                 if (Environment.OSVersion.Platform == PlatformID.Unix)
-                    Process.Start("bash", path);
+                    Process.Start("bash", request.Path);
                 // Windows starts new process for the app and it should be fire
                 // from there. No shell execute.
                 else Process.Start(new ProcessStartInfo
                 {
-                    FileName = path,
+                    FileName = request.Path,
                     UseShellExecute = false,
-                    Arguments = options,
+                    Arguments = request.Path,
                     WindowStyle = ProcessWindowStyle.Maximized
                 });
             }
@@ -94,12 +93,12 @@ public class SystemSpecificFactory : ICommandFactory
             {
                 // Linux uses xdg to open default browser.
                 if (Environment.OSVersion.Platform == PlatformID.Unix)
-                    Process.Start("xdg-open", path);
+                    Process.Start("xdg-open", request.Path);
                 // Windows is smart enough to recognize that it is a link and 
                 // by itself open is in a browser. Use shell execute.
                 else Process.Start(new ProcessStartInfo
                 {
-                    FileName = path,
+                    FileName = request.Path,
                     UseShellExecute = true
                 });
             }
@@ -107,14 +106,26 @@ public class SystemSpecificFactory : ICommandFactory
             // Parse Script option.
             CommandType.Script => () =>
             {
-                if (shell == ShellType.Cmd)
-                    ConfigureCmd(path, options, false);
-                else if (shell == ShellType.Powershell)
-                    ConfigurePowershell(path, options, false);
-                else if (shell == ShellType.Bash)
-                    path = ConfigureBash(path, options, false);
-                else if (shell == ShellType.Fish)
-                    ConfigureFish(path, options, false);
+                if (request.Shell == ShellType.Cmd)
+                    ConfigureCmd(
+                        request.Path,
+                        request.Options,
+                        false);
+                else if (request.Shell == ShellType.Powershell)
+                    ConfigurePowershell(
+                        request.Path,
+                        request.Options,
+                        false);
+                else if (request.Shell == ShellType.Bash)
+                    request.Path = ConfigureBash(
+                        request.Path,
+                        request.Options,
+                        false);
+                else if (request.Shell == ShellType.Fish)
+                    ConfigureFish(
+                        request.Path,
+                        request.Options,
+                        false);
                 else throw new CriticalException(
                     "CommandFactory received unknown shell type.");
             }
@@ -122,18 +133,18 @@ public class SystemSpecificFactory : ICommandFactory
             CommandType.Directory => () =>
             {
                 // If shell is specified.
-                if (shell == ShellType.Cmd)
-                    ConfigureCmd(path, "", true);
-                else if (shell == ShellType.Powershell)
-                    ConfigurePowershell(path, "", true);
-                else if (shell == ShellType.Bash)
-                    ConfigureBash(path, "", true);
-                else if (shell == ShellType.Fish)
-                    ConfigureFish(path, "", true);
+                if (request.Shell == ShellType.Cmd)
+                    ConfigureCmd(request.Path, "", true);
+                else if (request.Shell == ShellType.Powershell)
+                    ConfigurePowershell(request.Path, "", true);
+                else if (request.Shell == ShellType.Bash)
+                    ConfigureBash(request.Path, "", true);
+                else if (request.Shell == ShellType.Fish)
+                    ConfigureFish(request.Path, "", true);
                 // This should just work in both Linux and Windows.
                 else Process.Start(new ProcessStartInfo()
                 {
-                    FileName = path,
+                    FileName = request.Path,
                     UseShellExecute = true
                 });
             }
@@ -144,28 +155,27 @@ public class SystemSpecificFactory : ICommandFactory
         // Return constructed command.
         return new Command()
         {
-            Name = name,
-            Path = path,
-            Type = type,
-            Shell = shell,
+            Name = request.Name,
+            Path = request.Path,
+            Type = request.Type,
+            Shell = request.Shell,
             Action = action,
-            Options = options
+            Options = request.Options
         };
     }
 
     /// <summary>
     /// Generates a group of sequentially executed commands.
     /// </summary>
-    /// <param name="name">Group name.</param>
-    /// <param name="commands">Sequence of commands.</param>
+    /// <param name="request">Request model for the desired group.</param>
     /// <returns>Constructed group object.</returns>
-    public Group ConstructGroup(string name, List<string> commands)
+    public Group ConstructGroup(GroupAlterRequest request)
     {
         // Setup group logic.
         void action()
         {
             // Execute commands as given.
-            foreach (var commandName in commands)
+            foreach (var commandName in request.Sequence)
             {
                 var command = Construct(commandName);
                 // Guard against bad commands.
@@ -176,13 +186,13 @@ public class SystemSpecificFactory : ICommandFactory
         }
         return new Group()
         {
-            Name = name,
+            Name = request.Name,
             Path = string.Empty,
             Type = CommandType.Group,
             Shell = ShellType.None,
             Options = string.Empty,
             Action = action,
-            Sequence = commands
+            Sequence = request.Sequence
         };
     }
 
