@@ -33,6 +33,9 @@ config - manipulates dynamic configuration.
 - formatter - 
     - inline - formats messages as is. 
     - pretty - prettifies messages with colors and additional info. 
+- encrypt
+    - true - uses encryption to store user data.
+    - false - stores user data as plain text.
 - purge - deletes persisted user config (requires confirmation).
 
 group - manipulates command groups (requires name).
@@ -52,6 +55,28 @@ Fish.
 
 ### Supported command types:
 Dir, Group.
+
+## Additions
+### Tools
+prime - finds out the amount of primes under the given limit.
+- time - prints out the execution time.
+- parallel - sets limit on amount of threads to be used.
+- no-parallel - executes synchronous.
+
+mail - allows to send email and read mail from you inbox.
+- to - specifies receiver contact or email address.
+- sbj - set's message subject.
+- list - lists recent mail from inbox.
+- read - displays the contents of the email.
+- remove - delete email.
+
+identity - manages contacts and root user.
+- override - overrides existing contact.
+- remove - deletes contact (doesn't work for root).
+- aliases - sets aliases (doesn't work for root).
+- name - sets name.
+- email - sets email.
+- list - lists all known contacts.
 
 # Supported command types:
 - exe - Windows executable (Linux treats as script).
@@ -99,6 +124,22 @@ fcli group --name some-group --remove
 fcli change awesome --name new-name \
 fcli ch google
 
+fcli prime 1000000 --time
+fcli pr 1000000 --no-parallel --time
+
+fcli mail "Message body" --to mary@gmail.com --sbj "Message sbj"
+fcli mail "Message body" --to mary
+fcli mail 10 --list
+fcli mail 122 --read
+fcli mail 122 --remove
+
+fcli identity root
+fcli id mary --aliases "mar sor" --email mary@gmail.com
+fcli id mari --override --email mary@outlook.com
+fcli id mari --remove
+fcli id root --override --name fallen --password passwd
+fcli id --list
+
 # Defined objects
 
 Flag - pair of key and value (flag param). \
@@ -106,8 +147,12 @@ ParsedArgs - contains possible selector, possible arg, and Flags. \
 
 Tool - represents action that manipulates known commands. Requires arg and Flags.
 Command - contains a user-defined action. Requires arg.
-
 Group - a collection of commands that need to be executed sequentially.
+
+Contact - a representation of known email destination.
 
 # Extended features
 Logging, localization, testability.
+
+# Additions features
+Parallel, async, crypto.

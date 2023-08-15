@@ -20,6 +20,11 @@ public abstract class StaticConfig : IConfig
     public string LogsFileTemplate { get; private set; }
     public string LogsFolderName { get; private set; }
     public string LogsPath { get; private set; }
+
+    public string IdentityFileName { get; private set; }
+
+    public string IdentityFilePath { get; private set; }
+
     public List<string> KnownLocales => new()
     {
         "en", "en-US", "ru", "ru-RU", "uk", "uk-UA"
@@ -29,26 +34,27 @@ public abstract class StaticConfig : IConfig
         new("inline", typeof(InlineFormatter)),
         new("pretty", typeof(PrettyFormatter)),
     };
-#pragma warning disable 8625
+
     public List<IToolDescriptor> KnownTools => new()
     {
-        new AddTool(null, null, null, null, null),
-        new ChangeTool(null, null, null, null, null),
-        new ConfigTool(null, null, null),
-        new GroupTool(null, null, null, null, null),
-        new ListTool( null, null, null, null),
-        new RemoveTool(null, null, null),
-        new RunTool(null, null, null, null),
-        new PrimesTool(null, null)
+        new AddTool(),
+        new ChangeTool(),
+        new ConfigTool(),
+        new GroupTool(),
+        new ListTool(),
+        new RemoveTool(),
+        new RunTool(),
+        new PrimesTool(),
+        new MailTool(),
+        new IdentityTool()
     };
-#pragma warning restore 8625
+    
     public List<IConfig.CommandDescriptor> KnownCommands => new()
     {
         new("exe", CommandType.Executable, false, "exe"),
         new("url", CommandType.Website, false, null),
         new("script", CommandType.Script, true, null),
-        new("dir", CommandType.Directory, false, null),
-        new("shell", CommandType.Shell, true, null)
+        new("dir", CommandType.Directory, false, null)
     };
     public List<IConfig.ShellDescriptor> KnownShells => new()
     {
@@ -69,6 +75,22 @@ public abstract class StaticConfig : IConfig
         else throw new PlatformNotSupportedException(
             "FCli supports only WinNT and Unix based systems.");
 
+        // Configure general constants.
+        StorageFileName = "storage-x.json";
+        StorageFilePath = Path.Combine(
+            AppFolderPath,
+            StorageFileName);
+
+        ConfigFileName = "config.json";
+        ConfigFilePath = Path.Combine(AppFolderPath, ConfigFileName);
+
+
+
+        IdentityFileName = "identity.json";
+        IdentityFilePath = Path.Combine(
+            AppFolderPath,
+            IdentityFileName);
+
         // Guard against uninitialized directory.
         if (!Directory.Exists(AppFolderPath))
             Directory.CreateDirectory(AppFolderPath);
@@ -86,16 +108,8 @@ public abstract class StaticConfig : IConfig
                 Environment.SpecialFolder.ApplicationData),
             AppFolderName);
 
-        StorageFileName = "storage-x.json";
-        StorageFilePath = Path.Combine(
-            AppFolderPath,
-            StorageFileName);
-
-        ConfigFileName = "config.json";
-        ConfigFilePath = Path.Combine(AppFolderPath, ConfigFileName);
-
         LogsFolderName = "Logs";
-        LogsFileTemplate = "fcli-log.log";
+        LogsFileTemplate = "FCli.log";
         LogsPath = Path.Combine(
             AppFolderPath,
             LogsFolderName,
@@ -113,14 +127,6 @@ public abstract class StaticConfig : IConfig
                 Environment.SpecialFolder.Personal),
             ".fcli");
 
-        StorageFileName = "storage-x.json";
-        StorageFilePath = Path.Combine(
-            AppFolderPath,
-            StorageFileName);
-
-        ConfigFileName = "config.json";
-        ConfigFilePath = Path.Combine(AppFolderPath, ConfigFileName);
-
         LogsFolderName = "logs";
         LogsFileTemplate = "fcli-log.log";
         LogsPath = Path.Combine(
@@ -129,14 +135,20 @@ public abstract class StaticConfig : IConfig
             LogsFileTemplate);
     }
 
-    // Pass down the hierarchy.
-    
+    // Pass down to the dynamic config.
+
     public abstract string Locale { get; protected set; }
     public abstract IConfig.FormatterDescriptor Formatter { get; protected set; }
+    public abstract bool UseEncryption { get; protected set; }
+    public abstract string PassphraseFile { get; protected set; }
+    public abstract byte[] Salt { get; protected set; }
 
     public abstract void SaveConfig();
     public abstract void LoadConfig();
     public abstract void PurgeConfig();
     public abstract void ChangeLocale(string locale);
     public abstract void ChangeFormatter(IConfig.FormatterDescriptor formatter);
+    public abstract void ChangeEncryption(bool ifEncrypt);
+    public abstract void ChangePassphraseFile(string filename);
+    public abstract void ChangeSalt();
 }

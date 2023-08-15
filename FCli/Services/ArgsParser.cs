@@ -5,6 +5,12 @@ using FCli.Services.Abstractions;
 
 namespace FCli.Services;
 
+/// <summary>
+/// Transforms array of args to <c>Args</c> object.
+/// </summary>
+/// <remarks>
+/// Parses command line args differently if they are flat.
+/// </remarks>
 public partial class ArgsParser : Args, IArgsParser
 {
     // Regex needed to parse quoted strings.
@@ -81,7 +87,8 @@ public partial class ArgsParser : Args, IArgsParser
             if (buffer.Count > 2)
             {
                 // Hardcode inline formatter.
-                _formatter.DisplayWarning(nameof(Args),
+                _formatter.DisplayError(
+                    "Args",
                     _resources.GetLocalizedString("FCli_MultipleArgs"));
                 throw new ArgumentException(
                     $"[Arg] Incorrect ({buffer.Count}) amount of args was given.");

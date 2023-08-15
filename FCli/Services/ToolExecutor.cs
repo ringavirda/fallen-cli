@@ -34,8 +34,7 @@ public class ToolExecutor : IToolExecutor
     public void Execute(Args args, ToolType type)
     {
         // Extract tool from the list of known tools.
-        var tool = _tools
-            .FirstOrDefault(tool => tool.Type == type) 
+        var tool = _tools.FirstOrDefault(tool => tool.Type == type) 
             ?? throw new CriticalException("[Tool] Tool wasn't extracted.");
         // Perform action.
         try
@@ -47,6 +46,12 @@ public class ToolExecutor : IToolExecutor
             // Flag and Arg exceptions are caused by user errors and so have
             // low priority for logging.
             _logger.LogInformation(ex, "[Tool] Argument or flags has failed.");
+        }
+        catch (IdentityException ex)
+        {
+            // Identity exceptions are considered to have higher priority than
+            // argument exceptions, hence warning level.
+            _logger.LogWarning(ex, "[Tool] Identity failed.");
         }
     }
 

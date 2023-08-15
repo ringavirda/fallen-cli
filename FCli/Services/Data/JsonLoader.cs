@@ -79,12 +79,11 @@ public class JsonLoader : ICommandLoader
         {
             var json = File.ReadAllText(_config.StorageFilePath);
             // Guard against empty file.
-            if (json == string.Empty) return null;
+            if (string.IsNullOrEmpty(json)) return null;
             // Attempt to deserialize commands form json string.
             try
             {
                 var commands = JsonSerializer.Deserialize<List<Command>>(json);
-                // Guard against deserialization fail.
                 return _commandCashe = commands;
 
             }

@@ -14,6 +14,18 @@ public class RemoveTool : ToolBase
     // DI.
     private readonly ICommandLoader _loader;
 
+    /// <summary>
+    /// Empty if used as a descriptor.
+    /// </summary>
+    public RemoveTool() : base()
+    {
+        _loader = null!;
+        Description = string.Empty;
+    }
+
+    /// <summary>
+    /// Main constructor.
+    /// </summary>
     public RemoveTool(
         ICommandLineFormatter formatter,
         IResources resources,
@@ -39,12 +51,13 @@ public class RemoveTool : ToolBase
     protected override void GuardInit()
     {
         // Guard against invalid command name.
-        if (!_loader.CommandExists(Arg)
-            && !Flags.Any(f => f.Key == "all"))
+        if (!_loader.CommandExists(Arg) && !Flags.Any(f => f.Key == "all"))
         {
-            _formatter.DisplayError(Name, string.Format(
-                _resources.GetLocalizedString("FCli_UnknownName"),
-                Arg
+            _formatter.DisplayError(
+                Name, 
+                string.Format(
+                    _resources.GetLocalizedString("FCli_UnknownName"),
+                    Arg
             ));
             throw new CommandNameException(
                 $"[Remove] ({Arg}) is not a known command name.");
@@ -75,10 +88,10 @@ public class RemoveTool : ToolBase
             else
             {
                 // Delete all known commands.
-                foreach (var command in commands
-                    .Select(c => c.Name).ToList())
+                foreach (var command in commands.Select(c => c.Name))
                     _loader.DeleteCommand(command);
-                _formatter.DisplayInfo(Name,
+                _formatter.DisplayInfo(
+                    Name,
                     _resources.GetLocalizedString("Remove_AllDeleted"));
             }
             _skipAction = true;
@@ -89,21 +102,27 @@ public class RemoveTool : ToolBase
         else UnknownFlag(flag, Name);
     }
 
-    protected override void Action()
+    protected override Task ActionAsync()
     {
         if (!_skipAction)
         {
             // Prepare to delete the command.
             // Confirm user's intentions.
-            _formatter.DisplayWarning(Name, string.Format(
-                _resources.GetLocalizedString("Remove_Warning"),
-                Arg));
-            if (!_skipConfirm && !UserConfirm()) return;
+            _formatter.DisplayWarning(
+                Name, 
+                string.Format(
+                    _resources.GetLocalizedString("Remove_Warning"),
+                    Arg));
+            if (!_skipConfirm && !UserConfirm()) return Task.CompletedTask;
             // Delete command.
             _loader.DeleteCommand(Arg);
-            _formatter.DisplayInfo(Name, string.Format(
-                _resources.GetLocalizedString("Remove_Deleted"),
-                Arg));
+            _formatter.DisplayInfo(
+                Name, 
+                string.Format(
+                    _resources.GetLocalizedString("Remove_Deleted"),
+                    Arg));
         }
+        // Final
+        return Task.CompletedTask;
     }
 }

@@ -1,7 +1,7 @@
 ﻿// Vendor namespaces.
 using System.Diagnostics;
-using FCli.Exceptions;
 // FCli namespaces.
+using FCli.Exceptions;
 using FCli.Models.Types;
 using FCli.Services.Abstractions;
 using FCli.Services.Tools;
@@ -11,6 +11,17 @@ namespace FCli;
 
 public class PrimesTool : ToolBase
 {
+    /// <summary>
+    /// Empty if used as a descriptor.
+    /// </summary>
+    public PrimesTool() : base()
+    {
+        Description = string.Empty;
+    }
+
+    /// <summary>
+    /// Main constructor.
+    /// </summary>   
     public PrimesTool(
         ICommandLineFormatter formatter,
         IResources resources)
@@ -24,7 +35,7 @@ public class PrimesTool : ToolBase
     private int _sqrtSize;
     private int _parallelization = Environment.ProcessorCount;
 
-    private bool[] _bitArray = null!;
+    private volatile bool[] _bitArray = null!;
 
     private bool _time = false;
     private bool _noParallel = false;
@@ -35,7 +46,7 @@ public class PrimesTool : ToolBase
     public override string Description { get; }
     public override List<string> Selectors => new()
     {
-        "prime", "pr"
+        "primes", "pr"
     };
     public override ToolType Type => ToolType.Primes;
 
@@ -44,10 +55,11 @@ public class PrimesTool : ToolBase
         // Guard against no arg.
         if (Arg == string.Empty)
         {
-            _formatter.DisplayError(Name,
+            _formatter.DisplayError(
+                Name,
                 string.Format(
-                    _resources.GetLocalizedString("FCli_ArgMissing"),
-                    Name));
+                    Name,
+                    _resources.GetLocalizedString("FCli_ArgMissing")));
             throw new ArgumentException("[Primes] No argument was given.");
         }
         // Guard against non number arg.
@@ -62,16 +74,16 @@ public class PrimesTool : ToolBase
         else
         {
             _formatter.DisplayError(
-                _resources.GetLocalizedString("Primes_NonNumberArg"),
-                Name);
+                Name,
+                _resources.GetLocalizedString("Primes_NonNumberArg"));
             throw new ArgumentException("[Primes] Argument wasn't numeric.");
         }
         // Guard against invalid arg.
         if (_sieveSize < 5)
         {
             _formatter.DisplayError(
-                _resources.GetLocalizedString("Primes_InvalidSize"),
-                Name);
+                Name,
+                _resources.GetLocalizedString("Primes_InvalidSize"));
             throw new ArgumentException("[Primes] Sieve size was invalid.");
         }
     }
@@ -98,15 +110,18 @@ public class PrimesTool : ToolBase
             {
                 if (parallelization < 1)
                 {
-                    _formatter.DisplayError(Name,
-                    _resources.GetLocalizedString("Primes_InvalidParallel"));
-                    throw new FlagException("[Primes] Parallel value was invalid.");
+                    _formatter.DisplayError(
+                        Name,
+                        _resources.GetLocalizedString("Primes_InvalidParallel"));
+                    throw new FlagException(
+                        "[Primes] Parallel value was invalid.");
                 }
                 _parallelization = parallelization;
             }
             else
             {
-                _formatter.DisplayError(Name,
+                _formatter.DisplayError(
+                    Name,
                     _resources.GetLocalizedString("Primes_NoParallelValue"));
                 throw new FlagException("[Primes] Parallel was non numeric.");
             }
@@ -115,136 +130,149 @@ public class PrimesTool : ToolBase
         else UnknownFlag(flag, Name);
     }
 
-    protected override void Action()
+    protected override async Task ActionAsync()
     {
+        // Cancel setup.
         var cTokenSource = new CancellationTokenSource();
         var cToken = cTokenSource.Token;
 
-        _formatter.DisplayMessage(_resources.GetLocalizedString("FCli_Starting"));
-        var draw = _formatter.DrawProgressAsync(cToken);
-        draw.Start();
+        // Start up.
+        _formatter.DisplayInfo(
+            Name,
+            _resources.GetLocalizedString("Primes_Starting"));
         TimeSpan elapsed = default;
+        _formatter.DrawProgressAsync(cToken).Start();
 
         try
         {
-            Task.Run(() =>
+            _ = Task.Run(() =>
             {
+                // Watch for keys.
                 ConsoleKey key = default;
                 while (key != ConsoleKey.Q)
                 {
                     key = Console.ReadKey(true).Key;
                 }
+                // Cancel if q was pressed.
+                _formatter.DisplayProgressMessage(
+                    _resources.GetLocalizedString("FCli_Cancelled"));
                 cTokenSource.Cancel();
-                cToken.ThrowIfCancellationRequested();
-            }, cToken).ContinueWith((t) =>
-            {
-                _formatter.DisplayMessage("\r"
-                    + _resources.GetLocalizedString("FCli_Cancelled"));
-            }, TaskContinuationOptions.OnlyOnCanceled);
+            }, cToken);
 
-            elapsed = Task.Run(() => RunSieve(cToken), cToken).Result;
+            elapsed = await RunSieveAsync(cToken);
         }
         // If cancelled, stop execution.
         catch (AggregateException)
         {
-            Task.Delay(100).Wait();
             return;
         }
         // Stop operations.
         cTokenSource.Cancel();
 
         // Count found primes.
-        int count = 0;
-        for (int i = 0; i < _bitArray.Length; i++)
-            if (_bitArray[i]) count++;
+        int count = _bitArray.AsParallel().Count(b => b);
 
         // Display results.
-        _formatter.DisplayInfo(Name,
+        _formatter.DisplayInfo(
+            Name,
             string.Format(
-                _resources.GetLocalizedString("FCli_Results"),
+                _resources.GetLocalizedString("Primes_Results"),
                 count,
                 _sieveSize));
         if (_time)
-            _formatter.DisplayMessage(string.Format(
-                _resources.GetLocalizedString("Primes_TimeElapsed"),
-                elapsed));
+            _formatter.DisplayMessage(
+                string.Format(
+                    _resources.GetLocalizedString("Primes_TimeElapsed"),
+                    elapsed));
         if (_noParallel)
             _formatter.DisplayMessage($"No-Parallel: {_noParallel}");
     }
 
-    private TimeSpan RunSieve(CancellationToken cancellationToken)
-    {
-        var watch = new Stopwatch();
-        // If measuring time start clock.
-        if (_time) watch.Start();
-        // We start from number 3, since 0 an 1 are primes and we omit all even
-        // numbers from the sieve.
-        int factor = 3;
-
-        // Cross primes up to sqrt of sieve size, since there aren't any primes
-        // after that point.
-        while (factor < _sqrtSize)
+    /// <summary>
+    /// Runs sieve in a separate task.
+    /// </summary>
+    /// <param name="cToken">Used to cancel operation.</param>
+    /// <returns>Elapsed time.</returns>
+    private Task<TimeSpan> RunSieveAsync(CancellationToken cToken)
+        => Task.Run(() =>
         {
-            // Search for the next prime.
-            // Increment by 2 to skip all even numbers.
-            for (int next = factor; next <= _sqrtSize; next += 2)
+            var watch = new Stopwatch();
+            // If measuring time start clock.
+            if (_time) watch.Start();
+            // We start from number 3, since 0 an 1 are primes and we omit all 
+            // even numbers from the sieve.
+            int factor = 3;
+
+            // Cross primes up to sqrt of sieve size, since there aren't any 
+            // primes after that point.
+            while (factor < _sqrtSize)
             {
-                // If prime, break.
-                if (_bitArray[next >> 1])
+                // Enable cancellation.
+                cToken.ThrowIfCancellationRequested();
+                // Search for the next prime.
+                // Increment by 2 to skip all even numbers.
+                for (int next = factor; next <= _sqrtSize; next += 2)
                 {
-                    factor = next;
-                    break;
+                    // If prime, break.
+                    if (_bitArray[next >> 1])
+                    {
+                        factor = next;
+                        break;
+                    }
                 }
-            }
-            // Factor squared is a starting point for crossing off factors.
-            var factorSqr = factor * factor;
-            // Use single thread if no parallel.
-            if (_noParallel)
-            {
-                for (
-                    int next = factorSqr;
-                    next <= _sieveSize;
-                    next += factor * 2)
+                // Factor squared is a starting point for crossing off factors.
+                var factorSqr = factor * factor;
+                // Use single thread if no parallel.
+                if (_noParallel)
                 {
-                    _bitArray[next >> 1] = false;
-                }
-            }
-            // Utilize parallel.
-            else
-            {
-                // Calculate parallel segments.
-                var segmentSize = ((_sieveSize - factorSqr) / _parallelization) + 1;
-                // Cross all factors of found number. This part can be parallel.
-                var options = new ParallelOptions()
-                {
-                    CancellationToken = cancellationToken
-                };
-                Parallel.For(0, _parallelization, options, (segment) =>
-                {
-                    // In tread image of bit array.
-                    var inner = _bitArray.AsSpan();
-                    // Calculate starting location.
-                    var start = factorSqr + segment * segmentSize;
-                    // Guard against last segment.
-                    var end = Math.Min(start + segmentSize, _sieveSize);
-                    // Find out actual starting point.
-                    int startPos = Math.Max((start / factor) | 1, factor);
-                    // Cross off the list all multiples ignoring even ones.
                     for (
-                        int next = startPos * factor;
-                        next < end;
+                        int next = factorSqr;
+                        next <= _sieveSize;
                         next += factor * 2)
                     {
-                        inner[next >> 1] &= false;
+                        _bitArray[next >> 1] = false;
                     }
-                });
+                }
+                // Utilize parallel.
+                else
+                {
+                    // Calculate parallel segments.
+                    var segmentSize =
+                        ((_sieveSize - factorSqr) / _parallelization) + 1;
+                    // Cross all factors of found number. This part can be parallel.
+                    var options = new ParallelOptions()
+                    {
+                        CancellationToken = cToken
+                    };
+                    Parallel.For(0, _parallelization, options, (segment) =>
+                    {
+                        // In tread image of bit array.
+                        var inner = _bitArray.AsSpan();
+                        // Calculate starting location.
+                        var start = factorSqr + segment * segmentSize;
+                        // Guard against last segment.
+                        var end = Math.Min(start + segmentSize, _sieveSize);
+                        // Find out actual starting point.
+                        int startPos = Math.Max((start / factor) | 1, factor);
+                        // Cross off the list all multiples ignoring even ones.
+                        for (
+                            int next = startPos * factor;
+                            next < end;
+                            next += factor * 2)
+                        {
+                            inner[next >> 1] &= false;
+                        }
+                    });
+                }
+                // Propagate to the next potential prime. 
+                factor += 2;
             }
-            // Propagate to the next potential prime. 
-            factor += 2;
-        }
-        // If time stop watch.
-        if (_time) watch.Stop();
-        // Return TimeSpan regardless.
-        return watch.Elapsed;
-    }
+            // If time stop watch.
+            if (_time) watch.Stop();
+            // Report.
+            _formatter.DisplayProgressMessage(
+                _resources.GetLocalizedString("Primes_Completed"));
+            // Return TimeSpan regardless.
+            return watch.Elapsed;
+        }, cToken);
 }

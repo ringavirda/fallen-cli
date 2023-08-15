@@ -10,7 +10,9 @@ using FCli.Services;
 using FCli.Services.Abstractions;
 using FCli.Services.Config;
 using FCli.Services.Data;
+using FCli.Services.Data.Identity;
 using FCli.Services.Tools;
+using FCli.Services.Encryption;
 
 // Configure application host.
 var host = Host.CreateDefaultBuilder()
@@ -58,12 +60,19 @@ var host = Host.CreateDefaultBuilder()
             CultureInfo.CurrentUICulture = 
                 CultureInfo.CreateSpecificCulture("en");
         }
+        // Check if need to use encryption for the user data.
+        if (config.UseEncryption)
+            services.AddSingleton<IIdentityManager, EncryptedIdentityManager>();
+        else
+            services.AddSingleton<IIdentityManager, PlainIdentityManager>();
         // Configure app services.
         services
             .AddSingleton<IConfig>(config)
             .AddSingleton<IResources, StringResources>()
             .AddSingleton<IArgsParser, ArgsParser>()
             .AddScoped<ICommandLoader, JsonLoader>()
+            .AddScoped<IEncryptor, AesEncryptor>()
+            .AddScoped<IMailer, CombinedMailer>()
             .AddScoped<ICommandFactory, SystemSpecificFactory>()
             .AddScoped<IToolExecutor, ToolExecutor>()
             // Main entry point.
@@ -78,7 +87,6 @@ var host = Host.CreateDefaultBuilder()
     })
     // Build fcli host.
     .Build();
-
 
 // Run main fallen-cli logic.
 host.Services.GetRequiredService<FallenCli>().Execute(args);

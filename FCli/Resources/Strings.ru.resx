@@ -335,6 +335,9 @@
     --formatter &lt;type&gt; - устанавливает используемый форматировщик.
         - inline       - склонен показывать сообщения одной строкой.
         - pretty       - более многословен, разноцветный и многострочный.
+    --encrypt          - указывает использовать ли шифрование для хранения пользовательских данных.
+        - true         - использовать шифрование.
+        - false        - сохранять информацию без шифрования.
     --purge            - удаляет существующую конфигурацию.
     --help             - выводит эту страницу.</value>
 Использование:
@@ -350,6 +353,9 @@
   <data name="Config_Locale" xml:space="preserve">
     <value>Локаль: {0}</value>
   </data>
+  <data name="Config_Encryption" xml:space="preserve">
+    <value>Шифрование: {0}</value>
+  </data>
   <data name="Config_UnknownLocale" xml:space="preserve">
     <value>Неподдерживаемая локаль была указана через флаг --locale.
 Чтобы увидеть поддерживаемые локали воспользуйтесь страницей помощи.</value>
@@ -364,17 +370,29 @@
     <value>Неподдерживаемый форматировщик был указан через флаг --formatter.
 Чтобы увидеть поддерживаемые форматировщики воспользуйтесь страницей помощи.</value>
   </data>
+  <data name="Config_EncryptionBadValue" xml:space="preserve">
+    <value>Флаг --encrypt может иметь значения только (true) или (false).</value>
+  </data>
   <data name="Config_FormatterChangeWarning" xml:space="preserve">
     <value>Смена форматировщика командной строки с ({0}) на ({1})...</value>
   </data>
   <data name="Config_FormatterChanged" xml:space="preserve">
     <value>Форматировщик изменён.</value>
   </data>
+  <data name="Config_EncryptionChangeWarning" xml:space="preserve">
+    <value>Смена настройки шифрования с ({0}) на ({1})...</value>
+  </data>
+  <data name="Config_EncryptionEnabled" xml:space="preserve">
+    <value>Шифрование включено.</value>
+  </data>
+  <data name="Config_EncryptionDisabled" xml:space="preserve">
+    <value>Шифрование отключено.</value>
+  </data>
   <data name="Config_PurgeWarning" xml:space="preserve">
-    <value>Вы собираетесь очистить файл пользовательской конфигурации, все ваши установки будут утеряны. Вы уверены, что вы хотите продолжить?</value>
+    <value>Вы собираетесь очистить файл пользовательской конфигурации и файл пользователей. Все ваши установки будут утеряны.</value>
   </data>
   <data name="Config_Purged" xml:space="preserve">
-    <value>Конфигурацию очищено.</value>
+    <value>Настройки очищены.</value>
   </data>
   <!--
 
@@ -434,8 +452,7 @@
     fcli remove awesome --yes</value>
   </data>
   <data name="Remove_AllWarning" xml:space="preserve">
-    <value>Флаг (--all): вы собираетесь удалить все команды из хранилища.
-Вы уверены?</value>
+    <value>Флаг (--all): вы собираетесь удалить все команды из хранилища.</value>
   </data>
   <data name="Remove_NoCommands" xml:space="preserve">
     <value>В хранилище нет команд!</value>
@@ -444,8 +461,7 @@
     <value>Все существующие команды были удалены.</value>
   </data>
   <data name="Remove_Warning" xml:space="preserve">
-    <value>Команда ({0}) будет удалена.
-Вы уверены?</value>
+    <value>Команда ({0}) будет удалена.</value>
   </data>
   <data name="Remove_Deleted" xml:space="preserve">
     <value>Команда ({0}) была успешно удалена.</value>
@@ -637,14 +653,270 @@ options:
   <data name="Primes_InvalidParallel" xml:space="preserve">
     <value>Флаг --parallel должен иметь значение большее 1.</value>
   </data>
-  <data name="FCli_Starting" xml:space="preserve">
+  <data name="Primes_Starting" xml:space="preserve">
     <value>Просеивание начинается. Нажмите [q] чтобы отменить его.</value>
   </data>
-  <data name="FCli_Results" xml:space="preserve">
+  <data name="Primes_Completed" xml:space="preserve">
+    <value>Просеивание завершено!</value>
+  </data>
+  <data name="Primes_Results" xml:space="preserve">
     <value>Найдено [{0}] простых чисел до границы: {1}</value>
   </data>
   <data name="Primes_TimeElapsed" xml:space="preserve">
     <value>Затрачено времени: {0}</value>
+  </data>
+  <!-- 
+    
+    Mail tool strings.
+    
+  -->
+  <data name="Mail_Help" xml:space="preserve">
+    <value>FCli может управлять почтой корневого пользователя, если он зарегистрирован.
+Поддерживаемые провайдеры почты: Gmail, Outlook. Использует Inbox как папку для работы с почтой.
+Аргумент может быть телом сообщения если отправка письма, или же числом в других случаях. Отправляет почту если никаких специальных флагов не указано.
+Флаги:
+      --list   - показывает указанное количество заголовков последних писем.
+      --read   - выводит содержимое письма, аргумент это его индекс.
+      --remove - удаляет письмо, аргумент это его индекс.
+      --to     - указывает сущность или адрес получателя.
+      --sbj    - устанавливает тему письма.
+Использование:
+      fcli mail "Message body" --to mary@gmail.com --sbj "Message sbj"
+      fcli mail "Message body" --to mary
+      fcli mail 10 --list
+      fcli mail 122 --read
+      fcli mail 122 --remove
+    </value>
+  </data>
+  <data name="Mail_AttemptList" xml:space="preserve">
+    <value>Пытаюсь прочитать последние письма...</value>
+  </data>
+  <data name="Mail_EmptyInbox" xml:space="preserve">
+    <value>Нет входящих писем.</value>
+  </data>
+  <data name="Mail_Listing" xml:space="preserve">
+    <value>Получено список из {0} писем для пользователя с адресом [{1}]:</value>
+  </data>
+  <data name="Mail_Header" xml:space="preserve">
+    <value>[{0} : {1}] От: {2}, Прочитано: {3}</value>
+  </data>
+  <data name="Mail_AttemptRead" xml:space="preserve">
+    <value>Пытаюсь прочитать письмо...</value>
+  </data>
+  <data name="Mail_ReadSuccess" xml:space="preserve">
+    <value>Успешно прочитано письмо:</value>
+  </data>
+  <data name="Mail_ReadFrom" xml:space="preserve">
+    <value>От: {0} - {1}</value>
+  </data>
+  <data name="Mail_ReadSubject" xml:space="preserve">
+    <value>Тема: {0}</value>
+  </data>
+  <data name="Mail_ReadBody" xml:space="preserve">
+    <value>Тело письма:</value>
+  </data>
+  <data name="Mail_DeleteWarning" xml:space="preserve">
+    <value>Вы собираетесь удалить письмо с индексом {0}.</value>
+  </data>
+  <data name="Mail_NoEmail" xml:space="preserve">
+    <value>Инструменту mail необходим адрес или сущность получателя, указання с помощью флага --to.</value>
+  </data>
+  <data name="Mail_UnknownIdentity" xml:space="preserve">
+    <value>{0} - неизвестная сущность получателя.</value>
+  </data>
+  <data name="Mail_SendSummary" xml:space="preserve">
+    <value>Собрано заголовок письма:</value>
+  </data>
+  <data name="Mail_SendTo" xml:space="preserve">
+    <value>Получатель: {0} - {1}</value>
+  </data>
+  <data name="Mail_SendSubject" xml:space="preserve">
+    <value>Тема: {0}</value>
+  </data>
+  <data name="Mail_SendWarning" xml:space="preserve">
+    <value>Вы собираетесь отправить это письмо.</value>
+  </data>
+  <data name="Mail_SendAttempt" xml:space="preserve">
+    <value>Пытаюсь отправить письмо...</value>
+  </data>
+  <data name="Mail_ArgNonNumeric" xml:space="preserve">
+    <value>Эта операция определят аргумент как целое положительное число.</value>
+  </data>
+  <data name="Mail_ArgNegative" xml:space="preserve">
+    <value>Значение аргумента должно быть положительным.</value>
+  </data>
+  <data name="Mail_MultipleExecutionFlags" xml:space="preserve">
+    <value>Флаги выполнения не могут иметь никаких других флагов.</value>
+  </data>
+  <data name="Mail_AuthFailed" xml:space="preserve">
+    <value>Аутентификация провалена!</value>
+  </data>
+  <data name="Mail_Connected" xml:space="preserve">
+    <value>Соединение установлено.</value>
+  </data>
+  <data name="Mail_ListFailed" xml:space="preserve">
+    <value>Загрузка почты провалена.</value>
+  </data>
+  <data name="Mail_ListCompleted" xml:space="preserve">
+    <value>Загрузка почты завершена!</value>
+  </data>
+  <data name="Mail_ReadFailed" xml:space="preserve">
+    <value>Загрузка письма провалена! Возможно указан неправильный индекс.</value>
+  </data>
+  <data name="Mail_ReadCompleted" xml:space="preserve">
+    <value>Чтение завершено!</value>
+  </data>
+  <data name="Mail_SendBodyTemplate" xml:space="preserve">
+    <value>{0}
+
+С уважением, {1}.</value>
+  </data>
+  <data name="Mail_SendBodyCompleted" xml:space="preserve">
+    <value>Письмо отправлено!</value>
+  </data>
+  <data name="Mail_DeleteFailed" xml:space="preserve">
+    <value>Удаление письма провалено! Возможно указан неверный индекс.</value>
+  </data>
+  <data name="Mail_DeleteCompleted" xml:space="preserve">
+    <value>Письмо удалено!</value>
+  </data>
+  <data name="Mail_UnsupportedHost" xml:space="preserve">
+    <value>Почта FCli поддерживает только Gmail и Outlook.</value>
+  </data>
+  <data name="Mail_NoRootName" xml:space="preserve">
+    <value>Имя root пользователя не установлено. Используйте инструмент identity чтобы указать его в пользовательском профиле.</value>
+  </data>
+  <data name="Mail_NoRootEmail" xml:space="preserve">
+    <value>Адрес root пользователя не установлено. Используйте инструмент identity чтобы указать его в пользовательском профиле.</value>
+  </data>
+  <data name="Mail_NoRootPassword" xml:space="preserve">
+    <value>Пароль root пользователя не установлено. Используйте инструмент identity чтобы указать его в пользовательском профиле. Рекомендуется использовать шифрование для более безопасного хранения пароля.</value>
+  </data>
+  <!-- 
+    
+    Identity tool strings.
+    
+  -->
+  <data name="Identity_Help" xml:space="preserve">
+    <value>Этот инструмент управляет известными сущностями, которые включают в себя контакты и пользователя root.
+Контакты являються известными адресатами почты, которые сохраняются вместе с их именем и адресом.
+Пользователь root используется для аутентификации в сервисе почты и является отправителем.
+Флаги:
+      --list     - выводит целый или фильтрованный список сущностей (игнорирует все другие флаги). 
+      --override - разрешает изменение известных сущностей, включая root.
+      --remove   - удаляет сущность (кроме root).
+      --name     - устанавливает имя в запросе на изменение (только во время перезаписи).
+      --email    - указывает адрес в запросе на изменение (необходимо для контактов).
+      --password - устанавливает корневой пароль (только при перезаписи root).
+      --aliases  - изменяет список кличек, должен быть разделённый пробелами (кроме root).
+Использование:
+      fcli identity root --list
+      fcli id mary --aliases "mar sor" --email mary@gmail.com
+      fcli id mari --override --email mary@outlook.com
+      fcli id mari --remove
+      fcli id root --override --name fallen --password passwd
+      fcli id --list
+    </value>
+  </data>
+  <data name="Identity_OverRemove" xml:space="preserve">
+    <value>Вы не можете изменять и удалять одновременно.</value>
+  </data>
+  <data name="Identity_RemoveMultipleFlags" xml:space="preserve">
+    <value>Флаг --remove не может существовать с другим флагом.</value>
+  </data>
+  <data name="Identity_RemoveRoot" xml:space="preserve">
+    <value>Пользователь root не может быть удалён.</value>
+  </data>
+  <data name="Identity_NonRootPass" xml:space="preserve">
+    <value>Пароль может быть установлен только для root.</value>
+  </data>
+  <data name="Identity_EmptyStorage" xml:space="preserve">
+    <value>Хранилище сущностей не содержит контактов!</value>
+  </data>
+  <data name="Identity_DisplayAllContacts" xml:space="preserve">
+    <value>Флаг --list - вывожу все контакты:</value>
+  </data>
+  <data name="Identity_NothingFiltered" xml:space="preserve">
+    <value>Не было найдено сущности подходящей под: {0}</value>
+  </data>
+  <data name="Identity_DisplayFiltered" xml:space="preserve">
+    <value>Вывожу сущности подходящие под фильтр [{0}]:</value>
+  </data>
+  <data name="Identity_DisplayRoot" xml:space="preserve">
+    <value>Пользователь root выбран, вывожу корневой профиль:</value>
+  </data>
+  <data name="Identity_Exists" xml:space="preserve">
+    <value>{0} - это имя или кличка существующей сущности.</value>
+  </data>
+  <data name="Identity_CreateRoot" xml:space="preserve">
+    <value>{0} - имя пользователя root. Не может существовать несколько корневых пользователей одновременно.</value>
+  </data>
+  <data name="Identity_CreateNoEmail" xml:space="preserve">
+    <value>Контакты должны иметь адреса для того чтобы быть полезными. 
+Укажите необходимый адрес с помощью флага --email.</value>
+  </data>
+  <data name="Identity_Constructed" xml:space="preserve">
+    <value>Новая сущность была сконструирована:</value>
+  </data>
+  <data name="Identity_Stored" xml:space="preserve">
+    <value>Сущность ({0}) была успешно сохранена.</value>
+  </data>
+  <data name="Identity_Unknown" xml:space="preserve">
+    <value>{0} - не является известной сущностью.</value>
+  </data>
+  <data name="Identity_NoChanges" xml:space="preserve">
+    <value>Никаких изменений не указано. Используйте флаги свойств для того чтобы указать новые значения.</value>
+  </data>
+  <data name="Identity_ChangeWarning" xml:space="preserve">
+    <value>Вы собираетесь изменить сущность {0}:</value>
+  </data>
+  <data name="Identity_OldNew" xml:space="preserve">
+    <value>      Старое - Новое</value>
+  </data>
+  <data name="Identity_Changed" xml:space="preserve">
+    <value>Сущность ({0}) была успешно изменена.</value>
+  </data>
+  <data name="Identity_RemoveWarning" xml:space="preserve">
+    <value>Вы собираетесь удалить контакт [{0}] из хранилища.</value>
+  </data>
+  <data name="Identity_Removed" xml:space="preserve">
+    <value>Сущность [{0}] была успешно удалена.</value>
+  </data>
+  <data name="Identity_DecryptFailed" xml:space="preserve">
+    <value>Дешифрование провалено, неверная пассфраза.</value>
+  </data>
+  <data name="Identity_EnterPassphrase" xml:space="preserve">
+    <value>Вам нужно ввести пассфразу чтобы зашифровать/расшифровать информацию.</value>
+  </data>
+  <data name="Identity_BadPassphrase" xml:space="preserve">
+    <value>Неверный ввод - пассфраза должна быть UTF8, иметь больше чем 6 символов и меньше чем 16.</value>
+  </data>
+  <data name="Identity_PassphraseParsed" xml:space="preserve">
+    <value>Пассфраза была получена, она будет временно сохранена.</value>
+  </data>
+  <data name="Identity_Name" xml:space="preserve">
+    <value>Имя: {0}</value>
+  </data>
+  <data name="Identity_Email" xml:space="preserve">
+    <value>Адрес: {0}</value>
+  </data>
+  <data name="Identity_Password" xml:space="preserve">
+    <value>Пароль: {0}</value>
+  </data>
+  <data name="Identity_Aliases" xml:space="preserve">
+    <value>Клички: {0}</value>
+  </data>
+  <data name="Identity_OverrideName" xml:space="preserve">
+    <value>Имя: {0}  -  {1}</value>
+  </data>
+  <data name="Identity_OverrideEmail" xml:space="preserve">
+    <value>Адрес: {0}  -  {1}</value>
+  </data>
+  <data name="Identity_OverridePassword" xml:space="preserve">
+    <value>Пароль: {0}  -  {1}</value>
+  </data>
+  <data name="Identity_OverrideAliases" xml:space="preserve">
+    <value>Новые клички: {0}</value>
   </data>
 
 </root>

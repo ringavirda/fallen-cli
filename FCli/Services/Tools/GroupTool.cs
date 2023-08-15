@@ -15,6 +15,20 @@ public class GroupTool : ToolBase
     private readonly ICommandLoader _loader;
     private readonly ICommandFactory _factory;
 
+    /// <summary>
+    /// Empty if used as a descriptor.
+    /// </summary>
+    public GroupTool() : base()
+    {
+        _config = null!;
+        _loader = null!;
+        _factory = null!;
+        Description = string.Empty;
+    }
+
+    /// <summary>
+    /// Main constructor.
+    /// </summary>
     public GroupTool(
         ICommandLineFormatter formatter,
         IResources resources,
@@ -46,9 +60,11 @@ public class GroupTool : ToolBase
         // Guard against no arg.
         if (Arg == "" && !Flags.Any(flag => flag.Key == "all"))
         {
-            _formatter.DisplayError(Name, string.Format(
-                _resources.GetLocalizedString("FCli_ArgMissing"),
-                Name));
+            _formatter.DisplayError(
+                Name, 
+                string.Format(
+                    _resources.GetLocalizedString("FCli_ArgMissing"),
+                    Name));
             throw new ArgumentException("[Group] No arg was given.");
         }
         if (Flags.Any(flag => flag.Key == "yes"))
@@ -68,16 +84,22 @@ public class GroupTool : ToolBase
             _alterRequest.Sequence = ValidateCommands(Arg);
             // Construct a command.
             var group = _factory.ConstructGroup(_alterRequest);
-            _formatter.DisplayInfo(Name, string.Format(
-                _resources.GetLocalizedString("Group_Constructed"),
-                group.Name, $"({string.Join(" ", group.Sequence)})"));
+            _formatter.DisplayInfo(
+                Name, 
+                string.Format(
+                    _resources.GetLocalizedString("Group_Constructed"),
+                    group.Name, 
+                    $"({string.Join(" ", group.Sequence)})"));
             // Save it.
             _formatter.DisplayMessage(
                 _resources.GetLocalizedString("FCli_Saving"));
             _loader.SaveCommand(group);
-            _formatter.DisplayInfo(Name, string.Format(
-                _resources.GetLocalizedString("FCli_CommandSaved"),
-                group.Name));
+            // Report.
+            _formatter.DisplayInfo(
+                Name, 
+                string.Format(
+                    _resources.GetLocalizedString("FCli_CommandSaved"),
+                    group.Name));
         }
         // Change given group.
         else if (flag.Key == "override")
@@ -88,9 +110,11 @@ public class GroupTool : ToolBase
             _alterRequest = group.ToAlterRequest();
             // Validate new commands.
             _alterRequest.Sequence = ValidateCommands(Arg);
-            _formatter.DisplayWarning(Name, string.Format(
-                _resources.GetLocalizedString("Group_OverrideWarning"),
-                group.Name));
+            _formatter.DisplayWarning(
+                Name, 
+                string.Format(
+                    _resources.GetLocalizedString("Group_OverrideWarning"),
+                    group.Name));
             // Get user confirmation or skip.
             if (!_skipConfirm && !UserConfirm())
                 return;
@@ -98,9 +122,12 @@ public class GroupTool : ToolBase
             _loader.DeleteCommand(group.Name);
             group = _factory.ConstructGroup(_alterRequest);
             _loader.SaveCommand(group);
-            _formatter.DisplayInfo(Name, string.Format(
-                _resources.GetLocalizedString("FCli_CommandSaved"),
-                group.Name));
+            // Report.
+            _formatter.DisplayInfo(
+                Name, 
+                string.Format(
+                    _resources.GetLocalizedString("FCli_CommandSaved"),
+                    group.Name));
 
         }
         // Delete existing group.
@@ -109,7 +136,8 @@ public class GroupTool : ToolBase
             FlagHasNoValue(flag, Name);
             if (Flags.Any(f => f.Key == "all"))
             {
-                _formatter.DisplayWarning(Name,
+                _formatter.DisplayWarning(
+                    Name,
                     _resources.GetLocalizedString("Group_RemoveAllWarning"));
                 // Get user confirmation, no skipping.
                 if (!UserConfirm()) return;
@@ -118,7 +146,8 @@ public class GroupTool : ToolBase
                     ?.Where(command => command.Type == CommandType.Group);
                 if (groups == null || !groups.Any())
                 {
-                    _formatter.DisplayInfo(Name,
+                    _formatter.DisplayInfo(
+                        Name,
                         _resources.GetLocalizedString("Group_NoGroups"));
                     return;
                 }
@@ -127,7 +156,8 @@ public class GroupTool : ToolBase
                     // Delete all.
                     foreach (var group in groups)
                         _loader.DeleteCommand(group.Name);
-                    _formatter.DisplayInfo(Name,
+                    _formatter.DisplayInfo(
+                        Name,
                         _resources.GetLocalizedString("Group_RemovedAll"));
                 }
             }
@@ -137,27 +167,33 @@ public class GroupTool : ToolBase
                 var group = GroupExists(Arg);
                 if (group.Type != CommandType.Group)
                 {
-                    _formatter.DisplayError(Name,
+                    _formatter.DisplayError(
+                        Name,
                         _resources.GetLocalizedString("Group_NotAGroup"));
-                    throw new ArgumentException($"[Group] ({Arg}) wasn't a group.");
+                    throw new ArgumentException(
+                        $"[Group] ({Arg}) wasn't a group.");
                 }
                 // Get user confirmation or skip.
                 if (!_skipConfirm && !UserConfirm())
                     return;
                 // Remove group.
                 _loader.DeleteCommand(group.Name);
-                _formatter.DisplayInfo(Name, string.Format(
-                    _resources.GetLocalizedString("Group_Removed"),
-                    group.Name));
+                // Report.
+                _formatter.DisplayInfo(
+                    Name, 
+                    string.Format(
+                        _resources.GetLocalizedString("Group_Removed"),
+                        group.Name));
             }
         }
         // Throw if flag is unrecognized.
         else UnknownFlag(flag, Name);
     }
 
-    protected override void Action()
+    protected override Task ActionAsync()
     {
         // Group tool is entirely flag based.
+        return Task.CompletedTask;
     }
 
     // Private methods.
@@ -173,9 +209,11 @@ public class GroupTool : ToolBase
         var group = (Group?)_loader.LoadCommand(name);
         if (group == null)
         {
-            _formatter.DisplayError(Name, string.Format(
-                _resources.GetLocalizedString("FCli_UnknownName"),
-                name));
+            _formatter.DisplayError(
+                Name, 
+                string.Format(
+                    _resources.GetLocalizedString("FCli_UnknownName"),
+                    name));
             throw new CommandNameException(
                 "[Group] Tried to override an unknown group.");
         }
@@ -192,9 +230,11 @@ public class GroupTool : ToolBase
         if (_loader.CommandExists(name)
             || _config.KnownTools.Any(tool => tool.Selectors.Contains(name)))
         {
-            _formatter.DisplayError(Name, string.Format(
-                _resources.GetLocalizedString("FCli_NameExists"),
-                name));
+            _formatter.DisplayError(
+                Name, 
+                string.Format(
+                    _resources.GetLocalizedString("FCli_NameExists"),
+                    name));
             throw new CommandNameException(
                 "[Group] Tried to create a group with existing name.");
         }
@@ -213,9 +253,11 @@ public class GroupTool : ToolBase
         {
             if (!_loader.CommandExists(name))
             {
-                _formatter.DisplayError(Name, string.Format(
-                    _resources.GetLocalizedString("FCli_UnknownName"),
-                    name));
+                _formatter.DisplayError(
+                    Name, 
+                    string.Format(
+                        _resources.GetLocalizedString("FCli_UnknownName"),
+                        name));
                 throw new CommandNameException(
                     "[Group] Tried to create a group with an unknown command.");
             }

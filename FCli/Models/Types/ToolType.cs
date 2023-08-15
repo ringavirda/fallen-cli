@@ -13,5 +13,7 @@ public enum ToolType
     Config,
     Group,
     Change,
-    Primes
+    Primes,
+    Identity,
+    Mail
 }

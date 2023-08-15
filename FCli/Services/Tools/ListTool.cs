@@ -15,6 +15,19 @@ public class ListTool : ToolBase
     private readonly IConfig _config;
     private readonly ICommandLoader _loader;
 
+    /// <summary>
+    /// Empty if used as a descriptor.
+    /// </summary>
+    public ListTool() : base()
+    {
+        _config = null!;
+        _loader = null!;
+        Description = string.Empty;
+    }
+
+    /// <summary>
+    /// Main constructor.
+    /// </summary>
     public ListTool(
         ICommandLineFormatter formatter,
         IResources resources,
@@ -45,7 +58,8 @@ public class ListTool : ToolBase
         // Guard against empty command list.
         if (commands == null || !commands.Any())
         {
-            _formatter.DisplayInfo(Name,
+            _formatter.DisplayInfo(
+                Name,
                 _resources.GetLocalizedString("List_NoCommands"));
         }
         // Init private field.
@@ -65,15 +79,19 @@ public class ListTool : ToolBase
         // No descriptors found.
         if (commandDesc != null)
         {
-            _formatter.DisplayInfo(Name, string.Format(
-                _resources.GetLocalizedString("List_ListCommands"),
-                commandDesc.Selector));
+            _formatter.DisplayInfo(
+                Name, 
+                string.Format(
+                    _resources.GetLocalizedString("List_ListCommands"),
+                    commandDesc.Selector));
+            // Extract typed commands.
             var selected = _commands.Where(c => c.Type == commandDesc.Type);
             if (selected.Any())
                 DisplayCommands(selected, Arg);
-            else _formatter.DisplayMessage(string.Format(
-                    _resources.GetLocalizedString(
-                        "List_NoCommandsSelected"),
+            // Guard against no commands.
+            else _formatter.DisplayMessage(
+                string.Format(
+                    _resources.GetLocalizedString("List_NoCommandsSelected"),
                     commandDesc.Selector));
         }
         // List all known tools.
@@ -108,33 +126,40 @@ public class ListTool : ToolBase
         // List all stored command groups.
         else if (flag.Key == "groups")
         {
-            _formatter.DisplayInfo(Name, string.Format(
-                _resources.GetLocalizedString("List_ListCommands"),
-                CommandType.Group));
+            _formatter.DisplayInfo(
+                Name, 
+                string.Format(
+                    _resources.GetLocalizedString("List_ListCommands"),
+                    CommandType.Group));
+            // Extract commands.
             var selected = _commands
                 .Where(command => command.Type == CommandType.Group);
             if (selected.Any())
                 DisplayCommands(selected, Arg);
-            else _formatter.DisplayMessage(string.Format(
-                    _resources.GetLocalizedString(
-                        "List_NoCommandsSelected"),
+            // Guard against no groups.
+            else _formatter.DisplayMessage(
+                string.Format(
+                    _resources.GetLocalizedString("List_NoCommandsSelected"),
                     CommandType.Group));
         }
         // Throw if flag is unrecognized.
         else UnknownFlag(flag, Name);
     }
 
-    protected override void Action()
+    protected override Task ActionAsync()
     {
         // Skip if no commands loaded.
-        if (_commands == null) return;
+        if (_commands == null) return Task.CompletedTask;
         // Display all commands if no flags were given.
         if (Flags.Count == 0)
         {
-            _formatter.DisplayInfo(Name,
+            _formatter.DisplayInfo(
+                Name,
                 _resources.GetLocalizedString("List_ListAllCommands"));
             DisplayCommands(_commands, Arg);
         }
+        // Final.
+        return Task.CompletedTask;
     }
 
     // Private methods.
@@ -147,9 +172,10 @@ public class ListTool : ToolBase
     private void DisplayString(string arg, string conf)
     {
         if (conf == string.Empty)
-            _formatter.DisplayMessage(string.Format(
-                _resources.GetLocalizedString("List_NothingFiltered"),
-                arg));
+            _formatter.DisplayMessage(
+                string.Format(
+                    _resources.GetLocalizedString("List_NothingFiltered"),
+                    arg));
         else _formatter.DisplayMessage(conf);
     }
 
@@ -177,8 +203,8 @@ public class ListTool : ToolBase
             _formatter.DisplayMessage($"[{command.Type}] - {command.Name}:");
             if (command.Type == CommandType.Group)
                 _formatter.DisplayMessage(
-                    $"\t{string.Join(' ', ((Group)command).Sequence)}");
-            else _formatter.DisplayMessage($"\t{command.Path}");
+                    '\t' + string.Join(' ', ((Group)command).Sequence));
+            else _formatter.DisplayMessage('\t' + command.Path);
         }
     }
 }

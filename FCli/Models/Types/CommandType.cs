@@ -10,6 +10,5 @@ public enum CommandType
     Website,
     Script,
     Directory,
-    Group,
-    Shell
+    Group
 }
