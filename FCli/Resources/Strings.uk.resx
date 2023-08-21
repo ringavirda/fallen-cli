@@ -353,6 +353,9 @@
   <data name="Config_Locale" xml:space="preserve">
     <value>Локаль: {0}</value>
   </data>
+  <data name="Config_Path" xml:space="preserve">
+    <value>Шлях до файлів: {0}</value>
+  </data>
   <data name="Config_Encryption" xml:space="preserve">
     <value>Шифрування: {0}</value>
   </data>
@@ -378,6 +381,15 @@
   </data>
   <data name="Config_FormatterChanged" xml:space="preserve">
     <value>Форматувальник змінено.</value>
+  </data>
+  <data name="Config_PathChangeWarning" xml:space="preserve">
+    <value>Зміна розташування файлів додатку з ({0}) на ({1})...</value>
+  </data>
+  <data name="Config_PathDirectoryMissing" xml:space="preserve">
+    <value>Директорія ({0}) не існує. Створюю її...</value>
+  </data>
+  <data name="Config_PathChanged" xml:space="preserve">
+    <value>Розташування файлів fcli було змінено.</value>
   </data>
   <data name="Config_EncryptionChangeWarning" xml:space="preserve">
     <value>Зміна налаштування шифрування з ({0}) на ({1})...</value>

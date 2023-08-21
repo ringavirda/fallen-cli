@@ -360,6 +360,9 @@ Usage:
   <data name="Config_Locale" xml:space="preserve">
     <value>Locale: {0}</value>
   </data>
+  <data name="Config_Path" xml:space="preserve">
+    <value>AppPath: {0}</value>
+  </data>
   <data name="Config_Encryption" xml:space="preserve">
     <value>Encryption: {0}</value>
   </data>
@@ -385,6 +388,15 @@ To see supported console formatters consult help page.</value>
   </data>
   <data name="Config_FormatterChanged" xml:space="preserve">
     <value>Formatter changed.</value>
+  </data>
+  <data name="Config_PathChangeWarning" xml:space="preserve">
+    <value>Preparing to change application folder from ({0}) to ({1})...</value>
+  </data>
+  <data name="Config_PathDirectoryMissing" xml:space="preserve">
+    <value>Directory ({0}) doesn't exist. Creating it...</value>
+  </data>
+  <data name="Config_PathChanged" xml:space="preserve">
+    <value>App path changed.</value>
   </data>
   <data name="Config_EncryptionChangeWarning" xml:space="preserve">
     <value>Preparing to change encryption setting from ({0}) to ({1})...</value>

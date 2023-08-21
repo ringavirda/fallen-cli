@@ -52,7 +52,7 @@ public class ConfigTool : ToolBase
         if (Arg != string.Empty)
         {
             _formatter.DisplayError(
-                Name, 
+                Name,
                 string.Format(
                     _resources.GetLocalizedString("FCli_UnexpectedArg"),
                     Name));
@@ -81,7 +81,7 @@ public class ConfigTool : ToolBase
                 string.Format(
                     _resources.GetLocalizedString(
                         "Config_LocaleChangeWarning"),
-                        _config.Locale, 
+                        _config.Locale,
                         flag.Value));
             _config.ChangeLocale(flag.Value);
             _formatter.DisplayMessage(
@@ -108,7 +108,7 @@ public class ConfigTool : ToolBase
                 string.Format(
                     _resources.GetLocalizedString(
                         "Config_FormatterChangeWarning"),
-                        _config.Formatter.Selector, 
+                        _config.Formatter.Selector,
                         flag.Value));
             _config.ChangeFormatter(newFormatter);
             _formatter.DisplayMessage(
@@ -132,7 +132,7 @@ public class ConfigTool : ToolBase
                 string.Format(
                     _resources.GetLocalizedString(
                         "Config_EncryptionChangeWarning"),
-                        _config.UseEncryption, 
+                        _config.UseEncryption,
                         encrypt));
             _config.ChangeEncryption(encrypt);
             // Create identity managers.
@@ -155,6 +155,38 @@ public class ConfigTool : ToolBase
                 _formatter.DisplayMessage(
                     _resources.GetLocalizedString("Config_EncryptionDisabled"));
             }
+        }
+        // Change current app folder.
+        else if (flag.Key == "path")
+        {
+            FlagHasValue(flag, Name);
+
+            _formatter.DisplayWarning(
+                Name,
+                string.Format(
+                    _resources.GetLocalizedString(
+                        "Config_PathChangeWarning"),
+                        _config.AppFolderPath,
+                        flag.Value));
+            DirectoryInfo? dir; 
+            if (flag.Value != "default")
+            {
+                dir = new DirectoryInfo(flag.Value);
+                ValidatePath(dir.Parent?.FullName ?? "", Name);
+                if (!dir.Exists)
+                {
+                    _formatter.DisplayMessage(
+                        string.Format(
+                            _resources.GetLocalizedString(
+                                "Config_PathDirectoryMissing"),
+                            dir.Name));
+                    dir.Create();
+                }
+            }
+            else dir = null;
+            _config.ChangeAppFolder(dir);
+            _formatter.DisplayMessage(
+                _resources.GetLocalizedString("Config_PathChanged"));
         }
         // Purge current config.
         else if (flag.Key == "purge")
@@ -193,6 +225,11 @@ public class ConfigTool : ToolBase
                 string.Format(
                     _resources.GetLocalizedString("Config_Locale"),
                     _config.Locale
+            ));
+            _formatter.DisplayMessage(
+                string.Format(
+                    _resources.GetLocalizedString("Config_Path"),
+                    _config.AppFolderPath
             ));
             _formatter.DisplayMessage(
                 string.Format(

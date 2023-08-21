@@ -178,4 +178,8 @@ public interface IConfig
     /// Should regenerate encryption salt.
     /// </summary>
     public void ChangeSalt();
+    /// <summary>
+    /// Should change default files' location.
+    /// </summary>
+    public void ChangeAppFolder(DirectoryInfo? directory);
 }
