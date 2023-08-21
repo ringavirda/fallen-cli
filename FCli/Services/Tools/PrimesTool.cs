@@ -4,10 +4,9 @@ using System.Diagnostics;
 using FCli.Exceptions;
 using FCli.Models.Types;
 using FCli.Services.Abstractions;
-using FCli.Services.Tools;
 using static FCli.Models.Args;
 
-namespace FCli;
+namespace FCli.Services.Tools;
 
 public class PrimesTool : ToolBase
 {

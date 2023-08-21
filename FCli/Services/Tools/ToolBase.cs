@@ -12,7 +12,7 @@ namespace FCli.Services.Tools;
 /// </summary>
 /// <remarks>
 /// Contains common properties and some guarding methods.
-/// <remarks>
+/// </remarks>
 public abstract class ToolBase : ITool
 {
     // DI needed by all tools.
