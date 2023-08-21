@@ -29,7 +29,8 @@ public class StringResources : IResources
     /// <param name="name">String name in the Strings resource file.</param>
     /// <returns>Loaded string.</returns>
     public string GetLocalizedString(string name) 
-        => _manager.GetString(name) ?? StringNotLoaded();
+        => _manager.GetString(name, CultureInfo.CurrentCulture) 
+            ?? StringNotLoaded();
 
     /// <summary>
     /// Default missing resource message.

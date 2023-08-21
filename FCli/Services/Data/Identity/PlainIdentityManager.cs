@@ -14,19 +14,20 @@ namespace FCli.Services.Data.Identity;
 public class PlainIdentityManager : IIdentityManager
 {
     // DI.
-    protected readonly IConfig _config;
+    private readonly IConfig _config;
 
-    // Cashe.
-    protected IdentityStorage? _identityCashe;
 
     public PlainIdentityManager(IConfig config)
     {
         _config = config;
     }
 
+    protected IConfig Config => _config;
+    protected IdentityStorage? IdentityCashe { get; set; }
+    
     public List<Contact>? LoadContacts()
     {
-        if (File.Exists(_config.IdentityFilePath))
+        if (File.Exists(Config.IdentityFilePath))
         {
             // This also updates cashe.
             var storage = TryLoadStorage();
@@ -37,24 +38,24 @@ public class PlainIdentityManager : IIdentityManager
 
     public Contact? LoadContact(string nameOrAlias)
         => ContactExists(nameOrAlias)
-            ? GetUserFromAlias(_identityCashe, nameOrAlias)
+            ? GetUserFromAlias(IdentityCashe, nameOrAlias)
             : null;
 
     public bool ContactExists(string nameOrAlias)
     {
-        if (_identityCashe == null)
+        if (IdentityCashe == null)
         {
             var storage = TryLoadStorage();
             if (storage == null) return false;
         }
 
         // Search name first.
-        var maybeUser = _identityCashe?.Contacts
+        var maybeUser = IdentityCashe?.Contacts
             .FirstOrDefault(u => u.Name == nameOrAlias);
         if (maybeUser == null)
         {
             // Search alias if name isn't found.
-            maybeUser = GetUserFromAlias(_identityCashe, nameOrAlias);
+            maybeUser = GetUserFromAlias(IdentityCashe, nameOrAlias);
             if (maybeUser == null) return false;
         }
         // User found.
@@ -63,19 +64,19 @@ public class PlainIdentityManager : IIdentityManager
 
     public RootUser GetRootUser()
     {
-        if (_identityCashe == null)
+        if (IdentityCashe == null)
         {
             var storage = TryLoadStorage();
             if (storage == null)
             {
-                _identityCashe = new();
-                FlushStorage(_identityCashe);
-                return _identityCashe.RootUser;
+                IdentityCashe = new();
+                FlushStorage(IdentityCashe);
+                return IdentityCashe.RootUser;
 
             }
             else return storage.RootUser;
         }
-        else return _identityCashe.RootUser;
+        else return IdentityCashe.RootUser;
     }
 
     public void UpdateRootUser(IdentityChangeRequest request)
@@ -88,45 +89,45 @@ public class PlainIdentityManager : IIdentityManager
             Password = request.Password
         };
 
-        if (_identityCashe == null)
+        if (IdentityCashe == null)
         {
             var storage = TryLoadStorage();
             if (storage == null)
             {
-                _identityCashe = new()
+                IdentityCashe = new()
                 {
                     RootUser = root
                 };
             }
         }
-        else _identityCashe.RootUser = root;
-        FlushStorage(_identityCashe);
+        else IdentityCashe.RootUser = root;
+        FlushStorage(IdentityCashe);
     }
 
     public void StoreContact(Contact user)
     {
-        if (_identityCashe == null)
+        if (IdentityCashe == null)
         {
             var storage = TryLoadStorage();
             if (storage == null)
             {
-                _identityCashe = new();
+                IdentityCashe = new();
             }
         }
         // Update storage.
-        _identityCashe?.Contacts.Add(user);
-        FlushStorage(_identityCashe);
+        IdentityCashe?.Contacts.Add(user);
+        FlushStorage(IdentityCashe);
     }
 
     public void DeleteContact(string userName)
     {
         if (ContactExists(userName))
         {
-            var user = GetUserFromAlias(_identityCashe, userName);
+            var user = GetUserFromAlias(IdentityCashe, userName);
             if (user != null)
             {
-                _identityCashe?.Contacts.Remove(user);
-                FlushStorage(_identityCashe);
+                IdentityCashe?.Contacts.Remove(user);
+                FlushStorage(IdentityCashe);
             }
         }
         else throw new IdentityException(
@@ -140,14 +141,14 @@ public class PlainIdentityManager : IIdentityManager
     /// <exception cref="CriticalException">If storage is corrupted.</exception>
     protected virtual IdentityStorage? TryLoadStorage()
     {
-        if (File.Exists(_config.IdentityFilePath))
+        if (File.Exists(Config.IdentityFilePath))
         {
-            var json = File.ReadAllText(_config.IdentityFilePath);
+            var json = File.ReadAllText(Config.IdentityFilePath);
             if (string.IsNullOrEmpty(json)) return null;
             try
             {
                 var storage = JsonSerializer.Deserialize<IdentityStorage>(json);
-                return _identityCashe = storage;
+                return IdentityCashe = storage;
             }
             catch (JsonException ex)
             {
@@ -157,9 +158,9 @@ public class PlainIdentityManager : IIdentityManager
         }
         else
         {
-            _identityCashe = new();
-            FlushStorage(_identityCashe);
-            return _identityCashe;
+            IdentityCashe = new();
+            FlushStorage(IdentityCashe);
+            return IdentityCashe;
         }
     }
 
@@ -170,8 +171,8 @@ public class PlainIdentityManager : IIdentityManager
     protected virtual void FlushStorage(IdentityStorage? storage)
     {
         var json = JsonSerializer.Serialize(storage);
-        File.WriteAllText(_config.IdentityFilePath, json);
-        _identityCashe = storage;
+        File.WriteAllText(Config.IdentityFilePath, json);
+        IdentityCashe = storage;
     }
 
     /// <summary>

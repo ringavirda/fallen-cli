@@ -16,21 +16,9 @@ using FCli.Services.Encryption;
 
 // Configure application host.
 var host = Host.CreateDefaultBuilder()
-    // Serilog for structured file logging.
-    .UseSerilog((context, services, configuration) =>
-    {
-        configuration
-            // Some enrichers for more info in log files.
-            .Enrich.FromLogContext()
-            .Enrich.WithMachineName()
-            .Enrich.WithEnvironmentUserName()
-            // Rolling file for more organization.
-            .WriteTo.RollingFile(
-                services.GetRequiredService<IConfig>().LogsPath,
-                Serilog.Events.LogEventLevel.Information);
-    })
     // Register app services according to their nature.
-    .ConfigureServices(services => {
+    .ConfigureServices(services =>
+    {
         // Load user's dynamic config.
         var config = new DynamicConfig();
         // Set user's preferred formatter.
@@ -49,7 +37,7 @@ var host = Host.CreateDefaultBuilder()
         }
         // Set user's preferred locale.
         if (config.KnownLocales.Contains(config.Locale))
-            CultureInfo.CurrentUICulture 
+            CultureInfo.CurrentUICulture
                 = CultureInfo.CreateSpecificCulture(config.Locale);
         // Guard against unknown locale.
         // Use default if so.
@@ -57,7 +45,7 @@ var host = Host.CreateDefaultBuilder()
         {
             Console.WriteLine(
                 "Warn! Config contains unknown locale - using default instead.");
-            CultureInfo.CurrentUICulture = 
+            CultureInfo.CurrentUICulture =
                 CultureInfo.CreateSpecificCulture("en");
         }
         // Check if need to use encryption for the user data.
@@ -85,6 +73,18 @@ var host = Host.CreateDefaultBuilder()
         foreach (var toolType in toolTypes)
             services.AddScoped(typeof(ITool), toolType);
     })
+    // Serilog for structured file logging.
+    .UseSerilog((context, services, configuration) 
+        => configuration
+            // Some enrichers for more info in log files.
+            .Enrich.FromLogContext()
+            .Enrich.WithMachineName()
+            .Enrich.WithEnvironmentUserName()
+            // Rolling file for more organization.
+            .WriteTo.RollingFile(
+                services.GetRequiredService<IConfig>().LogsPath,
+                Serilog.Events.LogEventLevel.Information,
+                formatProvider: CultureInfo.InvariantCulture))
     // Build fcli host.
     .Build();
 

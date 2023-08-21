@@ -1,9 +1,11 @@
+// Vendor namespaces.
+using System.Globalization;
 // FCli namespaces.
 using FCli.Exceptions;
+using FCli.Models;
 using FCli.Models.Types;
 using FCli.Services.Abstractions;
 using FCli.Services.Data.Identity;
-using static FCli.Models.Args;
 
 namespace FCli.Services.Tools;
 
@@ -51,10 +53,11 @@ public class ConfigTool : ToolBase
         // Guard against arg.
         if (Arg != string.Empty)
         {
-            _formatter.DisplayError(
+            Formatter.DisplayError(
                 Name,
                 string.Format(
-                    _resources.GetLocalizedString("FCli_UnexpectedArg"),
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("FCli_UnexpectedArg"),
                     Name));
             throw new ArgumentException("[Config] Unexpected arg.");
         }
@@ -70,22 +73,23 @@ public class ConfigTool : ToolBase
             // Guard against unsupported locale.
             if (!_config.KnownLocales.Contains(flag.Value))
             {
-                _formatter.DisplayError(
+                Formatter.DisplayError(
                     Name,
-                    _resources.GetLocalizedString("Config_UnknownLocale"));
+                    Resources.GetLocalizedString("Config_UnknownLocale"));
                 throw new FlagException(
                     $"[Config] Unsupported locale ({flag.Value}) was specified.");
             }
-            _formatter.DisplayWarning(
+            Formatter.DisplayWarning(
                 Name,
                 string.Format(
-                    _resources.GetLocalizedString(
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString(
                         "Config_LocaleChangeWarning"),
                         _config.Locale,
                         flag.Value));
             _config.ChangeLocale(flag.Value);
-            _formatter.DisplayMessage(
-                _resources.GetLocalizedString("Config_LocaleChanged"));
+            Formatter.DisplayMessage(
+                Resources.GetLocalizedString("Config_LocaleChanged"));
         }
         // Change current command line formatter.
         else if (flag.Key == "formatter")
@@ -97,22 +101,23 @@ public class ConfigTool : ToolBase
             // Guard against unsupported locale.
             if (newFormatter == null)
             {
-                _formatter.DisplayError(
+                Formatter.DisplayError(
                     Name,
-                    _resources.GetLocalizedString("Config_UnsupportedFormatter"));
+                    Resources.GetLocalizedString("Config_UnsupportedFormatter"));
                 throw new FlagException(
                     $"[Config] Unsupported formatter ({flag.Value}) was specified.");
             }
-            _formatter.DisplayWarning(
+            Formatter.DisplayWarning(
                 Name,
                 string.Format(
-                    _resources.GetLocalizedString(
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString(
                         "Config_FormatterChangeWarning"),
                         _config.Formatter.Selector,
                         flag.Value));
             _config.ChangeFormatter(newFormatter);
-            _formatter.DisplayMessage(
-                _resources.GetLocalizedString("Config_FormatterChanged"));
+            Formatter.DisplayMessage(
+                Resources.GetLocalizedString("Config_FormatterChanged"));
         }
         // Enable or disable encryption on identity data.
         else if (flag.Key == "encrypt")
@@ -122,38 +127,39 @@ public class ConfigTool : ToolBase
             // Guard against non bool value.
             if (!bool.TryParse(flag.Value, out bool encrypt))
             {
-                _formatter.DisplayError(
+                Formatter.DisplayError(
                     Name,
-                    _resources.GetLocalizedString("Config_EncryptionBadValue"));
+                    Resources.GetLocalizedString("Config_EncryptionBadValue"));
                 throw new FlagException("[Config] Encrypt bad value");
             }
-            _formatter.DisplayWarning(
+            Formatter.DisplayWarning(
                 Name,
                 string.Format(
-                    _resources.GetLocalizedString(
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString(
                         "Config_EncryptionChangeWarning"),
                         _config.UseEncryption,
                         encrypt));
             _config.ChangeEncryption(encrypt);
             // Create identity managers.
             var encrypted = new EncryptedIdentityManager(
-                _formatter,
-                _resources,
+                Formatter,
+                Resources,
                 _config,
                 _encryptor);
             // Encrypt data.
             if (encrypt)
             {
                 encrypted.EncryptStorage();
-                _formatter.DisplayMessage(
-                    _resources.GetLocalizedString("Config_EncryptionEnabled"));
+                Formatter.DisplayMessage(
+                    Resources.GetLocalizedString("Config_EncryptionEnabled"));
             }
             // Decrypt data.
             else
             {
                 encrypted.DecryptStorage();
-                _formatter.DisplayMessage(
-                    _resources.GetLocalizedString("Config_EncryptionDisabled"));
+                Formatter.DisplayMessage(
+                    Resources.GetLocalizedString("Config_EncryptionDisabled"));
             }
         }
         // Change current app folder.
@@ -161,23 +167,25 @@ public class ConfigTool : ToolBase
         {
             FlagHasValue(flag, Name);
 
-            _formatter.DisplayWarning(
+            Formatter.DisplayWarning(
                 Name,
                 string.Format(
-                    _resources.GetLocalizedString(
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString(
                         "Config_PathChangeWarning"),
                         _config.AppFolderPath,
                         flag.Value));
-            DirectoryInfo? dir; 
+            DirectoryInfo? dir;
             if (flag.Value != "default")
             {
                 dir = new DirectoryInfo(flag.Value);
                 ValidatePath(dir.Parent?.FullName ?? "", Name);
                 if (!dir.Exists)
                 {
-                    _formatter.DisplayMessage(
+                    Formatter.DisplayMessage(
                         string.Format(
-                            _resources.GetLocalizedString(
+                            CultureInfo.CurrentCulture,
+                            Resources.GetLocalizedString(
                                 "Config_PathDirectoryMissing"),
                             dir.Name));
                     dir.Create();
@@ -185,24 +193,24 @@ public class ConfigTool : ToolBase
             }
             else dir = null;
             _config.ChangeAppFolder(dir);
-            _formatter.DisplayMessage(
-                _resources.GetLocalizedString("Config_PathChanged"));
+            Formatter.DisplayMessage(
+                Resources.GetLocalizedString("Config_PathChanged"));
         }
         // Purge current config.
         else if (flag.Key == "purge")
         {
             FlagHasNoValue(flag, Name);
             // Require confirmation from user.
-            _formatter.DisplayWarning(
+            Formatter.DisplayWarning(
                 Name,
-                _resources.GetLocalizedString("Config_PurgeWarning"));
+                Resources.GetLocalizedString("Config_PurgeWarning"));
             // Get user's confirmation.
             if (!UserConfirm()) return;
             // Purge.
             _config.PurgeConfig();
-            _formatter.DisplayInfo(
+            Formatter.DisplayInfo(
                 Name,
-                _resources.GetLocalizedString("Config_Purged"));
+                Resources.GetLocalizedString("Config_Purged"));
         }
         // Throw if flag is unrecognized.
         else UnknownFlag(flag, Name);
@@ -213,29 +221,29 @@ public class ConfigTool : ToolBase
         // If no flags display config state.
         if (Flags.Count == 0)
         {
-            _formatter.DisplayInfo(
+            Formatter.DisplayInfo(
                 Name,
-                _resources.GetLocalizedString("Config_ListConfig"));
-            _formatter.DisplayMessage(
+                Resources.GetLocalizedString("Config_ListConfig"));
+            Formatter.DisplayMessage(
                 string.Format(
-                    _resources.GetLocalizedString("Config_Formatter"),
-                    _config.Formatter.Selector
-            ));
-            _formatter.DisplayMessage(
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("Config_Formatter"),
+                    _config.Formatter.Selector));
+            Formatter.DisplayMessage(
                 string.Format(
-                    _resources.GetLocalizedString("Config_Locale"),
-                    _config.Locale
-            ));
-            _formatter.DisplayMessage(
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("Config_Locale"),
+                    _config.Locale));
+            Formatter.DisplayMessage(
                 string.Format(
-                    _resources.GetLocalizedString("Config_Path"),
-                    _config.AppFolderPath
-            ));
-            _formatter.DisplayMessage(
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("Config_Path"),
+                    _config.AppFolderPath));
+            Formatter.DisplayMessage(
                 string.Format(
-                    _resources.GetLocalizedString("Config_Encryption"),
-                    _config.UseEncryption
-            ));
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("Config_Encryption"),
+                    _config.UseEncryption));
         }
         // Final.
         return Task.CompletedTask;

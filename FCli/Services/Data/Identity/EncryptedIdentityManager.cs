@@ -32,9 +32,9 @@ public class EncryptedIdentityManager : PlainIdentityManager
         _resources = resources;
         _encrypter = encrypter;
 
-        if (File.Exists(_config.PassphraseFile))
+        if (File.Exists(Config.PassphraseFile))
         {
-            var base64 = File.ReadAllText(_config.PassphraseFile);
+            var base64 = File.ReadAllText(Config.PassphraseFile);
             _passphrase = Encoding.UTF8.GetString(
                 Convert.FromBase64String(base64)).Trim('\0');
         }
@@ -46,10 +46,10 @@ public class EncryptedIdentityManager : PlainIdentityManager
     public void EncryptStorage()
     {
         // Guard against uninitialized storage.
-        if (File.Exists(_config.IdentityFilePath))
+        if (File.Exists(Config.IdentityFilePath))
         {
             // Read and deserialize plain storage.
-            var jsonPlain = File.ReadAllText(_config.IdentityFilePath);
+            var jsonPlain = File.ReadAllText(Config.IdentityFilePath);
             var storage = JsonSerializer.Deserialize<IdentityStorage>(jsonPlain);
             // Write encrypted storage.
             FlushStorage(storage);
@@ -68,7 +68,7 @@ public class EncryptedIdentityManager : PlainIdentityManager
             ? JsonSerializer.Serialize(new IdentityStorage())
             : JsonSerializer.Serialize(storage);
         // Write plain json.
-        File.WriteAllText(_config.IdentityFilePath, jsonPlain);
+        File.WriteAllText(Config.IdentityFilePath, jsonPlain);
     }
 
     /// <summary>
@@ -80,14 +80,14 @@ public class EncryptedIdentityManager : PlainIdentityManager
     protected override IdentityStorage? TryLoadStorage()
     {
         // Guard against no file.
-        if (!File.Exists(_config.IdentityFilePath))
+        if (!File.Exists(Config.IdentityFilePath))
         {
-            _identityCashe = new();
-            FlushStorage(_identityCashe);
-            return _identityCashe;
+            IdentityCashe = new();
+            FlushStorage(IdentityCashe);
+            return IdentityCashe;
         }
         // Read and convert from base64.
-        var jsonBase64 = File.ReadAllText(_config.IdentityFilePath);
+        var jsonBase64 = File.ReadAllText(Config.IdentityFilePath);
         // If nothing was read, return null.
         if (string.IsNullOrEmpty(jsonBase64)) return null;
         // Get passphrase from the buffer or the user.
@@ -103,22 +103,22 @@ public class EncryptedIdentityManager : PlainIdentityManager
             throw new IdentityException("[Identity] Decryption failed.");
         }
         // Store passphrase temporarily if needed.
-        if (!File.Exists(_config.PassphraseFile))
+        if (!File.Exists(Config.PassphraseFile))
         {
             // Convert to base64.
             var base64 = Convert.ToBase64String(
                 Encoding.UTF8.GetBytes(_passphrase));
             // Store in temporarily.
-            _config.ChangePassphraseFile(Path.GetTempFileName());
+            Config.ChangePassphraseFile(Path.GetTempFileName());
             File.WriteAllText(
-                Path.Combine(Path.GetTempPath(), _config.PassphraseFile),
+                Path.Combine(Path.GetTempPath(), Config.PassphraseFile),
                 base64);
         }
         // Refresh buffer.
         try
         {
             var storage = JsonSerializer.Deserialize<IdentityStorage>(jsonDecrypted);
-            return _identityCashe = storage;
+            return IdentityCashe = storage;
         }
         catch (JsonException ex)
         {
@@ -137,9 +137,9 @@ public class EncryptedIdentityManager : PlainIdentityManager
         var jsonEncrypted64 = _encrypter.Encrypt(
             jsonPlain,
             _passphrase ?? TryGetPassphrase(true)); ;
-        File.WriteAllText(_config.IdentityFilePath, jsonEncrypted64);
+        File.WriteAllText(Config.IdentityFilePath, jsonEncrypted64);
         // Update cashe.
-        _identityCashe = storage;
+        IdentityCashe = storage;
     }
 
     /// <summary>
@@ -172,7 +172,7 @@ public class EncryptedIdentityManager : PlainIdentityManager
             _formatter.DisplayMessage(
                 _resources.GetLocalizedString("Identity_PassphraseParsed"));
             // Regenerate salt if needed.
-            if (regenerateSalt) _config.ChangeSalt();
+            if (regenerateSalt) Config.ChangeSalt();
             // Return passphrase.
             return _passphrase = input;
         }

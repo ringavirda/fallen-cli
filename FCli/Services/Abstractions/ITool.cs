@@ -1,5 +1,5 @@
 // FCli namespaces.
-using static FCli.Models.Args;
+using FCli.Models;
 
 namespace FCli.Services.Abstractions;
 

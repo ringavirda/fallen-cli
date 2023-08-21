@@ -19,5 +19,5 @@ public interface IEncryptor
     /// <param name="encrypted">String do decrypt.</param>
     /// <param name="passphrase">Passphrase used for decryption.</param>
     /// <returns>Decrypted string.</returns>
-    public string Decrypt(string encrypted, string passphrase);
+    public string Decrypt(string encrypted64, string passphrase);
 }

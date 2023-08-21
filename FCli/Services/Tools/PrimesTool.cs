@@ -1,10 +1,11 @@
 ﻿// Vendor namespaces.
 using System.Diagnostics;
+using System.Globalization;
 // FCli namespaces.
 using FCli.Exceptions;
+using FCli.Models;
 using FCli.Models.Types;
 using FCli.Services.Abstractions;
-using static FCli.Models.Args;
 
 namespace FCli.Services.Tools;
 
@@ -26,7 +27,7 @@ public class PrimesTool : ToolBase
         IResources resources)
         : base(formatter, resources)
     {
-        Description = _resources.GetLocalizedString("Primes_Help");
+        Description = Resources.GetLocalizedString("Primes_Help");
     }
 
     // Private data.
@@ -36,8 +37,8 @@ public class PrimesTool : ToolBase
 
     private volatile bool[] _bitArray = null!;
 
-    private bool _time = false;
-    private bool _noParallel = false;
+    private bool _time;
+    private bool _noParallel;
 
     // Overrides.
 
@@ -54,11 +55,12 @@ public class PrimesTool : ToolBase
         // Guard against no arg.
         if (Arg == string.Empty)
         {
-            _formatter.DisplayError(
+            Formatter.DisplayError(
                 Name,
                 string.Format(
-                    Name,
-                    _resources.GetLocalizedString("FCli_ArgMissing")));
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("FCli_ArgMissing"),
+                    Name));
             throw new ArgumentException("[Primes] No argument was given.");
         }
         // Guard against non number arg.
@@ -72,17 +74,17 @@ public class PrimesTool : ToolBase
         }
         else
         {
-            _formatter.DisplayError(
-                Name,
-                _resources.GetLocalizedString("Primes_NonNumberArg"));
+            Formatter.DisplayError(
+                Resources.GetLocalizedString("Primes_NonNumberArg"),
+                Name);
             throw new ArgumentException("[Primes] Argument wasn't numeric.");
         }
         // Guard against invalid arg.
         if (_sieveSize < 5)
         {
-            _formatter.DisplayError(
-                Name,
-                _resources.GetLocalizedString("Primes_InvalidSize"));
+            Formatter.DisplayError(
+                Resources.GetLocalizedString("Primes_InvalidSize"),
+                Name);
             throw new ArgumentException("[Primes] Sieve size was invalid.");
         }
     }
@@ -109,9 +111,9 @@ public class PrimesTool : ToolBase
             {
                 if (parallelization < 1)
                 {
-                    _formatter.DisplayError(
+                    Formatter.DisplayError(
                         Name,
-                        _resources.GetLocalizedString("Primes_InvalidParallel"));
+                        Resources.GetLocalizedString("Primes_InvalidParallel"));
                     throw new FlagException(
                         "[Primes] Parallel value was invalid.");
                 }
@@ -119,9 +121,9 @@ public class PrimesTool : ToolBase
             }
             else
             {
-                _formatter.DisplayError(
+                Formatter.DisplayError(
                     Name,
-                    _resources.GetLocalizedString("Primes_NoParallelValue"));
+                    Resources.GetLocalizedString("Primes_NoParallelValue"));
                 throw new FlagException("[Primes] Parallel was non numeric.");
             }
         }
@@ -136,11 +138,11 @@ public class PrimesTool : ToolBase
         var cToken = cTokenSource.Token;
 
         // Start up.
-        _formatter.DisplayInfo(
+        Formatter.DisplayInfo(
             Name,
-            _resources.GetLocalizedString("Primes_Starting"));
+            Resources.GetLocalizedString("Primes_Starting"));
         TimeSpan elapsed = default;
-        _formatter.DrawProgressAsync(cToken).Start();
+        Formatter.DrawProgressAsync(cToken).Start();
 
         try
         {
@@ -153,8 +155,8 @@ public class PrimesTool : ToolBase
                     key = Console.ReadKey(true).Key;
                 }
                 // Cancel if q was pressed.
-                _formatter.DisplayProgressMessage(
-                    _resources.GetLocalizedString("FCli_Cancelled"));
+                Formatter.DisplayProgressMessage(
+                    Resources.GetLocalizedString("FCli_Cancelled"));
                 cTokenSource.Cancel();
             }, cToken);
 
@@ -172,19 +174,21 @@ public class PrimesTool : ToolBase
         int count = _bitArray.AsParallel().Count(b => b);
 
         // Display results.
-        _formatter.DisplayInfo(
+        Formatter.DisplayInfo(
             Name,
             string.Format(
-                _resources.GetLocalizedString("Primes_Results"),
+                CultureInfo.CurrentCulture,
+                Resources.GetLocalizedString("Primes_Results"),
                 count,
                 _sieveSize));
         if (_time)
-            _formatter.DisplayMessage(
+            Formatter.DisplayMessage(
                 string.Format(
-                    _resources.GetLocalizedString("Primes_TimeElapsed"),
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("Primes_TimeElapsed"),
                     elapsed));
         if (_noParallel)
-            _formatter.DisplayMessage($"No-Parallel: {_noParallel}");
+            Formatter.DisplayMessage($"No-Parallel: {_noParallel}");
     }
 
     /// <summary>
@@ -269,8 +273,8 @@ public class PrimesTool : ToolBase
             // If time stop watch.
             if (_time) watch.Stop();
             // Report.
-            _formatter.DisplayProgressMessage(
-                _resources.GetLocalizedString("Primes_Completed"));
+            Formatter.DisplayProgressMessage(
+                Resources.GetLocalizedString("Primes_Completed"));
             // Return TimeSpan regardless.
             return watch.Elapsed;
         }, cToken);

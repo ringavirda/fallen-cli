@@ -1,11 +1,12 @@
+// Vendor namespaces.
+using System.Globalization;
 // FCli namespaces.
-using System.Runtime.CompilerServices;
 using FCli.Exceptions;
+using FCli.Models;
 using FCli.Models.Dtos;
 using FCli.Models.Identity;
 using FCli.Models.Types;
 using FCli.Services.Abstractions;
-using static FCli.Models.Args;
 
 namespace FCli.Services.Tools;
 
@@ -38,9 +39,9 @@ public class IdentityTool : ToolBase
     }
 
     // Private data.
-    private bool _override = false;
-    private bool _remove = false;
-    private bool _list = false;
+    private bool _override;
+    private bool _remove;
+    private bool _list;
 
     private readonly IdentityChangeRequest _request = new();
     private Contact _original = null!;
@@ -69,10 +70,11 @@ public class IdentityTool : ToolBase
         // Guard against no arg.
         if (string.IsNullOrEmpty(Arg))
         {
-            _formatter.DisplayError(
+            Formatter.DisplayError(
                 Name,
                 string.Format(
-                    _resources.GetLocalizedString("FCli_ArgMissing"),
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("FCli_ArgMissing"),
                     Name));
             throw new ArgumentException("[Identity] No arg was given.");
         }
@@ -90,9 +92,9 @@ public class IdentityTool : ToolBase
             // Guard against remove.
             if (_remove)
             {
-                _formatter.DisplayError(
+                Formatter.DisplayError(
                     Name,
-                    _resources.GetLocalizedString("Identity_OverRemove"));
+                    Resources.GetLocalizedString("Identity_OverRemove"));
                 throw new FlagException("[Identity] Flag collision occurred.");
             }
             // Set override.
@@ -106,17 +108,17 @@ public class IdentityTool : ToolBase
             // Remove should be single flag.
             if (Flags.Count != 1)
             {
-                _formatter.DisplayError(
+                Formatter.DisplayError(
                     Name,
-                    _resources.GetLocalizedString("Identity_RemoveMultipleFlags"));
+                    Resources.GetLocalizedString("Identity_RemoveMultipleFlags"));
                 throw new FlagException("[Identity] Flag collision occurred.");
             }
             // Cannot remove root.
             else if (_root.IsRoot(Arg))
             {
-                _formatter.DisplayError(
+                Formatter.DisplayError(
                     Name,
-                    _resources.GetLocalizedString("Identity_RemoveRoot"));
+                    Resources.GetLocalizedString("Identity_RemoveRoot"));
                 throw new FlagException("[Identity] Attempted remove root.");
             }
             // Set remove.
@@ -146,9 +148,9 @@ public class IdentityTool : ToolBase
             // Password can be changed only in root.
             if (!_root.IsRoot(Arg))
             {
-                _formatter.DisplayError(
+                Formatter.DisplayError(
                     Name,
-                    _resources.GetLocalizedString("Identity_NonRootPass"));
+                    Resources.GetLocalizedString("Identity_NonRootPass"));
                 throw new FlagException(
                     "[Identity] Non root password attempt.");
             }
@@ -176,24 +178,28 @@ public class IdentityTool : ToolBase
         {
             if (_root.IsRoot(Arg))
             {
-                _formatter.DisplayInfo(
+                Formatter.DisplayInfo(
                     Name,
-                    _resources.GetLocalizedString("Identity_DisplayRoot"));
-                _formatter.DisplayMessage(
+                    Resources.GetLocalizedString("Identity_DisplayRoot"));
+                Formatter.DisplayMessage(
                     string.Format(
-                        _resources.GetLocalizedString("Identity_Name"),
+                        CultureInfo.CurrentCulture,
+                        Resources.GetLocalizedString("Identity_Name"),
                         _root.Name));
-                _formatter.DisplayMessage(
+                Formatter.DisplayMessage(
                     string.Format(
-                        _resources.GetLocalizedString("Identity_Email"),
+                        CultureInfo.CurrentCulture,
+                        Resources.GetLocalizedString("Identity_Email"),
                         _root.Email));
-                _formatter.DisplayMessage(
+                Formatter.DisplayMessage(
                     string.Format(
-                        _resources.GetLocalizedString("Identity_Password"),
+                        CultureInfo.CurrentCulture,
+                        Resources.GetLocalizedString("Identity_Password"),
                         !string.IsNullOrEmpty(_root.Password)));
-                _formatter.DisplayMessage(
+                Formatter.DisplayMessage(
                     string.Format(
-                        _resources.GetLocalizedString("Identity_Aliases"),
+                        CultureInfo.CurrentCulture,
+                        Resources.GetLocalizedString("Identity_Aliases"),
                         string.Join(", ", _root.Aliases)));
                 // Exit tool.
                 return Task.CompletedTask;
@@ -203,18 +209,18 @@ public class IdentityTool : ToolBase
             if (contacts == null
                 || contacts.Count == 0)
             {
-                _formatter.DisplayInfo(
+                Formatter.DisplayInfo(
                     Name,
-                    _resources.GetLocalizedString("Identity_EmptyStorage"));
+                    Resources.GetLocalizedString("Identity_EmptyStorage"));
                 return Task.CompletedTask;
             }
             else
             {
                 if (string.IsNullOrEmpty(Arg))
                 {
-                    _formatter.DisplayInfo(
+                    Formatter.DisplayInfo(
                         Name,
-                        _resources.GetLocalizedString(
+                        Resources.GetLocalizedString(
                             "Identity_DisplayAllContacts"));
                     // List.
                     foreach (var contact in contacts)
@@ -231,19 +237,21 @@ public class IdentityTool : ToolBase
                     // Change report if not found.
                     if (!filtered.Any())
                     {
-                        _formatter.DisplayInfo(
+                        Formatter.DisplayInfo(
                             Name,
                             string.Format(
-                                _resources.GetLocalizedString(
+                                CultureInfo.CurrentCulture,
+                                Resources.GetLocalizedString(
                                     "Identity_NothingFiltered"),
                                 Arg));
                     }
                     else
                     {
-                        _formatter.DisplayInfo(
+                        Formatter.DisplayInfo(
                             Name,
                             string.Format(
-                                _resources.GetLocalizedString(
+                                CultureInfo.CurrentCulture,
+                                Resources.GetLocalizedString(
                                     "Identity_DisplayFiltered"),
                                 Arg));
                         // List.
@@ -262,10 +270,11 @@ public class IdentityTool : ToolBase
             // Guard against known name.
             if (_identity.ContactExists(Arg))
             {
-                _formatter.DisplayError(
+                Formatter.DisplayError(
                     Name,
                     string.Format(
-                        _resources.GetLocalizedString("Identity_Exists"),
+                        CultureInfo.CurrentCulture,
+                        Resources.GetLocalizedString("Identity_Exists"),
                         Arg));
                 throw new ArgumentException(
                     "[Identity] Attempted creating using existing name.");
@@ -273,10 +282,11 @@ public class IdentityTool : ToolBase
             // Guard against root.
             else if (_root.IsRoot(Arg))
             {
-                _formatter.DisplayError(
+                Formatter.DisplayError(
                     Name,
                     string.Format(
-                        _resources.GetLocalizedString("Identity_CreateRoot"),
+                        CultureInfo.CurrentCulture,
+                        Resources.GetLocalizedString("Identity_CreateRoot"),
                         Arg));
                 throw new ArgumentException("[Identity] Root creation.");
 
@@ -287,38 +297,42 @@ public class IdentityTool : ToolBase
                 _request.Name = Arg;
                 if (string.IsNullOrEmpty(_request.Email))
                 {
-                    _formatter.DisplayError(
+                    Formatter.DisplayError(
                         Name,
-                        _resources.GetLocalizedString("Identity_CreateNoEmail"));
+                        Resources.GetLocalizedString("Identity_CreateNoEmail"));
                     throw new FlagException(
                         "[Identity] No email flag was given during creation.");
                 }
-                _formatter.DisplayInfo(
+                Formatter.DisplayInfo(
                     Name,
-                    _resources.GetLocalizedString("Identity_Constructed"));
-                _formatter.DisplayMessage(
+                    Resources.GetLocalizedString("Identity_Constructed"));
+                Formatter.DisplayMessage(
                     string.Format(
-                        _resources.GetLocalizedString("Identity_Name"),
+                        CultureInfo.CurrentCulture,
+                        Resources.GetLocalizedString("Identity_Name"),
                         _request.Name));
-                _formatter.DisplayMessage(
+                Formatter.DisplayMessage(
                     string.Format(
-                        _resources.GetLocalizedString("Identity_Email"),
+                        CultureInfo.CurrentCulture,
+                        Resources.GetLocalizedString("Identity_Email"),
                         _request.Email));
                 if (_request.Aliases.Count > 0)
                 {
-                    _formatter.DisplayMessage(
+                    Formatter.DisplayMessage(
                         string.Format(
-                            _resources.GetLocalizedString("Identity_Aliases"),
+                            CultureInfo.CurrentCulture,
+                            Resources.GetLocalizedString("Identity_Aliases"),
                             string.Join(", ", _request.Aliases)));
                 }
                 // Store constructed entity.
-                _formatter.DisplayMessage(
-                    _resources.GetLocalizedString("FCli_Saving"));
+                Formatter.DisplayMessage(
+                    Resources.GetLocalizedString("FCli_Saving"));
                 _identity.StoreContact(_request.ToContact());
-                _formatter.DisplayInfo(
+                Formatter.DisplayInfo(
                     Name,
                     string.Format(
-                        _resources.GetLocalizedString("Identity_Stored"),
+                        CultureInfo.CurrentCulture,
+                        Resources.GetLocalizedString("Identity_Stored"),
                         _request.Name));
             }
             // Exit tool.
@@ -340,10 +354,11 @@ public class IdentityTool : ToolBase
         }
         else
         {
-            _formatter.DisplayError(
+            Formatter.DisplayError(
                 Name,
                 string.Format(
-                    _resources.GetLocalizedString("Identity_Unknown"),
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("Identity_Unknown"),
                     Arg));
             throw new ArgumentException(
                 "[Identity] Unknown identity specified.");
@@ -354,43 +369,48 @@ public class IdentityTool : ToolBase
             // Guard against no change.
             if (!CheckChange())
             {
-                _formatter.DisplayInfo(
+                Formatter.DisplayInfo(
                     Name,
-                    _resources.GetLocalizedString("Identity_NoChanges"));
+                    Resources.GetLocalizedString("Identity_NoChanges"));
                 // Exit tool.
                 return Task.CompletedTask;
             }
             // Report request.
-            _formatter.DisplayWarning(
+            Formatter.DisplayWarning(
                 Name,
                 string.Format(
-                    _resources.GetLocalizedString("Identity_ChangeWarning"),
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("Identity_ChangeWarning"),
                     _original.Name));
-            _formatter.DisplayMessage(
-                _resources.GetLocalizedString("Identity_OldNew"));
+            Formatter.DisplayMessage(
+                Resources.GetLocalizedString("Identity_OldNew"));
             if (_original.Name != _request.Name)
-                _formatter.DisplayMessage(
+                Formatter.DisplayMessage(
                     string.Format(
-                        _resources.GetLocalizedString("Identity_OverrideName"),
+                        CultureInfo.CurrentCulture,
+                        Resources.GetLocalizedString("Identity_OverrideName"),
                         _original.Name,
                         _request.Name));
             if (_original.Email != _request.Email)
-                _formatter.DisplayMessage(
+                Formatter.DisplayMessage(
                     string.Format(
-                        _resources.GetLocalizedString("Identity_OverrideEmail"),
+                        CultureInfo.CurrentCulture,
+                        Resources.GetLocalizedString("Identity_OverrideEmail"),
                         _original.Email,
                         _request.Email));
             if (_root.IsRoot(Arg)
                 && ((RootUser)_original).Password != _request.Password)
-                _formatter.DisplayMessage(
+                Formatter.DisplayMessage(
                     string.Format(
-                        _resources.GetLocalizedString("Identity_OverridePassword"),
+                        CultureInfo.CurrentCulture,
+                        Resources.GetLocalizedString("Identity_OverridePassword"),
                         _root.Password,
                         _request.Password));
             if (!_original.Aliases.All(a => _request.Aliases.Contains(a)))
-                _formatter.DisplayMessage(
+                Formatter.DisplayMessage(
                     string.Format(
-                        _resources.GetLocalizedString("Identity_OverrideAliases"),
+                        CultureInfo.CurrentCulture,
+                        Resources.GetLocalizedString("Identity_OverrideAliases"),
                         string.Join(", ", _request.Aliases)));
             // Exit if user decline.
             if (!UserConfirm()) return Task.CompletedTask;
@@ -421,30 +441,33 @@ public class IdentityTool : ToolBase
                     _identity.StoreContact(_request.ToContact());
                 }
                 // Confirm update.
-                _formatter.DisplayInfo(
+                Formatter.DisplayInfo(
                     Name,
                     string.Format(
-                        _resources.GetLocalizedString("Identity_Changed"),
+                        CultureInfo.CurrentCulture,
+                        Resources.GetLocalizedString("Identity_Changed"),
                         _root.IsRoot(Arg) ? Arg : _original.Name));
             }
         }
         // Delete identity from storage.
         else if (_remove)
         {
-            _formatter.DisplayWarning(
+            Formatter.DisplayWarning(
                 Name,
                 string.Format(
-                    _resources.GetLocalizedString("Identity_RemoveWarning"),
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("Identity_RemoveWarning"),
                     _original.Name));
             // Exit if user declined.
             if (!UserConfirm()) return Task.CompletedTask;
             else
             {
                 _identity.DeleteContact(_original.Name);
-                _formatter.DisplayInfo(
+                Formatter.DisplayInfo(
                     Name,
                     string.Format(
-                        _resources.GetLocalizedString("Identity_Removed"),
+                        CultureInfo.CurrentCulture,
+                        Resources.GetLocalizedString("Identity_Removed"),
                         _original.Name));
             }
         }
@@ -461,12 +484,13 @@ public class IdentityTool : ToolBase
     /// <param name="contact">Contact to display.</param>
     private void DisplayContact(Contact contact)
     {
-        _formatter.DisplayMessage($"{contact.Name}: {contact.Email}");
+        Formatter.DisplayMessage($"{contact.Name}: {contact.Email}");
         if (contact.Aliases.Count > 0)
         {
-            _formatter.DisplayMessage(
+            Formatter.DisplayMessage(
                 string.Format(
-                    _resources.GetLocalizedString("Identity_Aliases"),
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("Identity_Aliases"),
                     string.Join(", ", contact.Aliases)));
         }
     }

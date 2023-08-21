@@ -3,6 +3,7 @@ using MimeKit;
 using MailKit;
 using MailKit.Net.Imap;
 using MailKit.Net.Smtp;
+using System.Globalization;
 // FCli namespaces.
 using FCli.Exceptions;
 using FCli.Models.Dtos;
@@ -207,6 +208,7 @@ public class CombinedMailer : IMailer
         message.Body = new TextPart("plain")
         {
             Text = string.Format(
+                CultureInfo.CurrentCulture,
                 _resources.GetLocalizedString("Mail_SendBodyTemplate"),
                 request.Body,
                 _root.Name)

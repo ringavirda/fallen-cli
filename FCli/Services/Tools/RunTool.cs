@@ -1,9 +1,11 @@
+// Vendor namespaces.
+using System.Globalization;
 // FCli namespaces.
 using FCli.Exceptions;
+using FCli.Models;
 using FCli.Models.Dtos;
 using FCli.Models.Types;
 using FCli.Services.Abstractions;
-using static FCli.Models.Args;
 
 namespace FCli.Services.Tools;
 
@@ -43,7 +45,7 @@ public class RunTool : ToolBase
     }
 
     // Private data.
-    private CommandAlterRequest _runRequest = new();
+    private readonly CommandAlterRequest _runRequest = new();
 
     // Overrides.
     public override string Name => "Run";
@@ -56,10 +58,11 @@ public class RunTool : ToolBase
         // Guard against no argument.
         if (Arg == string.Empty)
         {
-            _formatter.DisplayError(
+            Formatter.DisplayError(
                 Name, 
                 string.Format(
-                    _resources.GetLocalizedString("FCli_ArgMissing"),
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("FCli_ArgMissing"),
                     Name));
             throw new ArgumentException("[Run] No arg was given.");
         }
@@ -68,10 +71,11 @@ public class RunTool : ToolBase
             .Intersect(_config.KnownCommands.Select(c => c.Selector))
             .Count() > 1)
         {
-            _formatter.DisplayError(
+            Formatter.DisplayError(
                 Name, 
                 string.Format(
-                    _resources.GetLocalizedString("FCli_MultipleTypeFlags"),
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("FCli_MultipleTypeFlags"),
                     Name));
             throw new FlagException(
                 "[Run] Attempted to pass multiple command type flags.");
@@ -105,10 +109,11 @@ public class RunTool : ToolBase
                     _runRequest.Shell = shellDescriptor.Type;
                 else
                 {
-                    _formatter.DisplayError(
+                    Formatter.DisplayError(
                         Name,
                         string.Format(
-                            _resources.GetLocalizedString("FCli_UnknownShell"),
+                            CultureInfo.CurrentCulture,
+                            Resources.GetLocalizedString("FCli_UnknownShell"),
                             string.Join(", ", _config.KnownShells
                                 .Select(sh => sh.Selector)))
                         );
@@ -131,9 +136,9 @@ public class RunTool : ToolBase
         // Guard against no type flag.
         if (_runRequest.Type == CommandType.None)
         {
-            _formatter.DisplayError(
+            Formatter.DisplayError(
                 Name,
-                _resources.GetLocalizedString("Run_UnknownCommand"));
+                Resources.GetLocalizedString("Run_UnknownCommand"));
             throw new ArgumentException("[Run] Failed to parse given command");
         }
         var command = _factory.Construct(_runRequest);

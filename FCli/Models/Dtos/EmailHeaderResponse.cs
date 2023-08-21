@@ -10,5 +10,5 @@ public class EmailHeaderResponse
     public string SenderName { get; set; } = string.Empty;
     public string Subject { get; set; } = string.Empty;
     public DateTime Date { get; set; }
-    public bool IsRead { get; set; } = false;
+    public bool IsRead { get; set; }
 }

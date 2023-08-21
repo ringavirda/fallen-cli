@@ -1,5 +1,6 @@
 ﻿// Vendor namespaces.
 using System.Diagnostics;
+using System.Globalization;
 // FCli namespaces.
 using FCli.Models;
 using FCli.Models.Dtos;
@@ -47,6 +48,7 @@ public class SystemSpecificFactory : ICommandFactory
             _formatter.DisplayError(
                 "Command",
                 string.Format(
+                    CultureInfo.CurrentCulture,
                     _resources.GetLocalizedString("FCli_UnknownName"),
                     name));
             throw new InvalidOperationException(
@@ -216,8 +218,9 @@ public class SystemSpecificFactory : ICommandFactory
         if (Environment.OSVersion.Platform == PlatformID.Unix)
         {
             _formatter.DisplayError(
-                "Command", 
+                "Command",
                 string.Format(
+                    CultureInfo.CurrentCulture,
                     _resources.GetLocalizedString("Command_UnsupportedShell"),
                     ShellType.Cmd,
                     PlatformID.Unix));
@@ -249,8 +252,9 @@ public class SystemSpecificFactory : ICommandFactory
         if (Environment.OSVersion.Platform == PlatformID.Unix)
         {
             _formatter.DisplayWarning(
-                "Command", 
+                "Command",
                 string.Format(
+                    CultureInfo.CurrentCulture,
                     _resources.GetLocalizedString(
                         "Command_UnsupportedShellWarning"),
                     ShellType.Powershell,
@@ -297,16 +301,19 @@ public class SystemSpecificFactory : ICommandFactory
         else
         {
             _formatter.DisplayWarning(
-                "Command", 
+                "Command",
                 string.Format(
+                    CultureInfo.CurrentCulture,
                     _resources.GetLocalizedString(
                         "Command_UnsupportedShellWarning"),
-                    ShellType.Bash, 
+                    ShellType.Bash,
                     PlatformID.Win32NT));
             // Convert Windows path to WSL path.
             path = path.Replace(@"\", @"/");
             var drive = path.First();
-            path = path.Replace($"{drive}:/", $"/mnt/{char.ToLower(drive)}/");
+            path = path.Replace(
+                $"{drive}:/",
+                $"/mnt/{char.ToLower(drive, CultureInfo.CurrentUICulture)}/");
             // Start bash process in WSL.
             if (asDirectory)
                 RunAsDirectory("powershell", path, "wsl");
@@ -335,10 +342,11 @@ public class SystemSpecificFactory : ICommandFactory
         if (Environment.OSVersion.Platform == PlatformID.Win32NT)
         {
             _formatter.DisplayError(
-                "Command", 
+                "Command",
                 string.Format(
+                    CultureInfo.CurrentCulture,
                     _resources.GetLocalizedString("Command_UnsupportedShell"),
-                    ShellType.Fish, 
+                    ShellType.Fish,
                     PlatformID.Win32NT));
             throw new InvalidOperationException(
                 $"[Command] Attempted to run a Fish script ({path}) on Windows.");

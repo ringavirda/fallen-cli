@@ -24,6 +24,18 @@ public class ToolExecutor : IToolExecutor
         _logger = logger;
         _tools = tools;
     }
+
+    // Logging.
+    private static readonly Action<ILogger, string, Exception> LogArgument
+        = LoggerMessage.Define<string>(
+            LogLevel.Information,
+            3,
+            "Argument or flag failed: {Message}");
+    private static readonly Action<ILogger, string, Exception> LogIdentity
+        = LoggerMessage.Define<string>(
+            LogLevel.Warning,
+            4,
+            "Operation involving identities failed: {Message}");
     
     /// <summary>
     /// Execute tool from given type and arg.
@@ -45,13 +57,19 @@ public class ToolExecutor : IToolExecutor
         {
             // Flag and Arg exceptions are caused by user errors and so have
             // low priority for logging.
-            _logger.LogInformation(ex, "[Tool] Argument or flags has failed.");
+            LogArgument(
+                _logger,
+                "[Tool] Argument or flags has failed.",
+                ex);
         }
         catch (IdentityException ex)
         {
             // Identity exceptions are considered to have higher priority than
             // argument exceptions, hence warning level.
-            _logger.LogWarning(ex, "[Tool] Identity failed.");
+            LogIdentity(
+                _logger,
+                "[Tool] Identity failed.",
+                ex);
         }
     }
 

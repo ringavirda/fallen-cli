@@ -1,5 +1,8 @@
 namespace FCli.Exceptions;
 
+/// <summary>
+/// Represents errors concerning the mailing system.
+/// </summary>
 public class MailException : IdentityException
 {
     public MailException() { }

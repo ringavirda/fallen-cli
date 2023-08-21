@@ -76,7 +76,7 @@ public abstract class StaticConfig : IConfig
     public abstract void PurgeConfig();
     public abstract void ChangeLocale(string locale);
     public abstract void ChangeFormatter(IConfig.FormatterDescriptor formatter);
-    public abstract void ChangeEncryption(bool ifEncrypt);
+    public abstract void ChangeEncryption(bool encrypt);
     public abstract void ChangePassphraseFile(string filename);
     public abstract void ChangeSalt();
     public abstract void ChangeAppFolder(DirectoryInfo? directory);

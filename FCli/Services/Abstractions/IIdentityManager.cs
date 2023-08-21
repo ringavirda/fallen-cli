@@ -39,7 +39,7 @@ public interface IIdentityManager
     /// Changes root user profile.
     /// </summary>
     /// <param name="newRootProfile">New profile.</param>
-    public void UpdateRootUser(IdentityChangeRequest newRootProfile);
+    public void UpdateRootUser(IdentityChangeRequest request);
     
     /// <summary>
     /// Persists new contact.

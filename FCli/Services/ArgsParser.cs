@@ -1,5 +1,6 @@
 // Vendor namespaces.
 using System.Text.RegularExpressions;
+// FCli namespaces.
 using FCli.Models;
 using FCli.Services.Abstractions;
 
@@ -67,11 +68,12 @@ public partial class ArgsParser : Args, IArgsParser
             for (int i = 0; i < args.Length; i++)
             {
                 // Find flag key.
-                if (args[i].StartsWith("--"))
+                if (args[i].StartsWith("--", StringComparison.CurrentCulture))
                 {
                     // Check if flag has an argument and create Flag.
                     var flag =
-                        i < args.Length - 1 && !args[i + 1].StartsWith("--")
+                        i < args.Length - 1 && !args[i + 1]
+                            .StartsWith("--", StringComparison.CurrentCulture)
                         ? new Flag(args[i][2..^0], args[i + 1])
                         : new Flag(args[i][2..^0], "");
                     // Add flag to the list.

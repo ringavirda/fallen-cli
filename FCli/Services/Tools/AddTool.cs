@@ -1,9 +1,12 @@
+// Vendor namespaces.
+using System.Globalization;
+
 // FCli namespaces.
 using FCli.Exceptions;
+using FCli.Models;
 using FCli.Models.Dtos;
 using FCli.Models.Types;
 using FCli.Services.Abstractions;
-using static FCli.Models.Args;
 
 namespace FCli.Services.Tools;
 
@@ -61,9 +64,10 @@ public class AddTool : ToolBase
         // Guard against empty path/url.
         if (Arg == string.Empty)
         {
-            _formatter.DisplayError(Name,
+            Formatter.DisplayError(Name,
                 string.Format(
-                    _resources.GetLocalizedString("FCli_ArgMissing"),
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("FCli_ArgMissing"),
                     Name));
             throw new ArgumentException(
                 "[Add] No argument was given.");
@@ -73,10 +77,11 @@ public class AddTool : ToolBase
             .Intersect(_config.KnownCommands.Select(c => c.Selector))
             .Count() > 1)
         {
-            _formatter.DisplayError(
+            Formatter.DisplayError(
                 Name,
                 string.Format(
-                    _resources.GetLocalizedString("FCli_MultipleTypeFlags"),
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("FCli_MultipleTypeFlags"),
                     Name));
             throw new FlagException(
                 "[Add] Attempted to pass multiple command types flags.");
@@ -113,11 +118,13 @@ public class AddTool : ToolBase
                     _creationRequest.Shell = shellDescriptor.Type;
                 else
                 {
-                    _formatter.DisplayWarning(
+                    Formatter.DisplayWarning(
                         Name,
                         string.Format(
-                            _resources.GetLocalizedString("FCli_UnknownShell"),
-                            string.Join(", ",
+                            CultureInfo.CurrentCulture,
+                            Resources.GetLocalizedString("FCli_UnknownShell"),
+                            string.Join(
+                                ", ",
                                 _config.KnownShells.Select(sh => sh.Selector))));
                     throw new ArgumentException(
                         $"[Add] Wasn't able to determine shell type on ({Arg}).");
@@ -145,7 +152,8 @@ public class AddTool : ToolBase
             || _creationRequest.Type == CommandType.None)
         {
             // If arg is a hyperlink.
-            if (Arg.StartsWith("http://") || Arg.StartsWith("https://"))
+            if (Arg.StartsWith("http://", StringComparison.CurrentCulture) 
+                || Arg.StartsWith("https://", StringComparison.CurrentCulture))
             {
                 // Guard against invalid url.
                 var uri = ValidateUrl(Arg, Name);
@@ -179,7 +187,7 @@ public class AddTool : ToolBase
                     var possibleExtension = fileInfo.Extension;
                     // Set command name equal file name.
                     if (string.IsNullOrEmpty(_creationRequest.Name))
-                        _creationRequest.Name = 
+                        _creationRequest.Name =
                             fileInfo.Name.Split('.').First();
                     // Try parse command type from the file extension.
                     if (_creationRequest.Type == CommandType.None)
@@ -207,9 +215,9 @@ public class AddTool : ToolBase
                             // Throw if command unidentified.
                             else
                             {
-                                _formatter.DisplayError(
+                                Formatter.DisplayError(
                                     Name,
-                                    _resources.GetLocalizedString("Add_FileUnrecognized"));
+                                    Resources.GetLocalizedString("Add_FileUnrecognized"));
                                 throw new ArgumentException(
                                     $"[Add] Unknown file extension ({possibleExtension}).");
                             }
@@ -220,9 +228,9 @@ public class AddTool : ToolBase
             // Throw if wan't able to determine command name and type.
             else
             {
-                _formatter.DisplayError(
+                Formatter.DisplayError(
                     Name,
-                    _resources.GetLocalizedString("FCli_CommandNotDetermined"));
+                    Resources.GetLocalizedString("FCli_CommandNotDetermined"));
                 throw new ArgumentException(
                     $"[Add] Command wasn't determined from ({Arg}).");
             }
@@ -232,10 +240,11 @@ public class AddTool : ToolBase
             tool => tool.Selectors.Contains(_creationRequest.Name))
             || _loader.CommandExists(_creationRequest.Name))
         {
-            _formatter.DisplayError(
+            Formatter.DisplayError(
                 Name,
                 string.Format(
-                    _resources.GetLocalizedString("FCli_NameExists"),
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("FCli_NameExists"),
                     _creationRequest.Name));
             throw new CommandNameException(
                 $"[Add] Name {_creationRequest.Name} already exists.");
@@ -276,26 +285,28 @@ public class AddTool : ToolBase
         }
         // Display parsed command.
         _creationRequest.Path = Arg;
-        _formatter.DisplayInfo(
+        Formatter.DisplayInfo(
             Name,
             string.Format(
-                _resources.GetLocalizedString("Add_ParsedCommand"),
+                CultureInfo.CurrentCulture,
+                Resources.GetLocalizedString("Add_ParsedCommand"),
                 _creationRequest.Name,
                 _creationRequest.Type,
                 _creationRequest.Shell,
                 _creationRequest.Path,
                 _creationRequest.Options));
-        _formatter.DisplayMessage(
-            _resources.GetLocalizedString("FCli_Saving"));
+        Formatter.DisplayMessage(
+            Resources.GetLocalizedString("FCli_Saving"));
         // Construct the command using parsed values.
         var command = _factory.Construct(_creationRequest);
         // Save the command into storage.
         _loader.SaveCommand(command);
         // Display confirmation.
-        _formatter.DisplayInfo(
-            Name, 
+        Formatter.DisplayInfo(
+            Name,
             string.Format(
-                _resources.GetLocalizedString("FCli_CommandSaved"),
+                CultureInfo.CurrentCulture,
+                Resources.GetLocalizedString("FCli_CommandSaved"),
                 _creationRequest.Name));
         // Final.
         return Task.CompletedTask;
@@ -312,9 +323,10 @@ public class AddTool : ToolBase
         string osName,
         string resourceString)
     {
-        _formatter.DisplayError(Name,
+        Formatter.DisplayError(Name,
             string.Format(
-                _resources.GetLocalizedString(resourceString),
+                CultureInfo.CurrentCulture,
+                Resources.GetLocalizedString(resourceString),
                 commandName));
         throw new ArgumentException(
             $"[Add] Attempted the creation of a {scriptType} command on {osName}.");
@@ -328,12 +340,13 @@ public class AddTool : ToolBase
         string commandName,
         string resourceString)
     {
-        _formatter.DisplayWarning(Name,
+        Formatter.DisplayWarning(Name,
             string.Format(
-                _resources.GetLocalizedString(resourceString),
+                CultureInfo.CurrentCulture,
+                Resources.GetLocalizedString(resourceString),
                 commandName));
-        _formatter.DisplayMessage(
-            _resources.GetLocalizedString("Add_OSScript_Question"));
+        Formatter.DisplayMessage(
+            Resources.GetLocalizedString("Add_OSScript_Question"));
         return UserConfirm();
     }
 }

@@ -19,7 +19,7 @@ public class PrettyFormatter : ICommandLineFormatter
     }
 
     // Private data.
-    private bool _progress = false;
+    private bool _progress;
 
     /// <summary>
     /// Loads basic info from the resources.

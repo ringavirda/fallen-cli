@@ -1,11 +1,12 @@
 // Vendor namespaces.
+using System.Globalization;
 using System.Net.Mail;
 // FCli namespaces.
 using FCli.Exceptions;
+using FCli.Models;
 using FCli.Models.Dtos;
 using FCli.Models.Types;
 using FCli.Services.Abstractions;
-using static FCli.Models.Args;
 
 namespace FCli.Services.Tools;
 
@@ -38,14 +39,14 @@ public class MailTool : ToolBase
         _mailer = mailer;
         _identity = identity;
 
-        Description = _resources.GetLocalizedString("Mail_Help");
+        Description = Resources.GetLocalizedString("Mail_Help");
     }
 
     // Private data.
-    private SendEmailRequest _request = new();
-    private bool _list = false;
-    private bool _read = false;
-    private bool _remove = false;
+    private readonly SendEmailRequest _request = new();
+    private bool _list;
+    private bool _read;
+    private bool _remove;
 
     // Override.
 
@@ -119,10 +120,10 @@ public class MailTool : ToolBase
         // Handle listing of the mail.
         if (_list)
         {
-            _formatter.DisplayInfo(
+            Formatter.DisplayInfo(
                 Name, 
-                _resources.GetLocalizedString("Mail_AttemptList"));
-            var progress = _formatter.DrawProgressAsync(cToken);
+                Resources.GetLocalizedString("Mail_AttemptList"));
+            var progress = Formatter.DrawProgressAsync(cToken);
             progress.Start();
             var headers = string.IsNullOrEmpty(Arg)
                 ? await _mailer.ListHeadersAsync(10)
@@ -135,29 +136,31 @@ public class MailTool : ToolBase
             // Guard against empty inbox.
             if (!headers.Any())
             {
-                _formatter.DisplayInfo(
+                Formatter.DisplayInfo(
                     Name,
-                    _resources.GetLocalizedString("Mail_EmptyInbox"));
+                    Resources.GetLocalizedString("Mail_EmptyInbox"));
                 return;
             }
             // Display received mail.
-            _formatter.DisplayInfo(
+            Formatter.DisplayInfo(
                 Name,
                 string.Format(
-                    _resources.GetLocalizedString("Mail_Listing"),
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("Mail_Listing"),
                     headers.Count,
                     root.Email));
             foreach (var header in headers)
             {
-                _formatter.DisplayMessage("");
-                _formatter.DisplayMessage(
+                Formatter.DisplayMessage("");
+                Formatter.DisplayMessage(
                     string.Format(
-                        _resources.GetLocalizedString("Mail_Header"),
+                        CultureInfo.CurrentCulture,
+                        Resources.GetLocalizedString("Mail_Header"),
                         header.Index,
                         header.Date,
                         header.SenderName,
                         header.IsRead));
-                _formatter.DisplayMessage(
+                Formatter.DisplayMessage(
                     $"{header.SenderEmail}: {header.Subject}");
             }
         }
@@ -166,41 +169,44 @@ public class MailTool : ToolBase
         {
             var index = ArgIsPositiveNumeric();
             // Read.
-            _formatter.DisplayInfo(
+            Formatter.DisplayInfo(
                 Name, 
-                _resources.GetLocalizedString("Mail_AttemptRead"));
-            _formatter.DrawProgressAsync(cToken).Start();
+                Resources.GetLocalizedString("Mail_AttemptRead"));
+            Formatter.DrawProgressAsync(cToken).Start();
             var email = await _mailer.ReadMessageAsync(index);
             cTokenSource.Cancel();
             // Display.
-            _formatter.DisplayInfo(
+            Formatter.DisplayInfo(
                 Name,
-                _resources.GetLocalizedString("Mail_ReadSuccess"));
-            _formatter.DisplayMessage(
+                Resources.GetLocalizedString("Mail_ReadSuccess"));
+            Formatter.DisplayMessage(
                 string.Format(
-                    _resources.GetLocalizedString("Mail_ReadFrom"),
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("Mail_ReadFrom"),
                     email.SenderName,
                     email.SenderEmail));
-            _formatter.DisplayMessage(
+            Formatter.DisplayMessage(
                 string.Format(
-                    _resources.GetLocalizedString("Mail_ReadSubject"),
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("Mail_ReadSubject"),
                     email.Subject));
-            _formatter.DisplayMessage(_resources.GetLocalizedString("Mail_ReadBody"));
-            _formatter.DisplayMessage(email.Body);
+            Formatter.DisplayMessage(Resources.GetLocalizedString("Mail_ReadBody"));
+            Formatter.DisplayMessage(email.Body);
         }
         // Handle deleting email.
         else if (_remove)
         {
             var index = ArgIsPositiveNumeric();
             // Confirm.
-            _formatter.DisplayWarning(
+            Formatter.DisplayWarning(
                 Name,
                 string.Format(
-                    _resources.GetLocalizedString("Mail_DeleteWarning"),
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("Mail_DeleteWarning"),
                     index));
             if (!UserConfirm()) return;
             // Delete the email.
-            _formatter.DrawProgressAsync(cToken).Start();
+            Formatter.DrawProgressAsync(cToken).Start();
             await _mailer.DeleteMessageAsync(index);
             cTokenSource.Cancel();
         }
@@ -210,9 +216,9 @@ public class MailTool : ToolBase
             // Guard against no message body.
             if (string.IsNullOrEmpty(Arg))
             {
-                _formatter.DisplayError(
+                Formatter.DisplayError(
                     Name,
-                    _resources.GetLocalizedString("Mail_NoEmail"));
+                    Resources.GetLocalizedString("Mail_NoEmail"));
                 throw new ArgumentException(
                     "[Mail] No email body while sending.");
             }
@@ -241,38 +247,41 @@ public class MailTool : ToolBase
                 // Throw if unknown identity.
                 else
                 {
-                    _formatter.DisplayError(
+                    Formatter.DisplayError(
                         Name,
                         string.Format(
-                            _resources.GetLocalizedString("Mail_UnknownIdentity"),
+                            CultureInfo.CurrentCulture,
+                            Resources.GetLocalizedString("Mail_UnknownIdentity"),
                             _request.ReceiverName));
                     throw new IdentityException(
                         "[Mail] Unknown identity was specified during send.");
                 }
             }
             // Display constructed header:
-            _formatter.DisplayInfo(
+            Formatter.DisplayInfo(
                 Name,
-                _resources.GetLocalizedString("Mail_SendSummary"));
-            _formatter.DisplayMessage(
+                Resources.GetLocalizedString("Mail_SendSummary"));
+            Formatter.DisplayMessage(
                 string.Format(
-                    _resources.GetLocalizedString("Mail_SendTo"),
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("Mail_SendTo"),
                     _request.ReceiverName,
                     _request.ReceiverEmail));
-            _formatter.DisplayMessage(
+            Formatter.DisplayMessage(
                 string.Format(
-                _resources.GetLocalizedString("Mail_SendSubject"),
-                _request.Subject));
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("Mail_SendSubject"),
+                    _request.Subject));
             // Verify send.
-            _formatter.DisplayWarning(
+            Formatter.DisplayWarning(
                 Name,
-                _resources.GetLocalizedString("Mail_SendWarning"));
+                Resources.GetLocalizedString("Mail_SendWarning"));
             if (!UserConfirm()) return;
             // Send.
-            _formatter.DisplayInfo(
+            Formatter.DisplayInfo(
                 Name,
-                _resources.GetLocalizedString("Mail_SendAttempt"));
-            _formatter.DrawProgressAsync(cToken).Start();
+                Resources.GetLocalizedString("Mail_SendAttempt"));
+            Formatter.DrawProgressAsync(cToken).Start();
             await _mailer.SendMessageAsync(_request);
             cTokenSource.Cancel();
         }
@@ -287,16 +296,16 @@ public class MailTool : ToolBase
     {
         if (!int.TryParse(Arg, out var number))
         {
-            _formatter.DisplayError(
+            Formatter.DisplayError(
                 Name,
-                _resources.GetLocalizedString("Mail_ArgNonNumeric"));
+                Resources.GetLocalizedString("Mail_ArgNonNumeric"));
             throw new ArgumentException("[Mail] Non numeric list arg");
         }
         else if (number < 0)
         {
-            _formatter.DisplayError(
+            Formatter.DisplayError(
                 Name,
-                _resources.GetLocalizedString("Mail_ArgNegative"));
+                Resources.GetLocalizedString("Mail_ArgNegative"));
             throw new ArgumentException("[Mail] Non numeric list arg");
         }
         return number;
@@ -310,9 +319,9 @@ public class MailTool : ToolBase
     {
         if (Flags.Count != 1)
         {
-            _formatter.DisplayError(
+            Formatter.DisplayError(
                 Name,
-                _resources.GetLocalizedString("Mail_MultipleExecutionFlags"));
+                Resources.GetLocalizedString("Mail_MultipleExecutionFlags"));
             throw new FlagException("[Mail] Tried to execute multiple flags.");
         }
     }

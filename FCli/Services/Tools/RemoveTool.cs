@@ -1,8 +1,10 @@
+// Vendor namespaces.
+using System.Globalization;
 // FCli namespaces.
 using FCli.Exceptions;
+using FCli.Models;
 using FCli.Models.Types;
 using FCli.Services.Abstractions;
-using static FCli.Models.Args;
 
 namespace FCli.Services.Tools;
 
@@ -38,8 +40,8 @@ public class RemoveTool : ToolBase
     }
 
     // Private data.
-    private bool _skipConfirm = false;
-    private bool _skipAction = false;
+    private bool _skipConfirm;
+    private bool _skipAction;
 
     // Overrides.
 
@@ -53,10 +55,11 @@ public class RemoveTool : ToolBase
         // Guard against invalid command name.
         if (!_loader.CommandExists(Arg) && !Flags.Any(f => f.Key == "all"))
         {
-            _formatter.DisplayError(
+            Formatter.DisplayError(
                 Name, 
                 string.Format(
-                    _resources.GetLocalizedString("FCli_UnknownName"),
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("FCli_UnknownName"),
                     Arg
             ));
             throw new CommandNameException(
@@ -73,16 +76,16 @@ public class RemoveTool : ToolBase
         if (flag.Key == "all")
         {
             // Confirm user's intentions.
-            _formatter.DisplayWarning(Name,
-                _resources.GetLocalizedString("Remove_AllWarning"));
+            Formatter.DisplayWarning(Name,
+                Resources.GetLocalizedString("Remove_AllWarning"));
             if (!UserConfirm()) _skipAction = true;
             // Delete all.
             var commands = _loader.LoadCommands();
             // Guard against empty storage.
             if (commands == null || !commands.Any())
             {
-                _formatter.DisplayMessage(
-                    _resources.GetLocalizedString("Remove_NoCommands"));
+                Formatter.DisplayMessage(
+                    Resources.GetLocalizedString("Remove_NoCommands"));
                 _skipAction = true;
             }
             else
@@ -90,9 +93,9 @@ public class RemoveTool : ToolBase
                 // Delete all known commands.
                 foreach (var command in commands.Select(c => c.Name))
                     _loader.DeleteCommand(command);
-                _formatter.DisplayInfo(
+                Formatter.DisplayInfo(
                     Name,
-                    _resources.GetLocalizedString("Remove_AllDeleted"));
+                    Resources.GetLocalizedString("Remove_AllDeleted"));
             }
             _skipAction = true;
         }
@@ -108,18 +111,20 @@ public class RemoveTool : ToolBase
         {
             // Prepare to delete the command.
             // Confirm user's intentions.
-            _formatter.DisplayWarning(
+            Formatter.DisplayWarning(
                 Name, 
                 string.Format(
-                    _resources.GetLocalizedString("Remove_Warning"),
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("Remove_Warning"),
                     Arg));
             if (!_skipConfirm && !UserConfirm()) return Task.CompletedTask;
             // Delete command.
             _loader.DeleteCommand(Arg);
-            _formatter.DisplayInfo(
+            Formatter.DisplayInfo(
                 Name, 
                 string.Format(
-                    _resources.GetLocalizedString("Remove_Deleted"),
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("Remove_Deleted"),
                     Arg));
         }
         // Final

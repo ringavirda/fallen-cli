@@ -16,6 +16,10 @@
     <PackageOutputPath>./nupkg</PackageOutputPath>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <AnalysisLevel>6.0-recommended</AnalysisLevel>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="MailKit" Version="4.1.0" />

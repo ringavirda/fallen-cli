@@ -6,10 +6,10 @@ namespace FCli.Exceptions;
 public class ResourceNotLoadedException : CriticalException
 {
     public ResourceNotLoadedException()
-        : base(){ }
-    public ResourceNotLoadedException(string? message) 
+        : base() { }
+    public ResourceNotLoadedException(string? message)
         : base(message) { }
 
-    public ResourceNotLoadedException(string? message, Exception? innerException) 
+    public ResourceNotLoadedException(string? message, Exception? innerException)
         : base(message, innerException) { }
 }

@@ -166,7 +166,7 @@ public interface IConfig
     /// Should sets new value for the UseEncryption flag.
     /// </summary>
     /// <param name="ifEncrypt">True if encrypt.</param>
-    public void ChangeEncryption(bool ifEncrypt);
+    public void ChangeEncryption(bool encrypt);
     
     /// <summary>
     /// Should change last file name that stored the passphrase.

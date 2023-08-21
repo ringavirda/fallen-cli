@@ -93,7 +93,7 @@ public class AesEncryptor : IEncryptor
     /// </summary>
     /// <param name="passphrase">String to convert.</param>
     /// <returns>Aligned byte array.</returns>
-    private byte[] ConvertPassphrase(string passphrase)
+    private static byte[] ConvertPassphrase(string passphrase)
     {
         var bytes = new byte[16];
         Encoding.UTF8.GetBytes(passphrase).CopyTo(bytes, 0);

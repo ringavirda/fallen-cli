@@ -5,6 +5,7 @@ using FCli.Models;
 using FCli.Models.Types;
 using FCli.Exceptions;
 using FCli.Services.Abstractions;
+using System.Globalization;
 
 namespace FCli;
 
@@ -39,6 +40,18 @@ public class FallenCli
         _executor = toolExecutor;
         _factory = commandFactory;
     }
+
+    // Logging.
+    private static readonly Action<ILogger, string, Exception> InvalidOperation
+        = LoggerMessage.Define<string>(
+            LogLevel.Warning,
+            2,
+            "Invalid operation: {Message}");
+    private static readonly Action<ILogger, string, Exception> Critical
+        = LoggerMessage.Define<string>(
+            LogLevel.Critical,
+            1,
+            "Critical: {Message}");
 
     /// <summary>
     /// Executes main fcli logic.
@@ -84,8 +97,10 @@ public class FallenCli
                 }
                 catch (InvalidOperationException ex)
                 {
-                    _logger.LogWarning(ex,
-                        "[FCli] User tried to invoke unsupported command.");
+                    InvalidOperation(
+                        _logger,
+                        "[FCli] User tried to invoke unsupported command.",
+                        ex);
                     return;
                 }
             }
@@ -98,13 +113,16 @@ public class FallenCli
         catch (Exception ex)
         {
             _formatter.DisplayError(
-                "FCli", 
+                "FCli",
                 string.Format(
+                    CultureInfo.CurrentCulture,
                     _resources.GetLocalizedString("FCli_CriticalError"),
-                    ex.GetType().Name, ex.Message
-                ));
-            _logger.LogCritical(ex, 
-                "[FCli] An unexpected or critical exception was thrown.");
+                    ex.GetType().Name,
+                    ex.Message));
+            Critical(
+                _logger,
+                "[FCli] An unexpected or critical exception was thrown.",
+                ex);
             return;
         }
     }
