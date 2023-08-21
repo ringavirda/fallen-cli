@@ -209,9 +209,9 @@ public abstract class ToolBase : ITool
         // Guard against bad path.
         if (!(File.Exists(path) || Directory.Exists(path)))
         {
-            _formatter.DisplayWarning(
+            _formatter.DisplayError(
                 toolName,
-                string.Format(_resources.GetLocalizedString("Tool_UrlIsInvalid"),
+                string.Format(_resources.GetLocalizedString("Tool_PathIsInvalid"),
                     path));
             throw new ArgumentException(
                 $"[{toolName}] Given path ({path}) is invalid.");
@@ -231,7 +231,7 @@ public abstract class ToolBase : ITool
     {
         if (!MailAddress.TryCreate(email, out var address))
         {
-            _formatter.DisplayWarning(
+            _formatter.DisplayError(
                 toolName,
                 string.Format(
                     _resources.GetLocalizedString("Tool_EmailIsInvalid"),

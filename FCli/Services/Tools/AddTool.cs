@@ -193,6 +193,7 @@ public class AddTool : ToolBase
                         // If shell script.
                         else
                         {
+                            Console.WriteLine(fileInfo.Extension);
                             var shellDesc = _config.KnownShells
                                 .FirstOrDefault(
                                     desc => desc.FileExtension == possibleExtension);
@@ -274,6 +275,7 @@ public class AddTool : ToolBase
             return Task.CompletedTask;
         }
         // Display parsed command.
+        _creationRequest.Path = Arg;
         _formatter.DisplayInfo(
             Name,
             string.Format(
@@ -281,7 +283,7 @@ public class AddTool : ToolBase
                 _creationRequest.Name,
                 _creationRequest.Type,
                 _creationRequest.Shell,
-                Arg,
+                _creationRequest.Path,
                 _creationRequest.Options));
         _formatter.DisplayMessage(
             _resources.GetLocalizedString("FCli_Saving"));
