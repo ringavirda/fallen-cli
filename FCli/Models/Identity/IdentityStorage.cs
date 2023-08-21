@@ -1,4 +1,3 @@
-// Vendor namespaces.
 using System.Text.Json.Serialization;
 
 namespace FCli.Models.Identity;

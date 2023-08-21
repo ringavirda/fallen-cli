@@ -1,4 +1,3 @@
-// FCli namespaces.
 using FCli.Models.Dtos;
 
 namespace FCli.Models.Identity;

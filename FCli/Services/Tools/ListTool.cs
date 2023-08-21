@@ -1,6 +1,5 @@
-// Vendor namespaces.
 using System.Globalization;
-// FCli namespaces.
+
 using FCli.Models;
 using FCli.Models.Types;
 using FCli.Services.Abstractions;
@@ -81,7 +80,7 @@ public class ListTool : ToolBase
         if (commandDesc != null)
         {
             Formatter.DisplayInfo(
-                Name, 
+                Name,
                 string.Format(
                     CultureInfo.CurrentCulture,
                     Resources.GetLocalizedString("List_ListCommands"),
@@ -130,7 +129,7 @@ public class ListTool : ToolBase
         else if (flag.Key == "groups")
         {
             Formatter.DisplayInfo(
-                Name, 
+                Name,
                 string.Format(
                     CultureInfo.CurrentCulture,
                     Resources.GetLocalizedString("List_ListCommands"),

@@ -1,4 +1,3 @@
-// FCli namespaces.
 using FCli.Models.Types;
 
 namespace FCli.Services.Abstractions;
@@ -73,22 +72,22 @@ public interface IConfig
     /// May be bad path.
     /// </remarks>
     public string PassphraseFile { get; }
-    
+
     /// <summary>
     /// List of all known locales.
     /// </summary>
     public List<string> KnownLocales { get; }
-    
+
     /// <summary>
     /// Return pairs of formatter-selector and formatter-type.
     /// </summary>
     public List<FormatterDescriptor> KnownFormatters { get; }
-    
+
     /// <summary>
     /// List all known fcli tools.
     /// </summary>
     public List<IToolDescriptor> KnownTools { get; }
-    
+
     /// <summary>
     /// List of all known flags that describe command flavors.
     /// </summary>
@@ -96,7 +95,7 @@ public interface IConfig
     /// Value consists of Command type and a flag that is true if this command executed in the shell.
     /// </remarks>
     public List<CommandDescriptor> KnownCommands { get; }
-    
+
     /// <summary>
     /// List of all known shells designators with respective types.
     /// </summary>
@@ -167,13 +166,13 @@ public interface IConfig
     /// </summary>
     /// <param name="ifEncrypt">True if encrypt.</param>
     public void ChangeEncryption(bool encrypt);
-    
+
     /// <summary>
     /// Should change last file name that stored the passphrase.
     /// </summary>
     /// <param name="filename">New file name.</param>
     public void ChangePassphraseFile(string filename);
-    
+
     /// <summary>
     /// Should regenerate encryption salt.
     /// </summary>

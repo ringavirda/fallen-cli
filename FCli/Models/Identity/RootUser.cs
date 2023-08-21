@@ -1,4 +1,3 @@
-// FCli namespaces.
 using FCli.Models.Dtos;
 
 namespace FCli.Models.Identity;
@@ -22,7 +21,7 @@ public class RootUser : Contact
         Aliases.Add("me");
     }
 
-    public bool IsRoot(string selector) 
+    public bool IsRoot(string selector)
         => selector == Name || Aliases.Any(a => a == selector);
 
     public new IdentityChangeRequest ToChangeRequest()

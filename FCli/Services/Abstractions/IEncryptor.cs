@@ -12,7 +12,7 @@ public interface IEncryptor
     /// <param name="passphrase">Passphrase used for encryption.</param>
     /// <returns>Encrypted string.</returns>
     public string Encrypt(string unencrypted, string passphrase);
-    
+
     /// <summary>
     /// Decrypts given string.
     /// </summary>

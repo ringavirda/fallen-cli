@@ -1,7 +1,6 @@
-// Vendor namespaces.
 using System.Globalization;
 using System.Net.Mail;
-// FCli namespaces.
+
 using FCli.Exceptions;
 using FCli.Models;
 using FCli.Models.Types;
@@ -51,7 +50,7 @@ public abstract class ToolBase : ITool
     /// Initialized by the Execute method.
     /// </summary>
     public string Arg { get; protected set; } = null!;
-    
+
     /// <summary>
     /// Pass down to the actual tools.
     /// </summary>
@@ -133,7 +132,7 @@ public abstract class ToolBase : ITool
                 string.Format(
                     CultureInfo.CurrentCulture,
                     Resources.GetLocalizedString("Tool_FlagShouldNotHaveValue"),
-                    flag.Key, 
+                    flag.Key,
                     toolName));
             throw new FlagException(
                 $"[{toolName}] --{flag.Key} - cannot have value.");

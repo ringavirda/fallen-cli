@@ -1,11 +1,11 @@
-// Vendor namespaces.
-using Microsoft.Extensions.Logging;
-// FCli namespaces.
+using System.Globalization;
+
+using FCli.Exceptions;
 using FCli.Models;
 using FCli.Models.Types;
-using FCli.Exceptions;
 using FCli.Services.Abstractions;
-using System.Globalization;
+
+using Microsoft.Extensions.Logging;
 
 namespace FCli;
 

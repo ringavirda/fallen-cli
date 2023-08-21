@@ -1,6 +1,5 @@
-// Vendor namespaces.
 using System.Globalization;
-// FCli namespaces.
+
 using FCli.Exceptions;
 using FCli.Models;
 using FCli.Models.Dtos;
@@ -59,7 +58,7 @@ public class RunTool : ToolBase
         if (Arg == string.Empty)
         {
             Formatter.DisplayError(
-                Name, 
+                Name,
                 string.Format(
                     CultureInfo.CurrentCulture,
                     Resources.GetLocalizedString("FCli_ArgMissing"),
@@ -72,7 +71,7 @@ public class RunTool : ToolBase
             .Count() > 1)
         {
             Formatter.DisplayError(
-                Name, 
+                Name,
                 string.Format(
                     CultureInfo.CurrentCulture,
                     Resources.GetLocalizedString("FCli_MultipleTypeFlags"),

@@ -1,6 +1,5 @@
-// Vendor namespaces.
 using System.Globalization;
-// FCli namespaces.
+
 using FCli.Exceptions;
 using FCli.Models;
 using FCli.Models.Dtos;
@@ -62,7 +61,7 @@ public class ChangeTool : ToolBase
         if (Arg == string.Empty)
         {
             Formatter.DisplayError(
-                Name, 
+                Name,
                 string.Format(
                     CultureInfo.CurrentCulture,
                     Resources.GetLocalizedString("FCli_ArgMissing"),
@@ -74,7 +73,7 @@ public class ChangeTool : ToolBase
         if (command == null)
         {
             Formatter.DisplayError(
-                Name, 
+                Name,
                 string.Format(
                     CultureInfo.CurrentCulture,
                     Resources.GetLocalizedString("FCli_UnknownName"),
@@ -101,7 +100,7 @@ public class ChangeTool : ToolBase
                     tool => tool.Selectors.Contains(flag.Value)))
             {
                 Formatter.DisplayError(
-                    Name, 
+                    Name,
                     string.Format(
                         CultureInfo.CurrentCulture,
                         Resources.GetLocalizedString("FCli_NameExists"),
@@ -110,7 +109,7 @@ public class ChangeTool : ToolBase
                     "[Change] Tried to create a command with existing name.");
             }
             Formatter.DisplayWarning(
-                Name, 
+                Name,
                 string.Format(
                     CultureInfo.CurrentCulture,
                     Resources.GetLocalizedString("Change_NameWarning"),
@@ -122,11 +121,11 @@ public class ChangeTool : ToolBase
         else if (flag.Key == "path")
         {
             Formatter.DisplayWarning(
-                Name, 
+                Name,
                 string.Format(
                     CultureInfo.CurrentCulture,
                     Resources.GetLocalizedString("Change_PathWarning"),
-                    _command.Name, 
+                    _command.Name,
                     flag.Value));
             _changeRequest.Path = flag.Value;
         }
@@ -139,18 +138,18 @@ public class ChangeTool : ToolBase
             if (commandDesc != null)
             {
                 Formatter.DisplayWarning(
-                    Name, 
+                    Name,
                     string.Format(
                         CultureInfo.CurrentCulture,
                         Resources.GetLocalizedString("Change_TypeWarning"),
-                        _command.Name, 
+                        _command.Name,
                         commandDesc.Type));
                 _changeRequest.Type = commandDesc.Type;
             }
             else
             {
                 Formatter.DisplayError(
-                    Name, 
+                    Name,
                     string.Format(
                         CultureInfo.CurrentCulture,
                         Resources.GetLocalizedString("FCli_UnknownCommandType"),
@@ -168,18 +167,18 @@ public class ChangeTool : ToolBase
             if (shellDesc != null)
             {
                 Formatter.DisplayWarning(
-                    Name, 
+                    Name,
                     string.Format(
                         CultureInfo.CurrentCulture,
                         Resources.GetLocalizedString("Change_ShellWarning"),
-                        _command.Name, 
+                        _command.Name,
                         shellDesc.Type));
                 _changeRequest.Shell = shellDesc.Type;
             }
             else
             {
                 Formatter.DisplayError(
-                    Name, 
+                    Name,
                     string.Format(
                         CultureInfo.CurrentCulture,
                         Resources.GetLocalizedString("FCli_UnknownShell"),
@@ -192,11 +191,11 @@ public class ChangeTool : ToolBase
         else if (flag.Key == "options")
         {
             Formatter.DisplayWarning(
-                Name, 
+                Name,
                 string.Format(
                     CultureInfo.CurrentCulture,
                     Resources.GetLocalizedString("Change_OptionsWarning"),
-                    _command.Name, 
+                    _command.Name,
                     flag.Value));
             _changeRequest.Options = flag.Value;
         }
@@ -210,7 +209,7 @@ public class ChangeTool : ToolBase
         if (Flags.Count == 0)
         {
             Formatter.DisplayInfo(
-                Name, 
+                Name,
                 string.Format(
                     CultureInfo.CurrentCulture,
                     Resources.GetLocalizedString("Change_ShowCommand"),
@@ -234,7 +233,7 @@ public class ChangeTool : ToolBase
         // Change command if flags were given.
         // Display new command profile
         Formatter.DisplayInfo(
-            Name, 
+            Name,
             string.Format(
                 CultureInfo.CurrentCulture,
                 Resources.GetLocalizedString("Change_NewCommandProfile"),
@@ -266,7 +265,7 @@ public class ChangeTool : ToolBase
         _loader.DeleteCommand(_command.Name);
         _loader.SaveCommand(command);
         Formatter.DisplayInfo(
-            Name, 
+            Name,
             string.Format(
                 CultureInfo.CurrentCulture,
                 Resources.GetLocalizedString("FCli_CommandSaved"),

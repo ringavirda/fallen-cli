@@ -1,11 +1,10 @@
-﻿// Vendor namespaces.
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Globalization;
-// FCli namespaces.
+
+using FCli.Exceptions;
 using FCli.Models;
 using FCli.Models.Dtos;
 using FCli.Models.Types;
-using FCli.Exceptions;
 using FCli.Services.Abstractions;
 
 namespace FCli.Services;

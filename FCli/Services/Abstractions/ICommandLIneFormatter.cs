@@ -1,4 +1,3 @@
-// Vendor namespaces.
 using System.Reflection;
 
 namespace FCli.Services.Abstractions;
@@ -85,13 +84,13 @@ public interface ICommandLineFormatter
     /// <param name="preface">The string that is put before user input.</param>
     /// <returns>User input.</returns>
     public string? ReadUserInput(string? preface, bool hideInput = false);
-    
+
     /// <summary>
     /// Draws progress graphic to console.
     /// </summary>
     /// <param name="cancellationToken">Used to stop progress drawing.</param>
     public Task DrawProgressAsync(CancellationToken cancellationToken);
-    
+
     /// <summary>
     /// Displays messages while progress is running.
     /// </summary>

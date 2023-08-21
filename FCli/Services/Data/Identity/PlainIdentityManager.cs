@@ -1,6 +1,5 @@
-// Vendor namespaces.
 using System.Text.Json;
-// FCli namespaces.
+
 using FCli.Exceptions;
 using FCli.Models.Dtos;
 using FCli.Models.Identity;
@@ -24,7 +23,7 @@ public class PlainIdentityManager : IIdentityManager
 
     protected IConfig Config => _config;
     protected IdentityStorage? IdentityCashe { get; set; }
-    
+
     public List<Contact>? LoadContacts()
     {
         if (File.Exists(Config.IdentityFilePath))

@@ -1,6 +1,5 @@
-// Vendor namespaces.
 using System.Globalization;
-// FCli namespaces.
+
 using FCli.Exceptions;
 using FCli.Models;
 using FCli.Models.Dtos;
@@ -62,7 +61,7 @@ public class GroupTool : ToolBase
         if (Arg == "" && !Flags.Any(flag => flag.Key == "all"))
         {
             Formatter.DisplayError(
-                Name, 
+                Name,
                 string.Format(
                     CultureInfo.CurrentCulture,
                     Resources.GetLocalizedString("FCli_ArgMissing"),
@@ -87,11 +86,11 @@ public class GroupTool : ToolBase
             // Construct a command.
             var group = _factory.ConstructGroup(_alterRequest);
             Formatter.DisplayInfo(
-                Name, 
+                Name,
                 string.Format(
                     CultureInfo.CurrentCulture,
                     Resources.GetLocalizedString("Group_Constructed"),
-                    group.Name, 
+                    group.Name,
                     $"({string.Join(" ", group.Sequence)})"));
             // Save it.
             Formatter.DisplayMessage(
@@ -99,7 +98,7 @@ public class GroupTool : ToolBase
             _loader.SaveCommand(group);
             // Report.
             Formatter.DisplayInfo(
-                Name, 
+                Name,
                 string.Format(
                     CultureInfo.CurrentCulture,
                     Resources.GetLocalizedString("FCli_CommandSaved"),
@@ -115,7 +114,7 @@ public class GroupTool : ToolBase
             // Validate new commands.
             _alterRequest.Sequence = ValidateCommands(Arg);
             Formatter.DisplayWarning(
-                Name, 
+                Name,
                 string.Format(
                     CultureInfo.CurrentCulture,
                     Resources.GetLocalizedString("Group_OverrideWarning"),
@@ -129,7 +128,7 @@ public class GroupTool : ToolBase
             _loader.SaveCommand(group);
             // Report.
             Formatter.DisplayInfo(
-                Name, 
+                Name,
                 string.Format(
                     CultureInfo.CurrentCulture,
                     Resources.GetLocalizedString("FCli_CommandSaved"),
@@ -186,7 +185,7 @@ public class GroupTool : ToolBase
                 _loader.DeleteCommand(group.Name);
                 // Report.
                 Formatter.DisplayInfo(
-                    Name, 
+                    Name,
                     string.Format(
                         CultureInfo.CurrentCulture,
                         Resources.GetLocalizedString("Group_Removed"),
@@ -217,7 +216,7 @@ public class GroupTool : ToolBase
         if (group == null)
         {
             Formatter.DisplayError(
-                Name, 
+                Name,
                 string.Format(
                     CultureInfo.CurrentCulture,
                     Resources.GetLocalizedString("FCli_UnknownName"),
@@ -239,7 +238,7 @@ public class GroupTool : ToolBase
             || _config.KnownTools.Any(tool => tool.Selectors.Contains(name)))
         {
             Formatter.DisplayError(
-                Name, 
+                Name,
                 string.Format(
                     CultureInfo.CurrentCulture,
                     Resources.GetLocalizedString("FCli_NameExists"),
@@ -263,7 +262,7 @@ public class GroupTool : ToolBase
             if (!_loader.CommandExists(name))
             {
                 Formatter.DisplayError(
-                    Name, 
+                    Name,
                     string.Format(
                         CultureInfo.CurrentCulture,
                         Resources.GetLocalizedString("FCli_UnknownName"),

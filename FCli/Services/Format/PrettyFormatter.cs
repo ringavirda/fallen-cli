@@ -1,6 +1,5 @@
-﻿// Vendor namespaces.
-using System.Text;
-// FCli namespaces.
+﻿using System.Text;
+
 using FCli.Services.Abstractions;
 
 namespace FCli.Services.Format;

@@ -1,14 +1,15 @@
-// Vendor namespaces.
-using MimeKit;
+using System.Globalization;
+
+using FCli.Exceptions;
+using FCli.Models.Dtos;
+using FCli.Models.Identity;
+using FCli.Services.Abstractions;
+
 using MailKit;
 using MailKit.Net.Imap;
 using MailKit.Net.Smtp;
-using System.Globalization;
-// FCli namespaces.
-using FCli.Exceptions;
-using FCli.Models.Dtos;
-using FCli.Services.Abstractions;
-using FCli.Models.Identity;
+
+using MimeKit;
 
 namespace FCli.Services;
 
@@ -338,8 +339,8 @@ public class CombinedMailer : IMailer
                 _ => throw new MailException(
                     $"[Mail] Unsupported email host [{domain}].")
             };
-        } 
-        catch(MailException)
+        }
+        catch (MailException)
         {
             _formatter.DisplayError(
                 "Mail",

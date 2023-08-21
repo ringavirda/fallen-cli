@@ -1,7 +1,5 @@
-// Vendor namespaces.
 using System.Globalization;
 
-// FCli namespaces.
 using FCli.Exceptions;
 using FCli.Models;
 using FCli.Models.Dtos;
@@ -152,7 +150,7 @@ public class AddTool : ToolBase
             || _creationRequest.Type == CommandType.None)
         {
             // If arg is a hyperlink.
-            if (Arg.StartsWith("http://", StringComparison.CurrentCulture) 
+            if (Arg.StartsWith("http://", StringComparison.CurrentCulture)
                 || Arg.StartsWith("https://", StringComparison.CurrentCulture))
             {
                 // Guard against invalid url.

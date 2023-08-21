@@ -1,8 +1,7 @@
-// Vendor namespaces.
 using System.Globalization;
 using System.Reflection;
 using System.Resources;
-// FCli namespaces.
+
 using FCli.Exceptions;
 using FCli.Services.Abstractions;
 
@@ -28,8 +27,8 @@ public class StringResources : IResources
     /// </summary>
     /// <param name="name">String name in the Strings resource file.</param>
     /// <returns>Loaded string.</returns>
-    public string GetLocalizedString(string name) 
-        => _manager.GetString(name, CultureInfo.CurrentCulture) 
+    public string GetLocalizedString(string name)
+        => _manager.GetString(name, CultureInfo.CurrentCulture)
             ?? StringNotLoaded();
 
     /// <summary>

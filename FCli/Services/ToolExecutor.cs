@@ -1,10 +1,9 @@
-﻿// Vendor namespaces.
-using Microsoft.Extensions.Logging;
-// FCli namespaces.
+﻿using FCli.Exceptions;
 using FCli.Models;
 using FCli.Models.Types;
-using FCli.Exceptions;
 using FCli.Services.Abstractions;
+
+using Microsoft.Extensions.Logging;
 
 namespace FCli.Services;
 
@@ -36,7 +35,7 @@ public class ToolExecutor : IToolExecutor
             LogLevel.Warning,
             4,
             "Operation involving identities failed: {Message}");
-    
+
     /// <summary>
     /// Execute tool from given type and arg.
     /// </summary>
@@ -46,7 +45,7 @@ public class ToolExecutor : IToolExecutor
     public void Execute(Args args, ToolType type)
     {
         // Extract tool from the list of known tools.
-        var tool = _tools.FirstOrDefault(tool => tool.Type == type) 
+        var tool = _tools.FirstOrDefault(tool => tool.Type == type)
             ?? throw new CriticalException("[Tool] Tool wasn't extracted.");
         // Perform action.
         try

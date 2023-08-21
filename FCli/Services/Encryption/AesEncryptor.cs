@@ -1,7 +1,6 @@
-// Vendor namespaces.
 using System.Security.Cryptography;
 using System.Text;
-// FCli namespaces.
+
 using FCli.Services.Abstractions;
 
 namespace FCli.Services.Encryption;

@@ -1,6 +1,5 @@
-// Vendor namespaces.
 using System.Text.RegularExpressions;
-// FCli namespaces.
+
 using FCli.Models;
 using FCli.Services.Abstractions;
 

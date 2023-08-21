@@ -5,7 +5,7 @@
 /// </summary>
 public class FlagException : ArgumentException
 {
-    public FlagException() 
+    public FlagException()
         : base() { }
     public FlagException(string? message)
         : base(message) { }

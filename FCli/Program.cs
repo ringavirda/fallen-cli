@@ -1,18 +1,19 @@
-﻿// Vendor namespaces.
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Reflection;
-using Serilog;
-// FCli namespaces.
+
 using FCli;
 using FCli.Services;
 using FCli.Services.Abstractions;
 using FCli.Services.Config;
 using FCli.Services.Data;
 using FCli.Services.Data.Identity;
-using FCli.Services.Tools;
 using FCli.Services.Encryption;
+using FCli.Services.Tools;
+
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
+using Serilog;
 
 // Configure application host.
 var host = Host.CreateDefaultBuilder()
@@ -74,7 +75,7 @@ var host = Host.CreateDefaultBuilder()
             services.AddScoped(typeof(ITool), toolType);
     })
     // Serilog for structured file logging.
-    .UseSerilog((context, services, configuration) 
+    .UseSerilog((context, services, configuration)
         => configuration
             // Some enrichers for more info in log files.
             .Enrich.FromLogContext()

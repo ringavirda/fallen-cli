@@ -1,7 +1,6 @@
-// Vendor namespaces.
 using System.Globalization;
 using System.Net.Mail;
-// FCli namespaces.
+
 using FCli.Exceptions;
 using FCli.Models;
 using FCli.Models.Dtos;
@@ -121,7 +120,7 @@ public class MailTool : ToolBase
         if (_list)
         {
             Formatter.DisplayInfo(
-                Name, 
+                Name,
                 Resources.GetLocalizedString("Mail_AttemptList"));
             var progress = Formatter.DrawProgressAsync(cToken);
             progress.Start();
@@ -170,7 +169,7 @@ public class MailTool : ToolBase
             var index = ArgIsPositiveNumeric();
             // Read.
             Formatter.DisplayInfo(
-                Name, 
+                Name,
                 Resources.GetLocalizedString("Mail_AttemptRead"));
             Formatter.DrawProgressAsync(cToken).Start();
             var email = await _mailer.ReadMessageAsync(index);

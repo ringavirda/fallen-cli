@@ -1,6 +1,5 @@
-// Vendor namespaces.
 using System.Globalization;
-// FCli namespaces.
+
 using FCli.Exceptions;
 using FCli.Models;
 using FCli.Models.Types;
@@ -56,12 +55,11 @@ public class RemoveTool : ToolBase
         if (!_loader.CommandExists(Arg) && !Flags.Any(f => f.Key == "all"))
         {
             Formatter.DisplayError(
-                Name, 
+                Name,
                 string.Format(
                     CultureInfo.CurrentCulture,
                     Resources.GetLocalizedString("FCli_UnknownName"),
-                    Arg
-            ));
+                    Arg));
             throw new CommandNameException(
                 $"[Remove] ({Arg}) is not a known command name.");
         }
@@ -112,7 +110,7 @@ public class RemoveTool : ToolBase
             // Prepare to delete the command.
             // Confirm user's intentions.
             Formatter.DisplayWarning(
-                Name, 
+                Name,
                 string.Format(
                     CultureInfo.CurrentCulture,
                     Resources.GetLocalizedString("Remove_Warning"),
@@ -121,7 +119,7 @@ public class RemoveTool : ToolBase
             // Delete command.
             _loader.DeleteCommand(Arg);
             Formatter.DisplayInfo(
-                Name, 
+                Name,
                 string.Format(
                     CultureInfo.CurrentCulture,
                     Resources.GetLocalizedString("Remove_Deleted"),
