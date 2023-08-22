@@ -1,4 +1,3 @@
-// FCli namespaces.
 using FCli.Models;
 
 namespace FCli.Services.Abstractions;

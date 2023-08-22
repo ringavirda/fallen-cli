@@ -1,9 +1,10 @@
-// FCli namespaces.
+using System.Globalization;
+
 using FCli.Exceptions;
+using FCli.Models;
 using FCli.Models.Dtos;
 using FCli.Models.Types;
 using FCli.Services.Abstractions;
-using static FCli.Models.Args;
 
 namespace FCli.Services.Tools;
 
@@ -14,9 +15,23 @@ public class AddTool : ToolBase
 {
     // DI.
     private readonly IConfig _config;
-    private readonly ICommandLoader _commandLoader;
-    private readonly ICommandFactory _commandFactory;
+    private readonly ICommandLoader _loader;
+    private readonly ICommandFactory _factory;
 
+    /// <summary>
+    /// Empty if used as a descriptor.
+    /// </summary>
+    public AddTool() : base()
+    {
+        _config = null!;
+        _loader = null!;
+        _factory = null!;
+        Description = string.Empty;
+    }
+
+    /// <summary>
+    /// Main constructor.
+    /// </summary>
     public AddTool(
         ICommandLineFormatter formatter,
         IResources resources,
@@ -25,8 +40,8 @@ public class AddTool : ToolBase
         ICommandFactory commandFactory)
         : base(formatter, resources)
     {
-        _commandFactory = commandFactory;
-        _commandLoader = commandLoader;
+        _factory = commandFactory;
+        _loader = commandLoader;
         _config = config;
 
         Description = resources.GetLocalizedString("Add_Help");
@@ -47,9 +62,10 @@ public class AddTool : ToolBase
         // Guard against empty path/url.
         if (Arg == string.Empty)
         {
-            _formatter.DisplayError(Name,
-                string.Format(_resources.GetLocalizedString(
-                    "FCli_ArgMissing"),
+            Formatter.DisplayError(Name,
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("FCli_ArgMissing"),
                     Name));
             throw new ArgumentException(
                 "[Add] No argument was given.");
@@ -59,11 +75,12 @@ public class AddTool : ToolBase
             .Intersect(_config.KnownCommands.Select(c => c.Selector))
             .Count() > 1)
         {
-            _formatter.DisplayError(Name,
+            Formatter.DisplayError(
+                Name,
                 string.Format(
-                    _resources.GetLocalizedString(
-                        "FCli_MultipleTypeFlags"),
-                        Name));
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("FCli_MultipleTypeFlags"),
+                    Name));
             throw new FlagException(
                 "[Add] Attempted to pass multiple command types flags.");
         }
@@ -99,14 +116,14 @@ public class AddTool : ToolBase
                     _creationRequest.Shell = shellDescriptor.Type;
                 else
                 {
-                    _formatter.DisplayWarning(Name,
+                    Formatter.DisplayWarning(
+                        Name,
                         string.Format(
-                            _resources.GetLocalizedString(
-                                "FCli_UnknownShell"),
-                                string.Join(", ",
-                                    _config.KnownShells
-                                        .Select(sh => sh.Selector)))
-                        );
+                            CultureInfo.CurrentCulture,
+                            Resources.GetLocalizedString("FCli_UnknownShell"),
+                            string.Join(
+                                ", ",
+                                _config.KnownShells.Select(sh => sh.Selector))));
                     throw new ArgumentException(
                         $"[Add] Wasn't able to determine shell type on ({Arg}).");
                 }
@@ -126,20 +143,21 @@ public class AddTool : ToolBase
         else UnknownFlag(flag, Name);
     }
 
-    protected override void Action()
+    protected override Task ActionAsync()
     {
         // Attempt set name or type if those weren't specified.
-        if (_creationRequest.Name == string.Empty
+        if (string.IsNullOrEmpty(_creationRequest.Name)
             || _creationRequest.Type == CommandType.None)
         {
             // If arg is a hyperlink.
-            if (Arg.StartsWith("http://") || Arg.StartsWith("https://"))
+            if (Arg.StartsWith("http://", StringComparison.CurrentCulture)
+                || Arg.StartsWith("https://", StringComparison.CurrentCulture))
             {
                 // Guard against invalid url.
                 var uri = ValidateUrl(Arg, Name);
                 // Set command name equal website name.
                 var host = uri.Host.Split('.');
-                if (_creationRequest.Name == string.Empty)
+                if (string.IsNullOrEmpty(_creationRequest.Name))
                     _creationRequest.Name = host.First() == "www"
                         ? host[1]
                         : host[0];
@@ -156,34 +174,35 @@ public class AddTool : ToolBase
                 if (Directory.Exists(Arg))
                 {
                     // Set directory command type.
-                    if (_creationRequest.Name == string.Empty)
+                    if (string.IsNullOrEmpty(_creationRequest.Name))
                         _creationRequest.Name = new DirectoryInfo(Arg).Name;
                     _creationRequest.Type = CommandType.Directory;
                 }
                 else
                 {
                     // Extract file's name and extension.
-                    var filename = Path.GetFileName(Arg).Split('.');
-                    var possibleExtension = filename.Last();
+                    var fileInfo = new FileInfo(Arg);
+                    var possibleExtension = fileInfo.Extension;
                     // Set command name equal file name.
-                    if (_creationRequest.Name == string.Empty)
-                        _creationRequest.Name = new FileInfo(Arg).Name
-                            .Split('.').First();
+                    if (string.IsNullOrEmpty(_creationRequest.Name))
+                        _creationRequest.Name =
+                            fileInfo.Name.Split('.').First();
                     // Try parse command type from the file extension.
                     if (_creationRequest.Type == CommandType.None)
                     {
                         // If top level command.
                         var commandDesc = _config.KnownCommands
-                            .Where(desc => desc.FileExtension == possibleExtension)
-                            .FirstOrDefault();
+                            .FirstOrDefault(
+                                desc => desc.FileExtension == possibleExtension);
                         if (commandDesc != null)
                             _creationRequest.Type = commandDesc.Type;
                         // If shell script.
                         else
                         {
+                            Console.WriteLine(fileInfo.Extension);
                             var shellDesc = _config.KnownShells
-                                .Where(desc => desc.FileExtension == possibleExtension)
-                                .FirstOrDefault();
+                                .FirstOrDefault(
+                                    desc => desc.FileExtension == possibleExtension);
                             if (shellDesc != null)
                             {
                                 // Set script type.
@@ -194,9 +213,9 @@ public class AddTool : ToolBase
                             // Throw if command unidentified.
                             else
                             {
-                                _formatter.DisplayError(Name,
-                                    _resources.GetLocalizedString(
-                                        "Add_FileUnrecognized"));
+                                Formatter.DisplayError(
+                                    Name,
+                                    Resources.GetLocalizedString("Add_FileUnrecognized"));
                                 throw new ArgumentException(
                                     $"[Add] Unknown file extension ({possibleExtension}).");
                             }
@@ -207,9 +226,9 @@ public class AddTool : ToolBase
             // Throw if wan't able to determine command name and type.
             else
             {
-                _formatter.DisplayError(Name,
-                    _resources.GetLocalizedString(
-                        "FCli_CommandNotDetermined"));
+                Formatter.DisplayError(
+                    Name,
+                    Resources.GetLocalizedString("FCli_CommandNotDetermined"));
                 throw new ArgumentException(
                     $"[Add] Command wasn't determined from ({Arg}).");
             }
@@ -217,13 +236,14 @@ public class AddTool : ToolBase
         // Guard against name duplication.
         if (_config.KnownTools.Any(
             tool => tool.Selectors.Contains(_creationRequest.Name))
-            || _commandLoader.CommandExists(_creationRequest.Name))
+            || _loader.CommandExists(_creationRequest.Name))
         {
-            _formatter.DisplayError(Name,
+            Formatter.DisplayError(
+                Name,
                 string.Format(
-                    _resources.GetLocalizedString("FCli_NameExists"),
-                    _creationRequest.Name
-                ));
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("FCli_NameExists"),
+                    _creationRequest.Name));
             throw new CommandNameException(
                 $"[Add] Name {_creationRequest.Name} already exists.");
         }
@@ -233,7 +253,7 @@ public class AddTool : ToolBase
             && !ScriptConfirm(_creationRequest.Name, "Add_BashOnWindows"))
         {
             // Exit fcli.
-            return;
+            return Task.CompletedTask;
         }
         if (_creationRequest.Shell == ShellType.Fish
             && Environment.OSVersion.Platform == PlatformID.Win32NT)
@@ -259,28 +279,35 @@ public class AddTool : ToolBase
             && !ScriptConfirm(_creationRequest.Name, "Add_PowershellOnLinux"))
         {
             // Exit fcli.
-            return;
+            return Task.CompletedTask;
         }
         // Display parsed command.
-        _formatter.DisplayInfo(Name,
+        _creationRequest.Path = Arg;
+        Formatter.DisplayInfo(
+            Name,
             string.Format(
-                _resources.GetLocalizedString("Add_ParsedCommand"),
+                CultureInfo.CurrentCulture,
+                Resources.GetLocalizedString("Add_ParsedCommand"),
                 _creationRequest.Name,
                 _creationRequest.Type,
                 _creationRequest.Shell,
-                Arg,
+                _creationRequest.Path,
                 _creationRequest.Options));
-        _formatter.DisplayMessage(
-            _resources.GetLocalizedString("FCli_Saving"));
+        Formatter.DisplayMessage(
+            Resources.GetLocalizedString("FCli_Saving"));
         // Construct the command using parsed values.
-        var command = _commandFactory.Construct(_creationRequest);
+        var command = _factory.Construct(_creationRequest);
         // Save the command into storage.
-        _commandLoader.SaveCommand(command);
+        _loader.SaveCommand(command);
         // Display confirmation.
-        _formatter.DisplayInfo(Name, string.Format(
-            _resources.GetLocalizedString("FCli_CommandSaved"),
-            _creationRequest.Name
-        ));
+        Formatter.DisplayInfo(
+            Name,
+            string.Format(
+                CultureInfo.CurrentCulture,
+                Resources.GetLocalizedString("FCli_CommandSaved"),
+                _creationRequest.Name));
+        // Final.
+        return Task.CompletedTask;
     }
 
     // Private methods.
@@ -294,11 +321,11 @@ public class AddTool : ToolBase
         string osName,
         string resourceString)
     {
-        _formatter.DisplayError(Name,
+        Formatter.DisplayError(Name,
             string.Format(
-                _resources.GetLocalizedString(resourceString),
-                commandName
-            ));
+                CultureInfo.CurrentCulture,
+                Resources.GetLocalizedString(resourceString),
+                commandName));
         throw new ArgumentException(
             $"[Add] Attempted the creation of a {scriptType} command on {osName}.");
     }
@@ -311,13 +338,13 @@ public class AddTool : ToolBase
         string commandName,
         string resourceString)
     {
-        _formatter.DisplayWarning(Name,
+        Formatter.DisplayWarning(Name,
             string.Format(
-                _resources.GetLocalizedString(resourceString),
-                commandName
-            ));
-        _formatter.DisplayMessage(
-            _resources.GetLocalizedString("Add_OSScript_Question"));
+                CultureInfo.CurrentCulture,
+                Resources.GetLocalizedString(resourceString),
+                commandName));
+        Formatter.DisplayMessage(
+            Resources.GetLocalizedString("Add_OSScript_Question"));
         return UserConfirm();
     }
 }

@@ -1,10 +1,9 @@
-﻿// Vendor namespaces.
-using Microsoft.Extensions.Logging;
-// FCli namespaces.
+﻿using FCli.Exceptions;
 using FCli.Models;
 using FCli.Models.Types;
-using FCli.Exceptions;
 using FCli.Services.Abstractions;
+
+using Microsoft.Extensions.Logging;
 
 namespace FCli.Services;
 
@@ -24,7 +23,19 @@ public class ToolExecutor : IToolExecutor
         _logger = logger;
         _tools = tools;
     }
-    
+
+    // Logging.
+    private static readonly Action<ILogger, string, Exception> LogArgument
+        = LoggerMessage.Define<string>(
+            LogLevel.Information,
+            3,
+            "Argument or flag failed: {Message}");
+    private static readonly Action<ILogger, string, Exception> LogIdentity
+        = LoggerMessage.Define<string>(
+            LogLevel.Warning,
+            4,
+            "Operation involving identities failed: {Message}");
+
     /// <summary>
     /// Execute tool from given type and arg.
     /// </summary>
@@ -34,8 +45,7 @@ public class ToolExecutor : IToolExecutor
     public void Execute(Args args, ToolType type)
     {
         // Extract tool from the list of known tools.
-        var tool = _tools
-            .FirstOrDefault(tool => tool.Type == type) 
+        var tool = _tools.FirstOrDefault(tool => tool.Type == type)
             ?? throw new CriticalException("[Tool] Tool wasn't extracted.");
         // Perform action.
         try
@@ -46,7 +56,19 @@ public class ToolExecutor : IToolExecutor
         {
             // Flag and Arg exceptions are caused by user errors and so have
             // low priority for logging.
-            _logger.LogInformation(ex, "[Tool] Argument or flags has failed.");
+            LogArgument(
+                _logger,
+                "[Tool] Argument or flags has failed.",
+                ex);
+        }
+        catch (IdentityException ex)
+        {
+            // Identity exceptions are considered to have higher priority than
+            // argument exceptions, hence warning level.
+            LogIdentity(
+                _logger,
+                "[Tool] Identity failed.",
+                ex);
         }
     }
 

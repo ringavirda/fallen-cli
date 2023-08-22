@@ -1,10 +1,16 @@
-// Vendor namespaces.
 using System.Text.RegularExpressions;
+
 using FCli.Models;
 using FCli.Services.Abstractions;
 
 namespace FCli.Services;
 
+/// <summary>
+/// Transforms array of args to <c>Args</c> object.
+/// </summary>
+/// <remarks>
+/// Parses command line args differently if they are flat.
+/// </remarks>
 public partial class ArgsParser : Args, IArgsParser
 {
     // Regex needed to parse quoted strings.
@@ -61,11 +67,12 @@ public partial class ArgsParser : Args, IArgsParser
             for (int i = 0; i < args.Length; i++)
             {
                 // Find flag key.
-                if (args[i].StartsWith("--"))
+                if (args[i].StartsWith("--", StringComparison.CurrentCulture))
                 {
                     // Check if flag has an argument and create Flag.
                     var flag =
-                        i < args.Length - 1 && !args[i + 1].StartsWith("--")
+                        i < args.Length - 1 && !args[i + 1]
+                            .StartsWith("--", StringComparison.CurrentCulture)
                         ? new Flag(args[i][2..^0], args[i + 1])
                         : new Flag(args[i][2..^0], "");
                     // Add flag to the list.
@@ -81,7 +88,8 @@ public partial class ArgsParser : Args, IArgsParser
             if (buffer.Count > 2)
             {
                 // Hardcode inline formatter.
-                _formatter.DisplayWarning(nameof(Args),
+                _formatter.DisplayError(
+                    "Args",
                     _resources.GetLocalizedString("FCli_MultipleArgs"));
                 throw new ArgumentException(
                     $"[Arg] Incorrect ({buffer.Count}) amount of args was given.");

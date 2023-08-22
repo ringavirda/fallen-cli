@@ -7,10 +7,10 @@ namespace FCli.Exceptions;
 public class CriticalException : Exception
 {
     public CriticalException()
-        : base(){ }
-    public CriticalException(string? message) 
+        : base() { }
+    public CriticalException(string? message)
         : base(message) { }
 
-    public CriticalException(string? message, Exception? innerException) 
+    public CriticalException(string? message, Exception? innerException)
         : base(message, innerException) { }
 }

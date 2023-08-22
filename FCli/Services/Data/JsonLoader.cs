@@ -1,6 +1,5 @@
-﻿// Vendor namespaces.
-using System.Text.Json;
-// FCli namespaces.
+﻿using System.Text.Json;
+
 using FCli.Exceptions;
 using FCli.Models;
 using FCli.Services.Abstractions;
@@ -79,12 +78,11 @@ public class JsonLoader : ICommandLoader
         {
             var json = File.ReadAllText(_config.StorageFilePath);
             // Guard against empty file.
-            if (json == string.Empty) return null;
+            if (string.IsNullOrEmpty(json)) return null;
             // Attempt to deserialize commands form json string.
             try
             {
                 var commands = JsonSerializer.Deserialize<List<Command>>(json);
-                // Guard against deserialization fail.
                 return _commandCashe = commands;
 
             }

@@ -1,4 +1,3 @@
-// FCli namespaces.
 using FCli.Models.Types;
 
 namespace FCli.Models.Dtos;

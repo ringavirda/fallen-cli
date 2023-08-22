@@ -1,8 +1,8 @@
-// FCli namespaces.
+using System.Globalization;
+
 using FCli.Models;
 using FCli.Models.Types;
 using FCli.Services.Abstractions;
-using static FCli.Models.Args;
 
 namespace FCli.Services.Tools;
 
@@ -15,6 +15,19 @@ public class ListTool : ToolBase
     private readonly IConfig _config;
     private readonly ICommandLoader _loader;
 
+    /// <summary>
+    /// Empty if used as a descriptor.
+    /// </summary>
+    public ListTool() : base()
+    {
+        _config = null!;
+        _loader = null!;
+        Description = string.Empty;
+    }
+
+    /// <summary>
+    /// Main constructor.
+    /// </summary>
     public ListTool(
         ICommandLineFormatter formatter,
         IResources resources,
@@ -29,7 +42,7 @@ public class ListTool : ToolBase
     }
 
     //Private data.
-    private List<Command>? _commands = null!;
+    private List<Command>? _commands;
 
     // Overrides
 
@@ -45,8 +58,9 @@ public class ListTool : ToolBase
         // Guard against empty command list.
         if (commands == null || !commands.Any())
         {
-            _formatter.DisplayInfo(Name,
-                _resources.GetLocalizedString("List_NoCommands"));
+            Formatter.DisplayInfo(
+                Name,
+                Resources.GetLocalizedString("List_NoCommands"));
         }
         // Init private field.
         _commands = commands;
@@ -65,15 +79,21 @@ public class ListTool : ToolBase
         // No descriptors found.
         if (commandDesc != null)
         {
-            _formatter.DisplayInfo(Name, string.Format(
-                _resources.GetLocalizedString("List_ListCommands"),
-                commandDesc.Selector));
+            Formatter.DisplayInfo(
+                Name,
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("List_ListCommands"),
+                    commandDesc.Selector));
+            // Extract typed commands.
             var selected = _commands.Where(c => c.Type == commandDesc.Type);
             if (selected.Any())
                 DisplayCommands(selected, Arg);
-            else _formatter.DisplayMessage(string.Format(
-                    _resources.GetLocalizedString(
-                        "List_NoCommandsSelected"),
+            // Guard against no commands.
+            else Formatter.DisplayMessage(
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("List_NoCommandsSelected"),
                     commandDesc.Selector));
         }
         // List all known tools.
@@ -108,33 +128,42 @@ public class ListTool : ToolBase
         // List all stored command groups.
         else if (flag.Key == "groups")
         {
-            _formatter.DisplayInfo(Name, string.Format(
-                _resources.GetLocalizedString("List_ListCommands"),
-                CommandType.Group));
+            Formatter.DisplayInfo(
+                Name,
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("List_ListCommands"),
+                    CommandType.Group));
+            // Extract commands.
             var selected = _commands
                 .Where(command => command.Type == CommandType.Group);
             if (selected.Any())
                 DisplayCommands(selected, Arg);
-            else _formatter.DisplayMessage(string.Format(
-                    _resources.GetLocalizedString(
-                        "List_NoCommandsSelected"),
+            // Guard against no groups.
+            else Formatter.DisplayMessage(
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("List_NoCommandsSelected"),
                     CommandType.Group));
         }
         // Throw if flag is unrecognized.
         else UnknownFlag(flag, Name);
     }
 
-    protected override void Action()
+    protected override Task ActionAsync()
     {
         // Skip if no commands loaded.
-        if (_commands == null) return;
+        if (_commands == null) return Task.CompletedTask;
         // Display all commands if no flags were given.
         if (Flags.Count == 0)
         {
-            _formatter.DisplayInfo(Name,
-                _resources.GetLocalizedString("List_ListAllCommands"));
+            Formatter.DisplayInfo(
+                Name,
+                Resources.GetLocalizedString("List_ListAllCommands"));
             DisplayCommands(_commands, Arg);
         }
+        // Final.
+        return Task.CompletedTask;
     }
 
     // Private methods.
@@ -147,10 +176,12 @@ public class ListTool : ToolBase
     private void DisplayString(string arg, string conf)
     {
         if (conf == string.Empty)
-            _formatter.DisplayMessage(string.Format(
-                _resources.GetLocalizedString("List_NothingFiltered"),
-                arg));
-        else _formatter.DisplayMessage(conf);
+            Formatter.DisplayMessage(
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("List_NothingFiltered"),
+                    arg));
+        else Formatter.DisplayMessage(conf);
     }
 
     /// <summary>
@@ -166,19 +197,21 @@ public class ListTool : ToolBase
             commands = commands.Where(command => command.Name.Contains(filter));
             if (!commands.Any())
             {
-                _formatter.DisplayMessage(string.Format(
-                    _resources.GetLocalizedString("List_NothingFiltered"),
-                    filter));
+                Formatter.DisplayMessage(
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        Resources.GetLocalizedString("List_NothingFiltered"),
+                        filter));
                 return;
             }
         }
         foreach (var command in commands)
         {
-            _formatter.DisplayMessage($"[{command.Type}] - {command.Name}:");
+            Formatter.DisplayMessage($"[{command.Type}] - {command.Name}:");
             if (command.Type == CommandType.Group)
-                _formatter.DisplayMessage(
-                    $"\t{string.Join(' ', ((Group)command).Sequence)}");
-            else _formatter.DisplayMessage($"\t{command.Path}");
+                Formatter.DisplayMessage(
+                    '\t' + string.Join(' ', ((Group)command).Sequence));
+            else Formatter.DisplayMessage('\t' + command.Path);
         }
     }
 }

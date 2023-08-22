@@ -33,16 +33,6 @@ public class Args
     }
 
     /// <summary>
-    /// Key-Value record that represents command line flag.
-    /// </summary>
-    /// <param name="Key">Flag selector.</param>
-    /// <param name="Value">Flag argument.</param>
-    public record Flag(
-        string Key,
-        string Value
-    );
-
-    /// <summary>
     /// Command line identifier for the command or tool.
     /// </summary>
     public string Selector { get; protected set; } = string.Empty;

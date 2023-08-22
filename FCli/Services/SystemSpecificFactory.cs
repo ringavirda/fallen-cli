@@ -1,10 +1,10 @@
-﻿// Vendor namespaces.
-using System.Diagnostics;
-// FCli namespaces.
+﻿using System.Diagnostics;
+using System.Globalization;
+
+using FCli.Exceptions;
 using FCli.Models;
 using FCli.Models.Dtos;
 using FCli.Models.Types;
-using FCli.Exceptions;
 using FCli.Services.Abstractions;
 
 namespace FCli.Services;
@@ -44,14 +44,18 @@ public class SystemSpecificFactory : ICommandFactory
         // Guard against unknown command.
         if (command == null)
         {
-            _formatter.DisplayError("Command", string.Format(
-                _resources.GetLocalizedString("FCli_UnknownName"),
-                name));
+            _formatter.DisplayError(
+                "Command",
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    _resources.GetLocalizedString("FCli_UnknownName"),
+                    name));
             throw new InvalidOperationException(
                 $"[Command] {name} - is not a known name.");
         }
         else if (command.Type == CommandType.Group)
-            return ConstructGroup(new GroupAlterRequest {
+            return ConstructGroup(new GroupAlterRequest
+            {
                 Name = command.Name,
                 Sequence = ((Group)command).Sequence
             });
@@ -212,14 +216,17 @@ public class SystemSpecificFactory : ICommandFactory
         // Obviously.
         if (Environment.OSVersion.Platform == PlatformID.Unix)
         {
-            _formatter.DisplayError("Command", string.Format(
-                _resources.GetLocalizedString("Command_UnsupportedShell"),
-                ShellType.Cmd, PlatformID.Unix));
+            _formatter.DisplayError(
+                "Command",
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    _resources.GetLocalizedString("Command_UnsupportedShell"),
+                    ShellType.Cmd,
+                    PlatformID.Unix));
             throw new InvalidOperationException(
                 $"[Command] Attempted to run a CMD script ({path}) on Linux.");
         }
-        if (isDirectory)
-            RunAsDirectory("cmd", path, string.Empty);
+        if (isDirectory) RunAsDirectory("cmd", path, string.Empty);
         else
         {
             // Windows starts cmd.exe process without shell.
@@ -243,13 +250,16 @@ public class SystemSpecificFactory : ICommandFactory
         // Try execute on linux.
         if (Environment.OSVersion.Platform == PlatformID.Unix)
         {
-            _formatter.DisplayWarning("Command", string.Format(
-                _resources.GetLocalizedString("Command_UnsupportedShellWarning"),
-                ShellType.Powershell, PlatformID.Unix));
-            if (isDirectory)
-                RunAsDirectory("pwsh", path, string.Empty);
-            else Process.Start("pwsh", $"{path} {options}")
-                .WaitForExit();
+            _formatter.DisplayWarning(
+                "Command",
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    _resources.GetLocalizedString(
+                        "Command_UnsupportedShellWarning"),
+                    ShellType.Powershell,
+                    PlatformID.Unix));
+            if (isDirectory) RunAsDirectory("pwsh", path, string.Empty);
+            else Process.Start("pwsh", $"{path} {options}").WaitForExit();
         }
         else
         {
@@ -289,13 +299,20 @@ public class SystemSpecificFactory : ICommandFactory
         // Windows uses WSL if it is available to run bash script.
         else
         {
-            _formatter.DisplayWarning("Command", string.Format(
-                _resources.GetLocalizedString("Command_UnsupportedShellWarning"),
-                ShellType.Bash, PlatformID.Win32NT));
+            _formatter.DisplayWarning(
+                "Command",
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    _resources.GetLocalizedString(
+                        "Command_UnsupportedShellWarning"),
+                    ShellType.Bash,
+                    PlatformID.Win32NT));
             // Convert Windows path to WSL path.
             path = path.Replace(@"\", @"/");
             var drive = path.First();
-            path = path.Replace($"{drive}:/", $"/mnt/{char.ToLower(drive)}/");
+            path = path.Replace(
+                $"{drive}:/",
+                $"/mnt/{char.ToLower(drive, CultureInfo.CurrentUICulture)}/");
             // Start bash process in WSL.
             if (asDirectory)
                 RunAsDirectory("powershell", path, "wsl");
@@ -323,15 +340,18 @@ public class SystemSpecificFactory : ICommandFactory
     {
         if (Environment.OSVersion.Platform == PlatformID.Win32NT)
         {
-            _formatter.DisplayError("Command", string.Format(
-                _resources.GetLocalizedString("Command_UnsupportedShell"),
-                ShellType.Fish, PlatformID.Win32NT));
+            _formatter.DisplayError(
+                "Command",
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    _resources.GetLocalizedString("Command_UnsupportedShell"),
+                    ShellType.Fish,
+                    PlatformID.Win32NT));
             throw new InvalidOperationException(
                 $"[Command] Attempted to run a Fish script ({path}) on Windows.");
         }
         // Linux starts Fish process if it exists.
-        if (asDirectory)
-            RunAsDirectory("fish", path, string.Empty);
+        if (asDirectory) RunAsDirectory("fish", path, string.Empty);
         else Process.Start(new ProcessStartInfo
         {
             FileName = "fish",

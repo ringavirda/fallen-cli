@@ -1,4 +1,3 @@
-// FCli namespaces.
 using FCli.Models.Types;
 
 namespace FCli.Services.Abstractions;
@@ -47,17 +46,48 @@ public interface IConfig
     /// </summary>
     public string LogsPath { get; }
     /// <summary>
+    /// Name of the file that contains all users.
+    /// </summary>
+    public string IdentityFileName { get; }
+    /// <summary>
+    /// Path to the file with user data.
+    /// </summary>
+    public string IdentityFilePath { get; }
+    /// <summary>
+    /// Path to the Strings resource file.
+    /// </summary>
+    public string StringsResourceLocation { get; }
+    /// <summary>
+    /// Specifies if fcli should encrypt user data.
+    /// </summary>
+    public bool UseEncryption { get; }
+    /// <summary>
+    /// Used to offset encryption. Generated automatically.
+    /// </summary>
+    public byte[] Salt { get; }
+    /// <summary>
+    /// The path to the file that temporarily stores the passphrase.
+    /// </summary>
+    /// <remarks>
+    /// May be bad path.
+    /// </remarks>
+    public string PassphraseFile { get; }
+
+    /// <summary>
     /// List of all known locales.
     /// </summary>
     public List<string> KnownLocales { get; }
+
     /// <summary>
     /// Return pairs of formatter-selector and formatter-type.
     /// </summary>
     public List<FormatterDescriptor> KnownFormatters { get; }
+
     /// <summary>
     /// List all known fcli tools.
     /// </summary>
-    public List<IToolDescriptor> KnownTools { get; } 
+    public List<IToolDescriptor> KnownTools { get; }
+
     /// <summary>
     /// List of all known flags that describe command flavors.
     /// </summary>
@@ -65,6 +95,7 @@ public interface IConfig
     /// Value consists of Command type and a flag that is true if this command executed in the shell.
     /// </remarks>
     public List<CommandDescriptor> KnownCommands { get; }
+
     /// <summary>
     /// List of all known shells designators with respective types.
     /// </summary>
@@ -72,10 +103,6 @@ public interface IConfig
     /// Value consists of Shell type and a specific shell file extension.
     /// </remarks>
     public List<ShellDescriptor> KnownShells { get; }
-    /// <summary>
-    /// Path to the Strings resource file.
-    /// </summary>
-    public string StringsResourceLocation { get; }
 
     // Descriptors.
 
@@ -83,7 +110,7 @@ public interface IConfig
         string Selector,
         Type Type
     );
-    
+
     public record CommandDescriptor(
         string Selector,
         CommandType Type,
@@ -101,7 +128,7 @@ public interface IConfig
     /// Returns current culture decided by the user.
     /// </summary>
     public string Locale { get; }
-    
+
     /// <summary>
     /// Returns current selected command line formatter.
     /// </summary>
@@ -133,4 +160,25 @@ public interface IConfig
     /// </summary>
     /// <param name="formatter">New formatter.</param>
     public void ChangeFormatter(FormatterDescriptor formatter);
+
+    /// <summary>
+    /// Should sets new value for the UseEncryption flag.
+    /// </summary>
+    /// <param name="ifEncrypt">True if encrypt.</param>
+    public void ChangeEncryption(bool encrypt);
+
+    /// <summary>
+    /// Should change last file name that stored the passphrase.
+    /// </summary>
+    /// <param name="filename">New file name.</param>
+    public void ChangePassphraseFile(string filename);
+
+    /// <summary>
+    /// Should regenerate encryption salt.
+    /// </summary>
+    public void ChangeSalt();
+    /// <summary>
+    /// Should change default files' location.
+    /// </summary>
+    public void ChangeAppFolder(DirectoryInfo? directory);
 }

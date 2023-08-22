@@ -1,8 +1,10 @@
-// FCli namespaces.
+using System.Globalization;
+using System.Net.Mail;
+
 using FCli.Exceptions;
+using FCli.Models;
 using FCli.Models.Types;
 using FCli.Services.Abstractions;
-using static FCli.Models.Args;
 
 namespace FCli.Services.Tools;
 
@@ -11,12 +13,18 @@ namespace FCli.Services.Tools;
 /// </summary>
 /// <remarks>
 /// Contains common properties and some guarding methods.
-/// <remarks>
+/// </remarks>
 public abstract class ToolBase : ITool
 {
     // DI needed by all tools.
-    protected readonly ICommandLineFormatter _formatter;
-    protected readonly IResources _resources;
+    private readonly ICommandLineFormatter _formatter;
+    private readonly IResources _resources;
+
+    /// <summary>
+    /// Default constructor for the descriptors.
+    /// </summary>
+    public ToolBase()
+        : this(null!, null!) { }
 
     protected ToolBase(
         ICommandLineFormatter formatter,
@@ -33,7 +41,7 @@ public abstract class ToolBase : ITool
     public abstract string Description { get; }
     public abstract List<string> Selectors { get; }
     public abstract ToolType Type { get; }
-    
+
     /// <summary>
     /// List of parsed flags.
     /// </summary>
@@ -42,6 +50,15 @@ public abstract class ToolBase : ITool
     /// Initialized by the Execute method.
     /// </summary>
     public string Arg { get; protected set; } = null!;
+
+    /// <summary>
+    /// Pass down to the actual tools.
+    /// </summary>
+    protected ICommandLineFormatter Formatter => _formatter;
+    /// <summary>
+    /// Pass down to the actual tools.
+    /// </summary>
+    protected IResources Resources => _resources;
 
     /// <summary>
     /// Performs tool's general logic of processing flags and acting.
@@ -54,26 +71,32 @@ public abstract class ToolBase : ITool
         Arg = arg;
         Flags = flags.ToList();
 
-        // Perform general validation and initialization.
-        GuardInit();
-
         // Handle --help flag.
         if (flags.Any(flag => flag.Key == "help"))
         {
-            _formatter.DisplayMessage(Description);
+            Formatter.DisplayMessage(Description);
             return;
         }
-        
+
+        // Perform general validation and initialization.
+        GuardInit();
+
+
         // Process flags.
         foreach (var flag in Flags)
             ProcessNextFlag(flag);
 
         // Perform action.
-        Action();
+        try
+        {
+            ActionAsync().Wait();
+        }
+        // Guard against internal cancels.
+        catch (AggregateException) { }
     }
 
     // Abstract methods.
-    
+
     /// <summary>
     /// Performs necessary general validation over received arg and flags.
     /// </summary>
@@ -81,18 +104,18 @@ public abstract class ToolBase : ITool
     /// Can initialize some private values.
     /// </remarks>
     protected abstract void GuardInit();
-    
+
     /// <summary>
     /// Receives each flag sequentially and need to process them accordingly.
     /// </summary>
     /// <param name="flag">Next flag to be processed.</param>
     protected abstract void ProcessNextFlag(Flag flag);
-    
+
     /// <summary>
     /// Main tool logic, performed after all flags were processed.
     /// </summary>
-    protected abstract void Action();
-    
+    protected abstract Task ActionAsync();
+
     // Protected validators.
 
     /// <summary>
@@ -104,11 +127,13 @@ public abstract class ToolBase : ITool
     {
         if (flag.Value != "")
         {
-            _formatter.DisplayError(
+            Formatter.DisplayError(
                 toolName,
-                string.Format(_resources.GetLocalizedString(
-                    "Tool_FlagShouldNotHaveValue"), 
-                    flag.Key, toolName));
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("Tool_FlagShouldNotHaveValue"),
+                    flag.Key,
+                    toolName));
             throw new FlagException(
                 $"[{toolName}] --{flag.Key} - cannot have value.");
         }
@@ -123,11 +148,13 @@ public abstract class ToolBase : ITool
     {
         if (flag.Value == "")
         {
-            _formatter.DisplayError(
+            Formatter.DisplayError(
                 toolName,
-                string.Format(_resources.GetLocalizedString(
-                    "Tool_FlagShouldHaveValue"),
-                    flag.Key, toolName));
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("Tool_FlagShouldHaveValue"),
+                    flag.Key,
+                    toolName));
             throw new FlagException(
                 $"[{toolName}] --{flag.Key} - should have value.");
         }
@@ -141,11 +168,14 @@ public abstract class ToolBase : ITool
     /// <exception cref="FlagException">Flag is unknown.</exception>
     protected void UnknownFlag(Flag flag, string toolName)
     {
-        _formatter.DisplayError(
+        Formatter.DisplayError(
                 toolName,
-                string.Format(_resources.GetLocalizedString(
-                    "Tool_FlagIsUnknown"), 
-                    flag.Key, toolName, toolName));
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("Tool_FlagIsUnknown"),
+                    flag.Key,
+                    toolName,
+                    toolName));
         throw new FlagException(
              $"[{toolName}] --{flag.Key} - is not a valid flag.");
     }
@@ -169,10 +199,11 @@ public abstract class ToolBase : ITool
         // Guard against URI creation fail.
         if (!success || uri == null)
         {
-            _formatter.DisplayError(
+            Formatter.DisplayError(
                 toolName,
-                string.Format(_resources.GetLocalizedString(
-                    "Tool_UrlIsInvalid"),
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("Tool_UrlIsInvalid"),
                     url));
             throw new ArgumentException(
                 $"[{toolName}] Given url ({url}) is invalid.");
@@ -192,10 +223,11 @@ public abstract class ToolBase : ITool
         // Guard against bad path.
         if (!(File.Exists(path) || Directory.Exists(path)))
         {
-            _formatter.DisplayWarning(
+            Formatter.DisplayError(
                 toolName,
-                string.Format(_resources.GetLocalizedString(
-                    "Tool_UrlIsInvalid"), 
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("Tool_PathIsInvalid"),
                     path));
             throw new ArgumentException(
                 $"[{toolName}] Given path ({path}) is invalid.");
@@ -205,24 +237,47 @@ public abstract class ToolBase : ITool
     }
 
     /// <summary>
+    /// Validates the format of the given email string.
+    /// </summary>
+    /// <param name="email">Email to check.</param>
+    /// <param name="toolName">Sender.</param>
+    /// <returns>Parsed email string.</returns>
+    /// <exception cref="ArgumentException">If assertion fails.</exception>
+    protected string ValidateEmail(string email, string toolName)
+    {
+        if (!MailAddress.TryCreate(email, out var address))
+        {
+            Formatter.DisplayError(
+                toolName,
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    Resources.GetLocalizedString("Tool_EmailIsInvalid"),
+                    email));
+            throw new ArgumentException(
+                $"[{toolName}] Given email ({email}) is invalid.");
+        }
+        else return address.Address;
+    }
+
+    /// <summary>
     /// Generic user confirmation for an action.
     /// </summary>
     /// <returns>True if confirmed.</returns>
     protected bool UserConfirm()
     {
-        _formatter.DisplayMessage(
-            _resources.GetLocalizedString("FCli_Confirm"));
-        var confirm = _formatter.ReadUserInput("(yes/any)");
+        Formatter.DisplayMessage(
+            Resources.GetLocalizedString("FCli_Confirm"));
+        var confirm = Formatter.ReadUserInput("(yes/any)");
         if (confirm != "yes")
         {
-            _formatter.DisplayMessage(
-                _resources.GetLocalizedString("FCli_Averted"));
+            Formatter.DisplayMessage(
+                Resources.GetLocalizedString("FCli_Averted"));
             return false;
         }
         else
         {
-            _formatter.DisplayMessage(
-                _resources.GetLocalizedString("FCli_Continued"));
+            Formatter.DisplayMessage(
+                Resources.GetLocalizedString("FCli_Continued"));
             return true;
         }
     }

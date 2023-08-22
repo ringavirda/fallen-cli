@@ -1,6 +1,5 @@
-﻿// Vendor namespaces.
-using System.Text;
-// FCli namespaces.
+﻿using System.Text;
+
 using FCli.Services.Abstractions;
 
 namespace FCli.Services.Format;
@@ -18,6 +17,9 @@ public class InlineFormatter : ICommandLineFormatter
         _resources = strings;
     }
 
+    // Private data.
+    private bool _progress;
+
     /// <summary>
     /// Loads basic info from the resources.
     /// </summary>
@@ -30,7 +32,7 @@ public class InlineFormatter : ICommandLineFormatter
     /// <summary>
     /// Loads full help page for the entire fallen-cli from the resources.
     /// </summary>
-    public void EchoHelp() 
+    public void EchoHelp()
         => DisplayMessage(_resources.GetLocalizedString("Full_Help"));
 
     /// <summary>
@@ -87,12 +89,84 @@ public class InlineFormatter : ICommandLineFormatter
     /// <summary>
     /// Formats input line as a plain single liner.
     /// </summary>
-    /// <param name="preface">Usually (yes/any).</param>
+    /// <param name="preface">String that is written before input.</param>
+    /// <param name="hideInput">If true hides user input.</param>
     /// <returns>User input.</returns>
-    public string? ReadUserInput(string? preface)
+    public string? ReadUserInput(string? preface, bool hideInput = false)
     {
         Console.Write(preface + ": ");
-        return Console.ReadLine();
+        var input = new StringBuilder();
+        while (true)
+        {
+            var key = Console.ReadKey(hideInput);
+            if (key.Key == ConsoleKey.Enter)
+                break;
+            else input.Append(key.KeyChar);
+        }
+        return input.ToString();
+    }
+
+    /// <summary>
+    /// Draws progress as simple loading animated message.
+    /// </summary>
+    /// <param name="cancellationToken">Used to stop the progress.</param>
+    public Task DrawProgressAsync(CancellationToken cancellationToken)
+        => new(async () =>
+        {
+            // Store original position.
+            var (Left, Top) = Console.GetCursorPosition();
+            // Setup console properties.
+            Console.CursorVisible = false;
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            // Set flag.
+            _progress = true;
+            // Do the drawing.
+            while (true)
+            {
+                try
+                {
+                    // Draw the loading message.
+                    for (int i = 1; i <= 3; i++)
+                    {
+                        Console.SetCursorPosition(Left, Top);
+                        Console.Write(
+                            _resources.GetLocalizedString("FCli_Progress_Inline"));
+                        Console.Write(
+                            string.Join("", Enumerable.Repeat('.', i)));
+                        await Task.Delay(400, cancellationToken);
+                    }
+                    // Clean console for the new cycle.
+                    Console.SetCursorPosition(Left, Top);
+                    Console.Write(
+                        string.Join(" ", Enumerable.Repeat("    ", 10)));
+                }
+                catch (TaskCanceledException)
+                {
+                    // Reset console properties.
+                    Console.ResetColor();
+                    Console.CursorVisible = true;
+                    // Reset flag.
+                    _progress = false;
+                    // Stop execution.
+                    return;
+                }
+            }
+        }, cancellationToken);
+
+    /// <summary>
+    /// Writes message cleanly if progress is running.
+    /// </summary>
+    /// <param name="message">To display.</param>
+    public void DisplayProgressMessage(string? message)
+    {
+        if (_progress)
+        {
+            // Clean console.
+            Console.Write(
+                '\r' + string.Join(" ", Enumerable.Repeat("    ", 10)));
+            // Write as line.
+            Console.WriteLine($"\r{message}");
+        }
     }
 
     /// <summary>

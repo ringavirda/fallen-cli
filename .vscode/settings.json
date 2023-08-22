@@ -1,6 +1,7 @@
 {
     "dotnet.defaultSolution": "FCli.sln",
     "cSpell.words": [
-        "fcli"
+        "fcli",
+        "PKCS"
     ]
 }
