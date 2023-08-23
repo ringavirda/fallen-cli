@@ -1,23 +1,27 @@
 using FCli.Exceptions;
 using FCli.Models;
 using FCli.Models.Types;
-using static FCli.Models.Args;
+using FCli.Services.Tools;
+using FCli.Tests.Fixtures;
 
-namespace FCli.Tests.Models;
+namespace FCli.Tests.Unit.Services.Tools;
 
-public class ToolTests : Tool
+[Collection("Common")]
+public class ToolBaseTests : ToolBase
 {
     public override string Name => "Test";
-    public override string Description => "";
-    public override List<string> Selectors => new();
-    public override ToolType Type => ToolType.None;
-    public override Action<string, List<Flag>> Action => (str, flags) => { };
 
-    public ToolTests() 
-        : base(
-            TestRepository.FormatterFake.Object,
-            TestRepository.ResourcesFake.Object
-        ) { }
+    public override string Description => string.Empty;
+
+    public override List<string> Selectors => new();
+
+    public override ToolType Type => ToolType.None;
+
+    public ToolBaseTests(
+        FormatterFixture formatter,
+        ResourcesFixture resources)
+        : base(formatter.Object, resources.Object)
+    { }
 
     [Fact]
     public void Tool_FlagHasValue_Value()
@@ -116,5 +120,14 @@ public class ToolTests : Tool
         var act = () => ValidatePath(path, Name);
 
         act.Should().NotThrow();
+    }
+
+    protected override void GuardInit() { }
+
+    protected override void ProcessNextFlag(Flag flag) { }
+
+    protected override Task ActionAsync()
+    {
+        return Task.CompletedTask;
     }
 }
