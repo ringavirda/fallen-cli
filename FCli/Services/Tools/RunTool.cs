@@ -140,6 +140,7 @@ public class RunTool : ToolBase
                 Resources.GetLocalizedString("Run_UnknownCommand"));
             throw new ArgumentException("[Run] Failed to parse given command");
         }
+        _runRequest.Path = Arg;
         var command = _factory.Construct(_runRequest);
         // Guard against invalid initialization.
         if (command?.Action != null) command.Action();

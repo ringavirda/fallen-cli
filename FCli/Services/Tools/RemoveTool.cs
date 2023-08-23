@@ -76,7 +76,11 @@ public class RemoveTool : ToolBase
             // Confirm user's intentions.
             Formatter.DisplayWarning(Name,
                 Resources.GetLocalizedString("Remove_AllWarning"));
-            if (!UserConfirm()) _skipAction = true;
+            if (!UserConfirm())
+            {
+                _skipAction = true;
+                return;
+            }
             // Delete all.
             var commands = _loader.LoadCommands();
             // Guard against empty storage.

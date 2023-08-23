@@ -8,9 +8,6 @@
 /// </remarks>
 public class Args
 {
-    // Singleton none Args.
-    private static readonly Args _none = new("", "", new());
-
     /// <summary>
     /// Protected default constructor.
     /// </summary>
@@ -40,19 +37,18 @@ public class Args
     /// Argument (usually path) for the tool.
     /// </summary>
     /// <remarks>
-    /// Commands use <c>--options</c> flag.
+    /// Commands use [--options] flag.
     /// </remarks>
     public string Arg { get; protected set; } = string.Empty;
     /// <summary>
     /// List of all parsed flags.
     /// </summary>
     /// <remarks>
-    /// <c>--</c> starter is dropped.
+    /// [--] starter is dropped.
     /// </remarks>
     public List<Flag> Flags { get; } = new();
-
     /// <summary>
-    /// Points to empty Args object.
+    /// Points to the empty <c>Args</c> object.
     /// </summary>
-    public static Args None => _none;
+    public static Args None { get; } = new("", "", new());
 }
