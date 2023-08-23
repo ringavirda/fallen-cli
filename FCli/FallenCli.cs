@@ -13,7 +13,7 @@ namespace FCli;
 /// Fallen-cli facade class.
 /// </summary>
 /// <remarks>
-/// Implemented as background service for the app hosting container.
+/// Implemented as a service for the app hosting container.
 /// </remarks>
 public class FallenCli
 {
@@ -42,12 +42,12 @@ public class FallenCli
     }
 
     // Logging.
-    private static readonly Action<ILogger, string, Exception> InvalidOperation
+    private static readonly Action<ILogger, string, Exception> LogInvalidOperation
         = LoggerMessage.Define<string>(
             LogLevel.Warning,
             2,
             "Invalid operation: {Message}");
-    private static readonly Action<ILogger, string, Exception> Critical
+    private static readonly Action<ILogger, string, Exception> LogCritical
         = LoggerMessage.Define<string>(
             LogLevel.Critical,
             1,
@@ -97,7 +97,7 @@ public class FallenCli
                 }
                 catch (InvalidOperationException ex)
                 {
-                    InvalidOperation(
+                    LogInvalidOperation(
                         _logger,
                         "[FCli] User tried to invoke unsupported command.",
                         ex);
@@ -119,7 +119,7 @@ public class FallenCli
                     _resources.GetLocalizedString("FCli_CriticalError"),
                     ex.GetType().Name,
                     ex.Message));
-            Critical(
+            LogCritical(
                 _logger,
                 "[FCli] An unexpected or critical exception was thrown.",
                 ex);
