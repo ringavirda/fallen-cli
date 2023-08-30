@@ -23,9 +23,6 @@ public class DynamicConfig : StaticConfig
         ConfigFileName = "config.json";
         ConfigFilePath = Path.Combine(AppFolderPath, ConfigFileName);
 
-        // Load user settings.
-        LoadConfig();
-
         // Configure general constants.
         LogsPath = Path.Combine(
             AppFolderPath,
@@ -49,6 +46,9 @@ public class DynamicConfig : StaticConfig
         // Guard against uninitialized directory.
         if (!Directory.Exists(AppFolderPath))
             Directory.CreateDirectory(AppFolderPath);
+
+        // Load user settings.
+        LoadConfig();
 
         // Cleanup temporary files.
         TemporaryCleanup();
