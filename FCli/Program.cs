@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Reflection;
+using System.Text;
 
 using FCli;
 using FCli.Services;
@@ -49,6 +50,9 @@ var host = Host.CreateDefaultBuilder()
             CultureInfo.CurrentUICulture =
                 CultureInfo.CreateSpecificCulture("en");
         }
+        // Set console encoding to unicode.
+        Console.OutputEncoding = Encoding.UTF8;
+        Console.InputEncoding = Encoding.UTF8;
         // Check if need to use encryption for the user data.
         if (config.UseEncryption)
             services.AddSingleton<IIdentityManager, EncryptedIdentityManager>();
