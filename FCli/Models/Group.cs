@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 using FCli.Models.Dtos;
 
 namespace FCli.Models;
@@ -7,7 +5,6 @@ namespace FCli.Models;
 /// <summary>
 /// Abstraction for a sequence of commands.
 /// </summary>
-[JsonSerializable(typeof(Group))]
 public class Group : Command
 {
     /// <summary>
