@@ -49,7 +49,7 @@ public class RunTool : ToolBase
     // Overrides.
     public override string Name => "Run";
     public override string Description { get; }
-    public override List<string> Selectors => new() { "run", "r" };
+    public override List<string> Selectors => ["run", "r"];
     public override ToolType Type => ToolType.Run;
 
     protected override void GuardInit()

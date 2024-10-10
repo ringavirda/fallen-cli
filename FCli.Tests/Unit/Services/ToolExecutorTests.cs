@@ -1,6 +1,5 @@
 using FCli.Models.Types;
 using FCli.Services;
-using FCli.Services.Abstractions;
 using FCli.Services.Tools;
 using FCli.Tests.Fixtures;
 
@@ -12,7 +11,7 @@ namespace FCli.Tests.Unit.Services;
 public class ToolExecutorTests
 {
     private readonly ToolExecutor _testExecutor;
-    private readonly IArgsParser _argsParser;
+    private readonly ArgsParser _argsParser;
 
     public ToolExecutorTests(
         FormatterFixture formatter,
@@ -28,7 +27,7 @@ public class ToolExecutorTests
     [Fact]
     public void GenericExecutor_ParseType_ShouldParse()
     {
-        var args = _argsParser.ParseArgs(new string[] { "add test" });
+        var args = _argsParser.ParseArgs(["add test"]);
 
         var type = _testExecutor.ParseType(args);
 
@@ -41,7 +40,7 @@ public class ToolExecutorTests
     [InlineData("sel args")]
     public void GenericExecutor_ParseType_ShouldReturnNone(string cArgs)
     {
-        var args = _argsParser.ParseArgs(new string[] { cArgs });
+        var args = _argsParser.ParseArgs([cArgs]);
 
         var type = _testExecutor.ParseType(args);
 

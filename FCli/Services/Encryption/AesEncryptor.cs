@@ -8,15 +8,10 @@ namespace FCli.Services.Encryption;
 /// <summary>
 /// This class uses AES algorithm to encrypt and decrypt strings.
 /// </summary>
-public class AesEncryptor : IEncryptor
+public class AesEncryptor(IConfig config) : IEncryptor
 {
     // DI.
-    private readonly IConfig _config;
-
-    public AesEncryptor(IConfig config)
-    {
-        _config = config;
-    }
+    private readonly IConfig _config = config;
 
     /// <summary>
     /// Transforms given plain text into encrypted base64 string.

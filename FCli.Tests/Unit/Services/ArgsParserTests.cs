@@ -6,16 +6,12 @@ using FCli.Tests.Fixtures;
 namespace FCli.Tests.Unit.Services;
 
 [Collection("Common")]
-public class ArgsParserTests
+public class ArgsParserTests(
+    FormatterFixture formatter,
+    ResourcesFixture resources)
 {
-    private readonly IArgsParser _argsParser;
-
-    public ArgsParserTests(
-        FormatterFixture formatter,
-        ResourcesFixture resources)
-    {
-        _argsParser = new ArgsParser(formatter.Object, resources.Object);
-    }
+    private readonly ArgsParser _argsParser
+        = new(formatter.Object, resources.Object);
 
     [Fact]
     public void Args_Parse_EmptyString()

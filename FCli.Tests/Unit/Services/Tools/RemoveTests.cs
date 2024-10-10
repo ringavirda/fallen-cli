@@ -37,9 +37,7 @@ public class RemoveToolTests
     [Fact]
     public void Remove_ShouldHandleHelp()
     {
-        var act = () => _testTool.Execute(
-            "",
-            new List<Flag> { new Flag("help", "") });
+        var act = () => _testTool.Execute("", [new Flag("help", "")]);
 
         act.Should().NotThrow();
         _formatter.Verify(
@@ -50,7 +48,7 @@ public class RemoveToolTests
     [Fact]
     public void Remove_ShouldThrow_IfCommandIsUnknown()
     {
-        var act = () => _testTool.Execute("unknown", Enumerable.Empty<Flag>());
+        var act = () => _testTool.Execute("unknown", []);
 
         act.Should().Throw<ArgumentException>();
     }
@@ -61,8 +59,7 @@ public class RemoveToolTests
     public void Remove_FlagsHaveNoValue(string flag)
     {
         var act = () => _testTool.Execute(
-            _factory.Command1.Name,
-            new List<Flag>() { new Flag(flag, "value") });
+            _factory.Command1.Name, [new Flag(flag, "value")]);
 
         act.Should().Throw<FlagException>();
     }
@@ -71,8 +68,7 @@ public class RemoveToolTests
     public void Remove_ShouldThrow_IfUnknownFlag()
     {
         var act = () => _testTool.Execute(
-            _factory.Command1.Name,
-            new List<Flag>() { new Flag("unknown", "") });
+            _factory.Command1.Name, [new Flag("unknown", "")]);
 
         act.Should().Throw<FlagException>();
     }
@@ -83,9 +79,7 @@ public class RemoveToolTests
         _formatter
             .Setup(format => format.ReadUserInput("(yes/any)", false))
             .Returns("any");
-        var act = () => _testTool.Execute(
-            _factory.Command1.Name,
-            Enumerable.Empty<Flag>());
+        var act = () => _testTool.Execute(_factory.Command1.Name, []);
 
         act.Should().NotThrow();
         _loader.Verify(loader =>
@@ -98,8 +92,7 @@ public class RemoveToolTests
     public void Remove_ShouldDelete_IfYesFlag()
     {
         var act = () => _testTool.Execute(
-            _factory.Command1.Name,
-            new List<Flag>() { new Flag("yes", "") });
+            _factory.Command1.Name, [new Flag("yes", "")]);
 
         act.Should().NotThrow();
         _loader.Verify(loader =>
@@ -113,8 +106,7 @@ public class RemoveToolTests
         _formatter
             .Setup(format => format.ReadUserInput("(yes/any)", false))
             .Returns("yes");
-        var act = () => _testTool.Execute(
-            _factory.Command3.Name, Enumerable.Empty<Flag>());
+        var act = () => _testTool.Execute(_factory.Command3.Name, []);
 
         act.Should().NotThrow();
         _loader.Verify(loader =>
@@ -129,9 +121,7 @@ public class RemoveToolTests
         _formatter
             .Setup(format => format.ReadUserInput("(yes/any)", false))
             .Returns("yes");
-        var act = () => _testTool.Execute(
-            "",
-            new List<Flag>() { new Flag("all", "") });
+        var act = () => _testTool.Execute("", [new Flag("all", "")]);
 
         act.Should().NotThrow();
         _loader.Verify(loader =>
@@ -152,9 +142,7 @@ public class RemoveToolTests
         _formatter
             .Setup(format => format.ReadUserInput("(yes/any)", false))
             .Returns("any");
-        var act = () => _testTool.Execute(
-            "",
-            new List<Flag>() { new Flag("all", "") });
+        var act = () => _testTool.Execute("", [new Flag("all", "")]);
 
         act.Should().NotThrow();
         _loader.Verify(loader =>

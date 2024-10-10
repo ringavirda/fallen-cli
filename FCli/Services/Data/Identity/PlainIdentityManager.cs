@@ -10,16 +10,10 @@ namespace FCli.Services.Data.Identity;
 /// <summary>
 /// Uses json to store identities. Cashes values.
 /// </summary>
-public class PlainIdentityManager : IIdentityManager
+public class PlainIdentityManager(IConfig config) : IIdentityManager
 {
     // DI.
-    private readonly IConfig _config;
-
-
-    public PlainIdentityManager(IConfig config)
-    {
-        _config = config;
-    }
+    private readonly IConfig _config = config;
 
     protected IConfig Config => _config;
     protected IdentityStorage? IdentityCashe { get; set; }

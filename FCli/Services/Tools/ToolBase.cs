@@ -14,25 +14,19 @@ namespace FCli.Services.Tools;
 /// <remarks>
 /// Contains common properties and some guarding methods.
 /// </remarks>
-public abstract class ToolBase : ITool
+public abstract class ToolBase(
+    ICommandLineFormatter formatter,
+    IResources resources) : ITool
 {
     // DI needed by all tools.
-    private readonly ICommandLineFormatter _formatter;
-    private readonly IResources _resources;
+    private readonly ICommandLineFormatter _formatter = formatter;
+    private readonly IResources _resources = resources;
 
     /// <summary>
     /// Default constructor for the descriptors.
     /// </summary>
     public ToolBase()
         : this(null!, null!) { }
-
-    protected ToolBase(
-        ICommandLineFormatter formatter,
-        IResources resources)
-    {
-        _formatter = formatter;
-        _resources = resources;
-    }
 
     // From ITool interface.
 

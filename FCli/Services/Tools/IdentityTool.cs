@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text;
 
 using FCli.Exceptions;
 using FCli.Models;
@@ -399,12 +400,18 @@ public class IdentityTool : ToolBase
                         _request.Email));
             if (_root.IsRoot(Arg)
                 && ((RootUser)_original).Password != _request.Password)
+            {
+                var hiddenPassword = _root.Password
+                    .Select(c => c == ' ' ? c : '*')
+                    .Aggregate(new StringBuilder(), (sb, c) => sb.Append(c))
+                    .ToString();
                 Formatter.DisplayMessage(
                     string.Format(
                         CultureInfo.CurrentCulture,
                         Resources.GetLocalizedString("Identity_OverridePassword"),
-                        _root.Password,
+                        hiddenPassword,
                         _request.Password));
+            }
             if (!_original.Aliases.All(a => _request.Aliases.Contains(a)))
                 Formatter.DisplayMessage(
                     string.Format(

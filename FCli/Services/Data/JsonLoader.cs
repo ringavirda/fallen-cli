@@ -110,7 +110,7 @@ public class JsonLoader : ICommandLoader
         var commands = _commandCashe ?? LoadCommands();
         // Guard against empty storage.
         if (commands == null)
-            _commandCashe = new List<Command> { command };
+            _commandCashe = [command];
         else commands.Add(command);
         // This method rewrites the whole command storage.
         RefreshStorage();

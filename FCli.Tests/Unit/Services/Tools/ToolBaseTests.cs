@@ -7,7 +7,9 @@ using FCli.Tests.Fixtures;
 namespace FCli.Tests.Unit.Services.Tools;
 
 [Collection("Common")]
-public class ToolBaseTests : ToolBase
+public class ToolBaseTests(
+    FormatterFixture formatter,
+    ResourcesFixture resources) : ToolBase(formatter.Object, resources.Object)
 {
     public override string Name => "Test";
 
@@ -16,12 +18,6 @@ public class ToolBaseTests : ToolBase
     public override List<string> Selectors => new();
 
     public override ToolType Type => ToolType.None;
-
-    public ToolBaseTests(
-        FormatterFixture formatter,
-        ResourcesFixture resources)
-        : base(formatter.Object, resources.Object)
-    { }
 
     [Fact]
     public void Tool_FlagHasValue_Value()

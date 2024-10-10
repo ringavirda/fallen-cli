@@ -15,22 +15,15 @@ namespace FCli.Services;
 /// <remarks>
 /// Supports Windows and Linux operating systems.
 /// </remarks>
-public class SystemSpecificFactory : ICommandFactory
+public class SystemSpecificFactory(
+    ICommandLoader commandLoader,
+    ICommandLineFormatter formatter,
+    IResources resources) : ICommandFactory
 {
     // DI.
-    private readonly ICommandLoader _loader;
-    private readonly ICommandLineFormatter _formatter;
-    private readonly IResources _resources;
-
-    public SystemSpecificFactory(
-        ICommandLoader commandLoader,
-        ICommandLineFormatter formatter,
-        IResources resources)
-    {
-        _loader = commandLoader;
-        _formatter = formatter;
-        _resources = resources;
-    }
+    private readonly ICommandLoader _loader = commandLoader;
+    private readonly ICommandLineFormatter _formatter = formatter;
+    private readonly IResources _resources = resources;
 
     /// <summary>
     /// Loads command from storage and reconstructs it using OS specific templates.

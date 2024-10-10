@@ -7,15 +7,10 @@ namespace FCli.Services.Format;
 /// <summary>
 /// Command line formatter that uses multiline messages and colors.
 /// </summary>
-public class PrettyFormatter : ICommandLineFormatter
+public class PrettyFormatter(IResources resources) : ICommandLineFormatter
 {
     // DI.
-    private readonly IResources _resources;
-
-    public PrettyFormatter(IResources resources)
-    {
-        _resources = resources;
-    }
+    private readonly IResources _resources = resources;
 
     // Private data.
     private bool _progress;
