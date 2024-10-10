@@ -8,6 +8,6 @@ public class IdentityStorage
     public static readonly string StaticCheckSum = "This should be correct";
     public string CheckSum { get; } = StaticCheckSum;
     public RootUser RootUser { get; set; } = new();
-    public List<Contact> Contacts { get; set; } = new();
+    public List<Contact> Contacts { get; set; } = [];
     public string PassFileName { get; set; } = string.Empty;
 }

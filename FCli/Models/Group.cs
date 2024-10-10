@@ -10,7 +10,7 @@ public class Group : Command
     /// <summary>
     /// Command designators, stored in an execution sequence.
     /// </summary>
-    public List<string> Sequence { get; init; } = new();
+    public List<string> Sequence { get; init; } = [];
 
     /// <summary>
     /// Transforms this group to an alteration request.

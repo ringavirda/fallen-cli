@@ -10,19 +10,13 @@ namespace FCli.Services;
 /// <summary>
 /// Generic implementation of ToolExecutor.
 /// </summary>
-public class ToolExecutor : IToolExecutor
+public class ToolExecutor(
+    ILogger<ToolExecutor> logger,
+    IEnumerable<ITool> tools) : IToolExecutor
 {
     // DI.
-    private readonly ILogger<ToolExecutor> _logger;
-    private readonly IEnumerable<ITool> _tools;
-
-    public ToolExecutor(
-        ILogger<ToolExecutor> logger,
-        IEnumerable<ITool> tools)
-    {
-        _logger = logger;
-        _tools = tools;
-    }
+    private readonly ILogger<ToolExecutor> _logger = logger;
+    private readonly IEnumerable<ITool> _tools = tools;
 
     // Logging.
     private static readonly Action<ILogger, string, Exception> LogArgument

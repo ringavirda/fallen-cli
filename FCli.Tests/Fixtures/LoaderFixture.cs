@@ -23,12 +23,12 @@ public class LoaderFixture : Mock<ICommandLoader>,
         Setup(loader => loader.LoadCommand(factory.Command3.Name))
             .Returns(factory.Command3);
         Setup(loader => loader.LoadCommands())
-            .Returns(new List<Command>()
-            {
+            .Returns(
+            [
                 factory.Command1,
                 factory.Command2,
                 factory.Command3
-            });
+            ]);
         Setup(loader => loader.CommandExists(factory.Command1.Name))
             .Returns(true);
         Setup(loader => loader.CommandExists(factory.Command2.Name))

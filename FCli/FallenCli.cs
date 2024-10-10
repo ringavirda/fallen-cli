@@ -15,31 +15,21 @@ namespace FCli;
 /// <remarks>
 /// Implemented as a service for the app hosting container.
 /// </remarks>
-public class FallenCli
+public class FallenCli(
+    ICommandLineFormatter formatter,
+    IResources resources,
+    ILogger<FallenCli> logger,
+    IArgsParser args,
+    IToolExecutor toolExecutor,
+    ICommandFactory commandFactory)
 {
     // DI.
-    private readonly ICommandLineFormatter _formatter;
-    private readonly IResources _resources;
-    private readonly ILogger<FallenCli> _logger;
-    private readonly IArgsParser _args;
-    private readonly IToolExecutor _executor;
-    private readonly ICommandFactory _factory;
-
-    public FallenCli(
-        ICommandLineFormatter formatter,
-        IResources resources,
-        ILogger<FallenCli> logger,
-        IArgsParser args,
-        IToolExecutor toolExecutor,
-        ICommandFactory commandFactory)
-    {
-        _formatter = formatter;
-        _resources = resources;
-        _logger = logger;
-        _args = args;
-        _executor = toolExecutor;
-        _factory = commandFactory;
-    }
+    private readonly ICommandLineFormatter _formatter = formatter;
+    private readonly IResources _resources = resources;
+    private readonly ILogger<FallenCli> _logger = logger;
+    private readonly IArgsParser _args = args;
+    private readonly IToolExecutor _executor = toolExecutor;
+    private readonly ICommandFactory _factory = commandFactory;
 
     // Logging.
     private static readonly Action<ILogger, string, Exception> LogInvalidOperation

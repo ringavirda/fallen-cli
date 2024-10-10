@@ -50,12 +50,7 @@ public class AddToolTests :
     [Fact]
     public void Add_HandleHelp()
     {
-        var act = () => _testTool.Execute(
-            "",
-            new List<Flag>()
-            {
-                new Flag("help", "")
-            });
+        var act = () => _testTool.Execute("", [new Flag("help", "")]);
 
         act.Should().NotThrow();
         _formatter.Verify(formatter =>
@@ -65,12 +60,7 @@ public class AddToolTests :
     [Fact]
     public void Add_ShouldHaveArg()
     {
-        var act = () => _testTool.Execute(
-            "",
-            new List<Flag>()
-            {
-                new Flag("flag", "")
-            });
+        var act = () => _testTool.Execute("", [new Flag("flag", "")]);
 
         act.Should().Throw<ArgumentException>();
     }
@@ -78,13 +68,11 @@ public class AddToolTests :
     [Fact]
     public void Add_ShouldHaveOnlyOneTypeFlag()
     {
-        var act = () => _testTool.Execute(
-            "test",
-            new List<Flag>()
-            {
+        var act = () => _testTool.Execute("test",
+            [
                 new Flag("exe", ""),
                 new Flag("url", "")
-            });
+            ]);
 
         act.Should().Throw<FlagException>();
     }
@@ -95,9 +83,7 @@ public class AddToolTests :
         var name = "testName";
         var path = Path.Combine(_config.TestFilesPath, _config.BashScriptName);
 
-        _testTool.Execute(
-            path,
-            new List<Flag>() { new Flag("name", name) });
+        _testTool.Execute(path, [new Flag("name", name)]);
 
         _factory.Verify(factory => factory.Construct(
             It.Is<CommandAlterRequest>(req =>
@@ -114,9 +100,7 @@ public class AddToolTests :
         var options = "testOptions";
         var path = Path.Combine(_config.TestFilesPath, _config.BashScriptName);
 
-        _testTool.Execute(
-            path,
-            new List<Flag>() { new Flag("options", options) });
+        _testTool.Execute(path, [new Flag("options", options)]);
 
         var commandName = _config.BashScriptName.Split('.')[0];
         _factory.Verify(factory => factory.Construct(
@@ -134,13 +118,11 @@ public class AddToolTests :
         var options = "testOptions";
         var path = Path.Combine(_config.TestFilesPath, _config.BashScriptName);
 
-        _testTool.Execute(
-            path,
-            new List<Flag>()
-            {
+        _testTool.Execute(path,
+            [
                 new Flag("name", name),
                 new Flag("options", options)
-            });
+            ]);
 
         _factory.Verify(factory => factory.Construct(
             It.Is<CommandAlterRequest>(req =>
@@ -170,14 +152,12 @@ public class AddToolTests :
             ? "https://somwhere.com"
             : Path.Combine(_config.TestFilesPath, _config.PSScriptName);
 
-        var act = () => _testTool.Execute(
-            path,
-            new List<Flag>()
-            {
+        var act = () => _testTool.Execute(path,
+            [
                 new Flag("name", name),
                 new Flag("options", options),
                 new Flag(flag, value)
-            });
+            ]);
 
         if (Environment.OSVersion.Platform == PlatformID.Unix
             && commandType == CommandType.Script
@@ -187,6 +167,7 @@ public class AddToolTests :
             return;
         }
         act();
+
         _factory.Verify(factory => factory.Construct(
             It.Is<CommandAlterRequest>(req =>
                 req.Name == name
@@ -204,14 +185,12 @@ public class AddToolTests :
         var options = "testOptions";
         var path = "https://somwhere.com";
 
-        var act = () => _testTool.Execute(
-            path,
-            new List<Flag>
-            {
+        var act = () => _testTool.Execute(path,
+            [
                 new Flag("name", name),
                 new Flag("options", options),
                 new Flag("unknown", "")
-            });
+            ]);
 
         act.Should().Throw<FlagException>();
     }
@@ -223,14 +202,12 @@ public class AddToolTests :
         var options = "testOptions";
         var path = Path.Combine(_config.TestFilesPath, _config.BashScriptName);
 
-        var act = () => _testTool.Execute(
-            path,
-            new List<Flag>()
-            {
+        var act = () => _testTool.Execute(path,
+            [
                 new Flag("name", name),
                 new Flag("options", options),
                 new Flag("script", "unknown")
-            });
+            ]);
 
         act.Should().Throw<ArgumentException>();
     }
@@ -242,20 +219,19 @@ public class AddToolTests :
         var options = "testOptions";
         var path = Path.Combine(_config.TestFilesPath, _config.BashScriptName);
 
-        var act = () => _testTool.Execute(
-            path,
-            new List<Flag>()
-            {
+        var act = () => _testTool.Execute(path,
+            [
                 new Flag("name", name),
                 new Flag("options", options),
                 new Flag("script", "cmd")
-            });
+            ]);
 
         if (Environment.OSVersion.Platform == PlatformID.Unix)
             act.Should().Throw<ArgumentException>();
         else
         {
             act();
+
             _factory.Verify(factory =>
                 factory.Construct(It.Is<CommandAlterRequest>(req =>
                     req.Name == name
@@ -276,14 +252,12 @@ public class AddToolTests :
         var options = "testOptions";
         var path = Path.Combine(_config.TestFilesPath, _config.CmdScriptName);
 
-        var act = () => _testTool.Execute(
-            path,
-            new List<Flag>()
-            {
+        var act = () => _testTool.Execute(path,
+            [
                 new Flag("name", name),
                 new Flag("options", options),
                 new Flag(flag, "value")
-            });
+            ]);
 
         act.Should().Throw<FlagException>();
     }
@@ -295,7 +269,7 @@ public class AddToolTests :
     [InlineData("http://anyone.com/some/", "anyone")]
     public void Add_ParseUrl(string url, string name)
     {
-        _testTool.Execute(url, Enumerable.Empty<Flag>());
+        _testTool.Execute(url, []);
 
         _factory.Verify(factory =>
             factory.Construct(It.Is<CommandAlterRequest>(req =>
@@ -324,7 +298,7 @@ public class AddToolTests :
         };
         var path = Path.Combine(_config.TestFilesPath, fileName);
 
-        var act = () => _testTool.Execute(path, Enumerable.Empty<Flag>());
+        var act = () => _testTool.Execute(path, []);
 
         if (fileName != _config.TxtName)
         {
@@ -353,7 +327,7 @@ public class AddToolTests :
     [Fact]
     public void Add_ShouldTrow_IfUnknownArg()
     {
-        var act = () => _testTool.Execute("unknown", Enumerable.Empty<Flag>());
+        var act = () => _testTool.Execute("unknown", []);
 
         act.Should().Throw<ArgumentException>();
     }
@@ -369,9 +343,7 @@ public class AddToolTests :
     {
         var path = Path.Combine(_config.TestFilesPath, _config.CmdScriptName);
 
-        var act = () => _testTool.Execute(
-            path,
-            new List<Flag>() { new Flag("name", name) });
+        var act = () => _testTool.Execute(path, [new Flag("name", name)]);
 
         act.Should().Throw<ArgumentException>();
     }
@@ -383,9 +355,7 @@ public class AddToolTests :
         {
             var path = Path.Combine(_config.TestFilesPath, _config.ExecutableName);
 
-            var act = () => _testTool.Execute(
-                path,
-                new List<Flag>() { new Flag("script", "cmd"), });
+            var act = () => _testTool.Execute(path, [new Flag("script", "cmd"),]);
 
             act.Should().Throw<ArgumentException>();
         }
@@ -394,14 +364,12 @@ public class AddToolTests :
     [Fact]
     public void Add_ShouldSaveCommand()
     {
-        _testTool.Execute(
-            _factory.CommandSavable.Path,
-            new List<Flag>()
-            {
+        _testTool.Execute(_factory.CommandSavable.Path,
+            [
                 new Flag("name", _factory.CommandSavable.Name),
                 new Flag("options", _factory.CommandSavable.Options),
                 new Flag("script", "bash")
-            });
+            ]);
 
         _factory.Verify(factory =>
             factory.Construct(It.Is<CommandAlterRequest>(req =>

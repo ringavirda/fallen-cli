@@ -1,14 +1,13 @@
 using FCli.Exceptions;
-using FCli.Services.Abstractions;
 using FCli.Services.Data;
 using FCli.Tests.Fixtures;
 
-namespace FCli.Tests.Unit.Services.Storage;
+namespace FCli.Tests.Unit.Services.Data;
 
 [Collection("Common")]
 public class JsonLoaderTests : IClassFixture<FactoryFixture>, IDisposable
 {
-    private readonly ICommandLoader _testLoader;
+    private readonly JsonLoader _testLoader;
     private readonly ConfigFixture _config;
     private readonly FactoryFixture _factory;
 

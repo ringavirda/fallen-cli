@@ -11,7 +11,9 @@ namespace FCli.Services;
 /// <remarks>
 /// Parses command line args differently if they are flat.
 /// </remarks>
-public partial class ArgsParser : Args, IArgsParser
+public partial class ArgsParser(
+    ICommandLineFormatter formatter,
+    IResources resources) : Args(), IArgsParser
 {
     // Regex needed to parse quoted strings.
     // Because of this Args class is partial.
@@ -22,15 +24,8 @@ public partial class ArgsParser : Args, IArgsParser
     private static partial Regex IsPath();
 
     // DI.
-    private readonly ICommandLineFormatter _formatter;
-    private readonly IResources _resources;
-
-    public ArgsParser(ICommandLineFormatter formatter, IResources resources)
-        : base()
-    {
-        _formatter = formatter;
-        _resources = resources;
-    }
+    private readonly ICommandLineFormatter _formatter = formatter;
+    private readonly IResources _resources = resources;
 
     /// <summary>
     /// Attempts to parse given command line args.

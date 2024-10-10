@@ -46,9 +46,9 @@ public class Args
     /// <remarks>
     /// [--] starter is dropped.
     /// </remarks>
-    public List<Flag> Flags { get; } = new();
+    public List<Flag> Flags { get; } = [];
     /// <summary>
     /// Points to the empty <c>Args</c> object.
     /// </summary>
-    public static Args None { get; } = new("", "", new());
+    public static Args None { get; } = new("", "", []);
 }

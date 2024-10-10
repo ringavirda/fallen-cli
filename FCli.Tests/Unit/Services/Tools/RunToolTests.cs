@@ -39,9 +39,7 @@ public class RunToolTests
     [Fact]
     public void Run_ShouldHandleHelp()
     {
-        var act = () => _testTool.Execute(
-            "",
-            new List<Flag>() { new Flag("help", "") });
+        var act = () => _testTool.Execute("", [new Flag("help", "")]);
 
         act.Should().NotThrow();
         _formatter.Verify(
@@ -52,7 +50,7 @@ public class RunToolTests
     [Fact]
     public void Run_ShouldThrow_IfNoArg()
     {
-        var act = () => _testTool.Execute("", Enumerable.Empty<Flag>());
+        var act = () => _testTool.Execute("", []);
 
         act.Should().Throw<ArgumentException>();
     }
@@ -60,7 +58,7 @@ public class RunToolTests
     [Fact]
     public void Run_ShouldThrow_IfNoTypeFlags()
     {
-        var act = () => _testTool.Execute("command", Enumerable.Empty<Flag>());
+        var act = () => _testTool.Execute("command", []);
 
         act.Should().Throw<ArgumentException>();
     }
@@ -68,13 +66,11 @@ public class RunToolTests
     [Fact]
     public void Run_ShouldThrow_IfMultipleTypeArgs()
     {
-        var act = () => _testTool.Execute(
-            "arg",
-            new List<Flag>()
-            {
+        var act = () => _testTool.Execute("arg",
+            [
                 new Flag("exe", ""),
                 new Flag("url", "")
-            });
+            ]);
 
         act.Should().Throw<FlagException>();
     }
@@ -84,12 +80,7 @@ public class RunToolTests
     [InlineData("url")]
     public void Run_FlagsHaveNoValue(string flag)
     {
-        var act = () => _testTool.Execute(
-            "arg", new
-            List<Flag>()
-            {
-                new Flag(flag, "value")
-            });
+        var act = () => _testTool.Execute("arg", [new Flag(flag, "value")]);
 
         act.Should().Throw<FlagException>();
     }
@@ -99,12 +90,7 @@ public class RunToolTests
     [InlineData("options")]
     public void Run_FlagsHaveValue(string flag)
     {
-        var act = () => _testTool.Execute(
-            "arg",
-            new List<Flag>()
-            {
-                new Flag(flag, "")
-            });
+        var act = () => _testTool.Execute("arg", [new Flag(flag, "")]);
 
         act.Should().Throw<FlagException>();
     }
@@ -125,13 +111,11 @@ public class RunToolTests
         var path = commandType == CommandType.Website
             ? "https://google.com/"
             : Path.Combine(_config.TestFilesPath, _config.ExecutableName);
-        var act = () => _testTool.Execute(
-            path,
-            new List<Flag>()
-            {
+        var act = () => _testTool.Execute(path,
+            [
                 new Flag(flag, value),
                 new Flag("options", "option")
-            });
+            ]);
 
         if (!(commandType == CommandType.Script && shellType == ShellType.None))
         {

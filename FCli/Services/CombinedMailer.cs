@@ -16,22 +16,15 @@ namespace FCli.Services;
 /// <summary>
 /// Uses both SMTP and IMAP to manage mail.
 /// </summary>
-public class CombinedMailer : IMailer
+public class CombinedMailer(
+    ICommandLineFormatter formatter,
+    IResources resources,
+    IIdentityManager identity) : IMailer
 {
     // DI.
-    private readonly ICommandLineFormatter _formatter;
-    private readonly IResources _resources;
-    private readonly IIdentityManager _identity;
-
-    public CombinedMailer(
-        ICommandLineFormatter formatter,
-        IResources resources,
-        IIdentityManager identity)
-    {
-        _formatter = formatter;
-        _resources = resources;
-        _identity = identity;
-    }
+    private readonly ICommandLineFormatter _formatter = formatter;
+    private readonly IResources _resources = resources;
+    private readonly IIdentityManager _identity = identity;
 
     // Private data.
     private string _smtpHost = string.Empty;

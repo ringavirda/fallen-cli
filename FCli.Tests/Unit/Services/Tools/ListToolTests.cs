@@ -38,9 +38,7 @@ public class ListToolTests
     [Fact]
     public void List_HandleHelp()
     {
-        var act = () => _testTool.Execute(
-            "",
-            new List<Flag>() { new Flag("help", "") });
+        var act = () => _testTool.Execute("", [new Flag("help", "")]);
 
         act.Should().NotThrow();
         _formatter.Verify(formatter =>
@@ -50,9 +48,7 @@ public class ListToolTests
     [Fact]
     public void List_NoFlags_DisplayAll()
     {
-        var act = () => _testTool.Execute(
-            "",
-            Enumerable.Empty<Flag>());
+        var act = () => _testTool.Execute("", []);
         _loader.Invocations.Clear();
 
         act.Should().NotThrow();
@@ -66,9 +62,7 @@ public class ListToolTests
     [InlineData("script")]
     public void List_FlagsHaveNoValue(string flag)
     {
-        var act = () => _testTool.Execute(
-            "",
-            new List<Flag>() { new Flag(flag, "value") });
+        var act = () => _testTool.Execute("", [new Flag(flag, "value")]);
 
         act.Should().Throw<FlagException>();
     }
@@ -80,9 +74,7 @@ public class ListToolTests
     [InlineData("tools")]
     public void List_ParseFlags(string flag)
     {
-        var act = () => _testTool.Execute(
-            "",
-            new List<Flag>() { new Flag(flag, "") });
+        var act = () => _testTool.Execute("", [new Flag(flag, "")]);
 
         act.Should().NotThrow();
         if (flag == "tool")
@@ -94,9 +86,7 @@ public class ListToolTests
     [Fact]
     public void List_ShouldThrow_IfUnknownFlag()
     {
-        var act = () => _testTool.Execute(
-            "",
-            new List<Flag>() { new Flag("unknown", "") });
+        var act = () => _testTool.Execute("", [new Flag("unknown", "")]);
 
         act.Should().Throw<FlagException>();
     }
@@ -104,9 +94,7 @@ public class ListToolTests
     [Fact]
     public void List_Arg_ShouldAcceptAsFilter()
     {
-        var act = () => _testTool.Execute(
-            "filter",
-            Enumerable.Empty<Flag>());
+        var act = () => _testTool.Execute("filter", []);
 
         act.Should().NotThrow();
     }

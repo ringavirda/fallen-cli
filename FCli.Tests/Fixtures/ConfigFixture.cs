@@ -32,24 +32,23 @@ public class ConfigFixture : Mock<IConfig>
         SetupGet(cnf => cnf.AppFolderPath).Returns(FolderName);
         SetupGet(cnf => cnf.StorageFileName).Returns(StorageFileName);
         SetupGet(cnf => cnf.StorageFilePath).Returns(StoragePath);
-        SetupGet(cnf => cnf.KnownTools).Returns(new List<IToolDescriptor>()
-        {
+        SetupGet(cnf => cnf.KnownTools).Returns(
+        [
             new AddTool(), new ListTool(), new RemoveTool(), new RunTool()
-        });
+        ]);
         SetupGet(cnf => cnf.KnownCommands).Returns(
-            new List<IConfig.CommandDescriptor>()
-            {
-                new ("exe",CommandType.Executable,false,".exe"),
-                new ("url",CommandType.Website,false,null),
-                new ("script",CommandType.Script,true,null),
-                new ("dir",CommandType.Directory,false,null)
-            });
-        SetupGet(cnf => cnf.KnownShells).Returns(new List<IConfig.ShellDescriptor>()
-        {
+        [
+            new ("exe",CommandType.Executable,false,".exe"),
+            new ("url",CommandType.Website,false,null),
+            new ("script",CommandType.Script,true,null),
+            new ("dir",CommandType.Directory,false,null)
+        ]);
+        SetupGet(cnf => cnf.KnownShells).Returns(
+        [
             new("bash", ShellType.Bash, ".sh"),
             new("cmd", ShellType.Cmd, ".bat"),
             new("powershell", ShellType.Powershell, ".ps1"),
             new("fish", ShellType.Fish, ".fish")
-        });
+        ]);
     }
 }

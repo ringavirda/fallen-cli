@@ -10,17 +10,12 @@ namespace FCli.Services.Data;
 /// <summary>
 /// Uses ResourceManager class to load strings from app resources.
 /// </summary>
-public class StringResources : IResources
+public class StringResources(IConfig config) : IResources
 {
     // Configured resource manager.
-    private readonly ResourceManager _manager;
-
-    public StringResources(IConfig config)
-    {
-        _manager = new ResourceManager(
+    private readonly ResourceManager _manager = new ResourceManager(
             config.StringsResourceLocation,
             Assembly.GetExecutingAssembly());
-    }
 
     /// <summary>
     /// Uses resource manager to extract string according to user's locale.
